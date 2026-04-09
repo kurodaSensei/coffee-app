@@ -52,8 +52,9 @@ export interface Roaster {
 export interface Coffee {
   id: string
   name: string
-  roasterId: string
-  roasterName: string
+  roasterId?: string
+  roasterName?: string
+  brand?: string
   variety: string
   process: CoffeeProcess
   originRegion: string

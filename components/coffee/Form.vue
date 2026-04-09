@@ -19,6 +19,7 @@ const form = reactive({
   name: props.initialData?.name ?? '',
   roasterId: props.initialData?.roasterId ?? '',
   roasterName: props.initialData?.roasterName ?? '',
+  brand: props.initialData?.brand ?? '',
   variety: props.initialData?.variety ?? '',
   process: (props.initialData?.process ?? 'washed') as CoffeeProcess,
   originCountry: props.initialData?.originCountry ?? 'Colombia',
@@ -81,8 +82,11 @@ function onSubmit() {
   if (!validate()) return
   emit('submit', {
     ...form,
+    roasterId: form.roasterId || undefined,
+    roasterName: form.roasterName || undefined,
+    brand: form.brand || undefined,
     altitude: form.altitude || undefined,
-    scaScore: form.scaScore || undefined,
+    scaScore: form.scaScore ? Number(form.scaScore) : undefined,
     price: form.price || undefined,
     weight: form.weight || undefined,
     roastLevel: form.roastLevel || undefined,
@@ -101,7 +105,7 @@ function onSubmit() {
           <Icon name="lucide:coffee" class="w-5 h-5 text-muted-foreground" />
           Información básica
         </h3>
-        <p class="text-sm text-muted-foreground mt-0.5">Nombre, tostador, variedad y proceso</p>
+        <p class="text-sm text-muted-foreground mt-0.5">Nombre, tostador, marca, variedad y proceso</p>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="space-y-1.5">
@@ -111,6 +115,10 @@ function onSubmit() {
         </div>
         <div class="space-y-1.5">
           <RoasterSelect v-model="form.roasterId" @update:roaster-name="onRoasterNameUpdate" />
+        </div>
+        <div class="space-y-1.5">
+          <Label for="coffee-brand">Marca</Label>
+          <Input id="coffee-brand" v-model="form.brand" placeholder="Ej: Selvanegra, Libertario..." />
         </div>
         <div class="space-y-1.5">
           <div class="flex items-center justify-between">
@@ -206,7 +214,7 @@ function onSubmit() {
         </div>
         <div class="space-y-1.5">
           <Label for="coffee-sca">Puntaje SCA</Label>
-          <Input id="coffee-sca" v-model="form.scaScore" type="number" placeholder="80 – 100" />
+          <Input id="coffee-sca" v-model="form.scaScore" type="number" step="0.1" placeholder="Ej: 86.5" />
         </div>
         <div class="space-y-1.5">
           <Label for="coffee-price">Precio (COP)</Label>

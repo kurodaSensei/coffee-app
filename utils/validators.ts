@@ -28,8 +28,9 @@ export const roasterSchema = z.object({
 
 export const coffeeSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
-  roasterId: z.string().min(1, 'El tostador es requerido'),
-  roasterName: z.string(),
+  roasterId: z.string().optional(),
+  roasterName: z.string().optional(),
+  brand: z.string().optional(),
   variety: z.string().min(1, 'La variedad es requerida'),
   process: z.enum(['washed', 'natural', 'honey', 'anaerobic', 'carbonic', 'experimental', 'other']),
   originRegion: z.string().min(1, 'La región es requerida'),
@@ -37,7 +38,7 @@ export const coffeeSchema = z.object({
   originFarm: z.string().optional(),
   originProducer: z.string().optional(),
   altitude: z.number().positive().optional(),
-  scaScore: z.number().min(80).max(100).optional(),
+  scaScore: z.number().min(60).max(100).optional(),
   roastLevel: z.enum(['light', 'medium_light', 'medium', 'medium_dark', 'dark']).optional(),
   price: z.number().positive().optional(),
   weight: z.number().positive().optional(),
