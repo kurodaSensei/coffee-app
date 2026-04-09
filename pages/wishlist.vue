@@ -4,8 +4,8 @@ import { PRIORITY_OPTIONS, WISHLIST_STATUS_OPTIONS } from '~/utils/constants'
 
 const wishlistStore = useWishlistStore()
 
-const showAddModal = ref(false)
-const activeTab = ref<'all' | WishlistStatus>('all')
+const showAddDialog = ref(false)
+const activeTab = ref('all')
 
 const form = reactive({
   coffeeName: '',
@@ -25,32 +25,30 @@ const filteredItems = computed(() => {
   return wishlistStore.list.filter((item) => item.status === activeTab.value)
 })
 
-const tabs = [
-  { key: 'all' as const, label: 'Todos' },
-  { key: 'pending' as const, label: 'Pendiente' },
-  { key: 'purchased' as const, label: 'Comprado' },
-  { key: 'unavailable' as const, label: 'No disponible' },
-]
-
-function getStatusOption(status: WishlistStatus) {
-  return WISHLIST_STATUS_OPTIONS.find((o) => o.value === status)
-}
-
 function getPriorityLabel(priority: number) {
   return PRIORITY_OPTIONS.find((o) => o.value === priority)?.label ?? ''
 }
 
-function getPriorityColor(priority: number): 'gray' | 'green' | 'blue' | 'yellow' | 'red' {
-  if (priority <= 1) return 'gray'
-  if (priority === 2) return 'green'
-  if (priority === 3) return 'blue'
-  if (priority === 4) return 'yellow'
-  return 'red'
+function getPriorityVariant(priority: number): 'default' | 'secondary' | 'destructive' | 'outline' {
+  if (priority >= 4) return 'destructive'
+  if (priority === 3) return 'default'
+  return 'secondary'
 }
 
-function getStatusColor(status: WishlistStatus): 'yellow' | 'green' | 'gray' {
-  const opt = getStatusOption(status)
-  return (opt?.color as 'yellow' | 'green' | 'gray') ?? 'gray'
+function getStatusVariant(status: WishlistStatus): 'default' | 'secondary' | 'outline' {
+  if (status === 'purchased') return 'default'
+  if (status === 'pending') return 'secondary'
+  return 'outline'
+}
+
+function getStatusLabel(status: WishlistStatus) {
+  return WISHLIST_STATUS_OPTIONS.find((o) => o.value === status)?.label ?? status
+}
+
+function getStatusIcon(status: WishlistStatus) {
+  if (status === 'purchased') return 'lucide:check-circle-2'
+  if (status === 'pending') return 'lucide:clock'
+  return 'lucide:x-circle'
 }
 
 function resetForm() {
@@ -73,7 +71,7 @@ async function onSubmitAdd() {
       priority: form.priority,
       status: form.status,
     })
-    showAddModal.value = false
+    showAddDialog.value = false
     resetForm()
   } catch {
     // error handled by store
@@ -90,165 +88,224 @@ async function removeItem(item: WishlistItem) {
 </script>
 
 <template>
-  <div>
-    <LayoutPageHeader title="Wishlist" subtitle="Cafes que quieres probar">
-      <template #actions>
-        <UiButton @click="showAddModal = true">
-          <Icon name="heroicons:plus" class="w-5 h-5 mr-1" />
-          Agregar
-        </UiButton>
-      </template>
-    </LayoutPageHeader>
+  <div class="space-y-6">
+    <LayoutHeader title="Wishlist" subtitle="Cafes que quieres probar">
+      <Button @click="showAddDialog = true">
+        <Icon name="lucide:plus" class="w-4 h-4" />
+        Agregar
+      </Button>
+    </LayoutHeader>
 
     <!-- Filter tabs -->
-    <div class="mt-6 flex gap-1 bg-coffee-100 rounded-lg p-1 w-fit">
-      <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        :class="[
-          'px-4 py-2 text-sm font-medium rounded-md transition-colors duration-150',
-          activeTab === tab.key
-            ? 'bg-white text-coffee-900 shadow-sm'
-            : 'text-coffee-600 hover:text-coffee-800',
-        ]"
-        @click="activeTab = tab.key"
-      >
-        {{ tab.label }}
-      </button>
+    <Tabs v-model="activeTab" class="w-full">
+      <TabsList class="grid w-full grid-cols-4 max-w-lg">
+        <TabsTrigger value="all">Todos</TabsTrigger>
+        <TabsTrigger value="pending">Pendiente</TabsTrigger>
+        <TabsTrigger value="purchased">Comprado</TabsTrigger>
+        <TabsTrigger value="unavailable">No disponible</TabsTrigger>
+      </TabsList>
+    </Tabs>
+
+    <!-- Loading -->
+    <div v-if="wishlistStore.loading" class="flex flex-col items-center justify-center py-16">
+      <Icon name="lucide:loader-2" class="w-8 h-8 text-primary animate-spin" />
+      <p class="mt-3 text-sm text-muted-foreground">Cargando wishlist...</p>
     </div>
 
-    <div v-if="wishlistStore.loading" class="mt-8 text-center text-coffee-500">
-      Cargando...
-    </div>
-
-    <div v-else-if="filteredItems.length === 0" class="mt-8 text-center py-12">
-      <Icon name="heroicons:heart" class="w-12 h-12 text-coffee-300 mx-auto" />
-      <h3 class="mt-4 text-lg font-medium text-coffee-800">
+    <!-- Empty state -->
+    <div v-else-if="filteredItems.length === 0" class="text-center py-16">
+      <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+        <Icon name="lucide:heart" class="w-8 h-8 text-muted-foreground/50" />
+      </div>
+      <h3 class="font-medium text-foreground">
         {{ activeTab === 'all' ? 'Wishlist vacia' : 'Sin resultados' }}
       </h3>
-      <p class="mt-2 text-sm text-coffee-500">
+      <p class="text-sm text-muted-foreground mt-1">
         {{ activeTab === 'all' ? 'Agrega cafes que te gustaria probar.' : 'No hay items con este estado.' }}
       </p>
-      <UiButton v-if="activeTab === 'all'" class="mt-4" @click="showAddModal = true">
-        <Icon name="heroicons:plus" class="w-5 h-5 mr-1" />
+      <Button v-if="activeTab === 'all'" class="mt-4" @click="showAddDialog = true">
+        <Icon name="lucide:plus" class="w-4 h-4" />
         Agregar cafe
-      </UiButton>
+      </Button>
     </div>
 
-    <div v-else class="mt-6 space-y-3">
-      <div
+    <!-- Items list -->
+    <div v-else class="space-y-3">
+      <Card
         v-for="item in filteredItems"
         :key="item.id"
-        class="card hover:shadow-md transition-all duration-200"
+        class="group hover:shadow-md transition-all duration-200"
       >
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <h3 class="font-semibold text-coffee-900 truncate">
-              {{ item.coffeeName }}
-            </h3>
-            <p v-if="item.roasterName" class="text-sm text-coffee-500 truncate">
-              {{ item.roasterName }}
-            </p>
+        <CardContent class="pt-5 pb-4">
+          <div class="flex items-start justify-between gap-4">
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <h3 class="font-semibold text-foreground truncate">
+                  {{ item.coffeeName }}
+                </h3>
+              </div>
+              <p v-if="item.roasterName" class="text-sm text-muted-foreground truncate mt-0.5">
+                {{ item.roasterName }}
+              </p>
+            </div>
+
+            <!-- Badges -->
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <Badge :variant="getPriorityVariant(item.priority)" class="text-xs">
+                {{ getPriorityLabel(item.priority) }}
+              </Badge>
+              <Badge :variant="getStatusVariant(item.status)" class="text-xs gap-1">
+                <Icon :name="getStatusIcon(item.status)" class="w-3 h-3" />
+                {{ getStatusLabel(item.status) }}
+              </Badge>
+            </div>
           </div>
 
-          <div class="flex items-center gap-2 flex-shrink-0">
-            <UiBadge :color="getPriorityColor(item.priority)" size="sm">
-              {{ getPriorityLabel(item.priority) }}
-            </UiBadge>
-            <UiBadge :color="getStatusColor(item.status)" size="sm">
-              {{ getStatusOption(item.status)?.label }}
-            </UiBadge>
+          <p v-if="item.variety" class="text-xs text-muted-foreground mt-2">
+            <span class="font-medium">Variedad:</span> {{ item.variety }}
+          </p>
+          <p v-if="item.notes" class="text-sm text-muted-foreground mt-2 leading-relaxed">
+            {{ item.notes }}
+          </p>
+
+          <!-- Quick actions -->
+          <div class="mt-4 flex items-center gap-2 pt-3 border-t">
+            <span class="text-[11px] text-muted-foreground uppercase tracking-wider mr-auto">Cambiar estado:</span>
+            <Button
+              v-if="item.status !== 'pending'"
+              variant="outline"
+              size="sm"
+              class="h-7 text-xs"
+              @click="changeStatus(item, 'pending')"
+            >
+              <Icon name="lucide:clock" class="w-3 h-3" />
+              Pendiente
+            </Button>
+            <Button
+              v-if="item.status !== 'purchased'"
+              variant="outline"
+              size="sm"
+              class="h-7 text-xs"
+              @click="changeStatus(item, 'purchased')"
+            >
+              <Icon name="lucide:check" class="w-3 h-3" />
+              Comprado
+            </Button>
+            <Button
+              v-if="item.status !== 'unavailable'"
+              variant="outline"
+              size="sm"
+              class="h-7 text-xs"
+              @click="changeStatus(item, 'unavailable')"
+            >
+              <Icon name="lucide:x" class="w-3 h-3" />
+              No disponible
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 ml-1"
+              @click="removeItem(item)"
+            >
+              <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
+            </Button>
           </div>
-        </div>
-
-        <p v-if="item.variety" class="mt-1 text-xs text-coffee-500">
-          Variedad: {{ item.variety }}
-        </p>
-        <p v-if="item.notes" class="mt-2 text-sm text-coffee-600">
-          {{ item.notes }}
-        </p>
-
-        <!-- Quick actions -->
-        <div class="mt-3 flex items-center gap-2 pt-3 border-t border-coffee-100">
-          <span class="text-xs text-coffee-400 mr-auto">Cambiar estado:</span>
-          <button
-            v-if="item.status !== 'pending'"
-            class="text-xs px-2 py-1 rounded-md text-yellow-700 bg-cream-100 hover:bg-cream-200 transition-colors"
-            @click="changeStatus(item, 'pending')"
-          >
-            Pendiente
-          </button>
-          <button
-            v-if="item.status !== 'purchased'"
-            class="text-xs px-2 py-1 rounded-md text-green-700 bg-green-100 hover:bg-green-200 transition-colors"
-            @click="changeStatus(item, 'purchased')"
-          >
-            Comprado
-          </button>
-          <button
-            v-if="item.status !== 'unavailable'"
-            class="text-xs px-2 py-1 rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
-            @click="changeStatus(item, 'unavailable')"
-          >
-            No disponible
-          </button>
-          <button
-            class="text-xs px-2 py-1 rounded-md text-red-700 bg-red-50 hover:bg-red-100 transition-colors ml-2"
-            @click="removeItem(item)"
-          >
-            <Icon name="heroicons:trash" class="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
 
-    <!-- Add item modal -->
-    <UiModal v-model="showAddModal" title="Agregar a wishlist">
-      <form @submit.prevent="onSubmitAdd" class="space-y-4">
-        <UiInput
-          v-model="form.coffeeName"
-          label="Nombre del cafe"
-          placeholder="Ej: Ethiopia Yirgacheffe"
-          required
-        />
-        <UiInput
-          v-model="form.roasterName"
-          label="Tostador"
-          placeholder="Ej: Azahar Coffee"
-        />
-        <UiInput
-          v-model="form.variety"
-          label="Variedad"
-          placeholder="Ej: Gesha, Caturra"
-        />
-        <UiTextarea
-          v-model="form.notes"
-          label="Notas"
-          placeholder="Por que quieres probar este cafe?"
-          :rows="3"
-        />
-        <UiSelect
-          v-model="form.priority"
-          label="Prioridad"
-          :options="PRIORITY_OPTIONS"
-          placeholder="Selecciona prioridad"
-        />
-        <UiSelect
-          v-model="form.status"
-          label="Estado"
-          :options="WISHLIST_STATUS_OPTIONS"
-          placeholder="Selecciona estado"
-        />
-      </form>
-
-      <template #footer>
-        <UiButton variant="secondary" @click="showAddModal = false">
-          Cancelar
-        </UiButton>
-        <UiButton :loading="wishlistStore.loading" @click="onSubmitAdd">
-          Agregar
-        </UiButton>
-      </template>
-    </UiModal>
+    <!-- Add item dialog -->
+    <Dialog v-model:open="showAddDialog">
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Agregar a wishlist</DialogTitle>
+          <DialogDescription>Registra un cafe que quieras probar.</DialogDescription>
+        </DialogHeader>
+        <form @submit.prevent="onSubmitAdd" class="space-y-4">
+          <div class="space-y-2">
+            <Label for="coffeeName">Nombre del cafe *</Label>
+            <Input
+              id="coffeeName"
+              v-model="form.coffeeName"
+              placeholder="Ej: Ethiopia Yirgacheffe"
+              required
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <Label for="roasterName">Tostador</Label>
+              <Input
+                id="roasterName"
+                v-model="form.roasterName"
+                placeholder="Ej: Azahar Coffee"
+              />
+            </div>
+            <div class="space-y-2">
+              <Label for="variety">Variedad</Label>
+              <Input
+                id="variety"
+                v-model="form.variety"
+                placeholder="Ej: Gesha, Caturra"
+              />
+            </div>
+          </div>
+          <div class="space-y-2">
+            <Label for="notes">Notas</Label>
+            <Textarea
+              id="notes"
+              v-model="form.notes"
+              placeholder="Por que quieres probar este cafe?"
+              :rows="3"
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <Label>Prioridad</Label>
+              <Select v-model="form.priority">
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona prioridad" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem
+                    v-for="opt in PRIORITY_OPTIONS"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div class="space-y-2">
+              <Label>Estado</Label>
+              <Select v-model="form.status">
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem
+                    v-for="opt in WISHLIST_STATUS_OPTIONS"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </form>
+        <DialogFooter class="gap-2 sm:gap-0">
+          <Button variant="outline" @click="showAddDialog = false">
+            Cancelar
+          </Button>
+          <Button :disabled="wishlistStore.loading || !form.coffeeName" @click="onSubmitAdd">
+            <Icon v-if="wishlistStore.loading" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+            Agregar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>

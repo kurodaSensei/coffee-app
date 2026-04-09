@@ -37,7 +37,7 @@ const filteredCoffees = computed(() => {
       (c) =>
         c.name.toLowerCase().includes(term) ||
         c.roasterName.toLowerCase().includes(term) ||
-        c.flavorNotes.some((n) => n.toLowerCase().includes(term))
+        c.flavorNotes.some((n) => n.toLowerCase().includes(term)),
     )
   }
 
@@ -59,32 +59,38 @@ const filteredCoffees = computed(() => {
 
 <template>
   <div class="space-y-6">
-    <LayoutPageHeader title="Cafes" subtitle="Tu coleccion de cafes de especialidad">
-      <template #actions>
-        <UiButton @click="router.push('/coffees/new')">
-          <Icon name="heroicons:plus" class="w-5 h-5 mr-1" />
+    <LayoutHeader title="Cafes" subtitle="Tu coleccion de cafes de especialidad">
+      <NuxtLink to="/coffees/new">
+        <Button>
+          <Icon name="lucide:plus" class="w-4 h-4" />
           Agregar
-        </UiButton>
-      </template>
-    </LayoutPageHeader>
+        </Button>
+      </NuxtLink>
+    </LayoutHeader>
 
-    <CoffeeCoffeeFilters @update:filters="onFiltersUpdate" />
+    <CoffeeFilters @update:filters="onFiltersUpdate" />
 
     <!-- Loading -->
-    <div v-if="coffeesStore.loading" class="flex justify-center py-12">
-      <Icon name="heroicons:arrow-path" class="w-8 h-8 text-coffee-400 animate-spin" />
+    <div v-if="coffeesStore.loading" class="flex flex-col items-center justify-center py-16">
+      <Icon name="lucide:loader-2" class="w-8 h-8 text-primary animate-spin" />
+      <p class="mt-3 text-sm text-muted-foreground">Cargando cafes...</p>
     </div>
 
     <!-- Error -->
-    <div v-else-if="coffeesStore.error" class="text-center py-12">
-      <Icon name="heroicons:exclamation-triangle" class="w-12 h-12 text-red-400 mx-auto mb-3" />
-      <p class="text-red-600">{{ coffeesStore.error }}</p>
-      <UiButton variant="secondary" class="mt-4" @click="coffeesStore.loadAll()">
-        Reintentar
-      </UiButton>
-    </div>
+    <Card v-else-if="coffeesStore.error" class="border-destructive/30 bg-destructive/5">
+      <CardContent class="flex flex-col items-center text-center py-10">
+        <div class="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+          <Icon name="lucide:alert-triangle" class="w-7 h-7 text-destructive" />
+        </div>
+        <p class="text-destructive font-medium">{{ coffeesStore.error }}</p>
+        <Button variant="outline" class="mt-4" @click="coffeesStore.loadAll()">
+          <Icon name="lucide:refresh-cw" class="w-4 h-4" />
+          Reintentar
+        </Button>
+      </CardContent>
+    </Card>
 
     <!-- List -->
-    <CoffeeCoffeeList v-else :coffees="filteredCoffees" />
+    <CoffeeList v-else :coffees="filteredCoffees" />
   </div>
 </template>

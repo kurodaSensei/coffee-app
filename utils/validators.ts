@@ -1,9 +1,25 @@
 import { z } from 'zod'
 
+const safeUrl = z.string().url('URL inválida').refine(
+  (url) => {
+    try {
+      return ['http:', 'https:'].includes(new URL(url).protocol)
+    } catch {
+      return false
+    }
+  },
+  { message: 'La URL debe usar http o https' },
+)
+
+const instagramHandle = z.string().regex(
+  /^@?[a-zA-Z0-9._]{1,30}$/,
+  'Handle de Instagram inválido',
+)
+
 export const roasterSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
-  website: z.string().url('URL inválida').optional().or(z.literal('')),
-  instagram: z.string().optional(),
+  website: safeUrl.optional().or(z.literal('')),
+  instagram: instagramHandle.optional().or(z.literal('')),
   city: z.string().optional(),
   country: z.string().min(1, 'El país es requerido'),
   notes: z.string().optional(),

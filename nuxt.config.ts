@@ -9,7 +9,17 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@vueuse/nuxt',
     '@vite-pwa/nuxt',
+    'shadcn-nuxt',
   ],
+
+  shadcn: {
+    prefix: '',
+    componentDir: './components/ui',
+  },
+
+  tailwindcss: {
+    cssPath: '~/assets/css/main.css',
+  },
 
   pwa: {
     registerType: 'autoUpdate',
@@ -75,7 +85,7 @@ export default defineNuxtConfig({
       installPrompt: true,
     },
     devOptions: {
-      enabled: true,
+      enabled: false,
     },
   },
 
@@ -108,6 +118,17 @@ export default defineNuxtConfig({
   },
 
   ssr: false,
+
+  routeRules: {
+    '/**': {
+      headers: {
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+      },
+    },
+  },
 
   nitro: {
     preset: 'static',

@@ -2,7 +2,7 @@
 import { BREW_METHOD_OPTIONS } from '~/utils/constants'
 
 const tastingsStore = useTastingsStore()
-const filterMethod = ref('')
+const filterMethod = ref('__all__')
 const searchQuery = ref('')
 
 onMounted(() => {
@@ -11,14 +11,14 @@ onMounted(() => {
 
 const filteredTastings = computed(() => {
   let result = tastingsStore.list
-  if (filterMethod.value) {
+  if (filterMethod.value && filterMethod.value !== '__all__') {
     result = result.filter(t => t.brewMethod === filterMethod.value)
   }
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
     result = result.filter(t =>
       t.coffeeName.toLowerCase().includes(q) ||
-      t.roasterName.toLowerCase().includes(q)
+      t.roasterName.toLowerCase().includes(q),
     )
   }
   return result
@@ -26,40 +26,72 @@ const filteredTastings = computed(() => {
 </script>
 
 <template>
-  <div>
-    <LayoutPageHeader title="Degustaciones" subtitle="Tu historial de catas">
-      <NuxtLink to="/tastings/new" class="btn-primary inline-flex items-center gap-2">
-        <Icon name="heroicons:plus" class="w-5 h-5" />
-        Agregar
+  <div class="space-y-6">
+    <LayoutHeader title="Degustaciones" subtitle="Tu historial de catas">
+      <NuxtLink to="/tastings/new">
+        <Button>
+          <Icon name="lucide:plus" class="w-4 h-4" />
+          Agregar
+        </Button>
       </NuxtLink>
-    </LayoutPageHeader>
+    </LayoutHeader>
 
-    <div class="flex flex-col sm:flex-row gap-3 mb-6">
-      <UiSearchInput
-        v-model="searchQuery"
-        placeholder="Buscar por café o tostador..."
-        class="flex-1"
-      />
-      <select v-model="filterMethod" class="input-field sm:w-48">
-        <option value="">Todos los métodos</option>
-        <option v-for="opt in BREW_METHOD_OPTIONS" :key="opt.value" :value="opt.value">
-          {{ opt.label }}
-        </option>
-      </select>
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-3">
+      <div class="relative flex-1">
+        <Icon
+          name="lucide:search"
+          class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none"
+        />
+        <Input
+          v-model="searchQuery"
+          placeholder="Buscar por cafe o tostador..."
+          class="pl-9"
+        />
+      </div>
+      <Select v-model="filterMethod">
+        <SelectTrigger class="sm:w-52">
+          <SelectValue placeholder="Todos los metodos" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__all__">Todos los metodos</SelectItem>
+          <SelectItem
+            v-for="opt in BREW_METHOD_OPTIONS"
+            :key="opt.value"
+            :value="opt.value"
+          >
+            {{ opt.label }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
     </div>
 
-    <div v-if="tastingsStore.loading" class="text-center py-12 text-coffee-500">
-      Cargando degustaciones...
+    <!-- Loading -->
+    <div v-if="tastingsStore.loading" class="flex flex-col items-center justify-center py-16">
+      <Icon name="lucide:loader-2" class="w-8 h-8 text-primary animate-spin" />
+      <p class="mt-3 text-sm text-muted-foreground">Cargando degustaciones...</p>
     </div>
 
-    <div v-else-if="filteredTastings.length === 0" class="text-center py-12">
-      <Icon name="heroicons:star" class="w-12 h-12 text-coffee-300 mx-auto mb-3" />
-      <p class="text-coffee-500">No hay degustaciones aún</p>
-      <NuxtLink to="/tastings/new" class="text-coffee-800 font-medium hover:underline">
-        Registra tu primera cata
+    <!-- Empty state -->
+    <div v-else-if="filteredTastings.length === 0" class="text-center py-16">
+      <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+        <Icon name="lucide:clipboard-list" class="w-8 h-8 text-muted-foreground/50" />
+      </div>
+      <h3 class="font-medium text-foreground">
+        {{ searchQuery || filterMethod !== '__all__' ? 'Sin resultados' : 'No hay degustaciones aun' }}
+      </h3>
+      <p class="text-sm text-muted-foreground mt-1">
+        {{ searchQuery || filterMethod !== '__all__' ? 'Intenta con otros filtros.' : 'Registra tu primera cata para empezar.' }}
+      </p>
+      <NuxtLink v-if="!searchQuery && filterMethod === '__all__'" to="/tastings/new">
+        <Button class="mt-4">
+          <Icon name="lucide:plus" class="w-4 h-4" />
+          Registrar cata
+        </Button>
       </NuxtLink>
     </div>
 
-    <TastingTastingList v-else :tastings="filteredTastings" />
+    <!-- List -->
+    <TastingList v-else :tastings="filteredTastings" />
   </div>
 </template>

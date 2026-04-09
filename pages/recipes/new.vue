@@ -19,17 +19,20 @@ function onCancel() {
 </script>
 
 <template>
-  <div>
-    <LayoutPageHeader title="Nueva receta" subtitle="Crea una nueva receta de preparacion" />
+  <div class="space-y-6">
+    <LayoutHeader title="Nueva receta">
+      <NuxtLink to="/recipes">
+        <Button variant="ghost">
+          <Icon name="lucide:arrow-left" class="w-4 h-4" />
+          Volver
+        </Button>
+      </NuxtLink>
+    </LayoutHeader>
 
-    <div class="mt-6 max-w-2xl">
-      <UiCard>
-        <RecipeRecipeForm
-          :loading="recipesStore.loading"
-          @submit="onSubmit"
-          @cancel="onCancel"
-        />
-      </UiCard>
-    </div>
+    <RecipeForm
+      :loading="recipesStore.loading"
+      @submit="onSubmit"
+      @cancel="onCancel"
+    />
   </div>
 </template>

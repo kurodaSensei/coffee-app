@@ -8,8 +8,8 @@ const coffeesStore = useCoffeesStore()
 
 const roasterId = computed(() => route.params.id as string)
 
-const showEditModal = ref(false)
-const showDeleteConfirm = ref(false)
+const showEditDialog = ref(false)
+const showDeleteDialog = ref(false)
 
 onMounted(async () => {
   await roasterStore.loadById(roasterId.value)
@@ -24,7 +24,7 @@ const roasterCoffees = computed(() =>
 async function onEditSubmit(data: Record<string, any>) {
   try {
     await roasterStore.update(roasterId.value, data)
-    showEditModal.value = false
+    showEditDialog.value = false
   } catch {
     // error handled by store
   }
@@ -43,49 +43,61 @@ async function onDelete() {
 <template>
   <div>
     <!-- Loading -->
-    <div v-if="roasterStore.loading && !roaster" class="flex items-center justify-center py-12">
-      <Icon name="heroicons:arrow-path" class="w-8 h-8 text-coffee-400 animate-spin" />
+    <div v-if="roasterStore.loading && !roaster" class="flex flex-col items-center justify-center py-20">
+      <Icon name="lucide:loader-2" class="w-8 h-8 text-primary animate-spin" />
+      <p class="mt-3 text-sm text-muted-foreground">Cargando tostador...</p>
     </div>
 
     <!-- Error -->
-    <div v-else-if="roasterStore.error && !roaster" class="text-center py-12">
-      <p class="text-red-600">{{ roasterStore.error }}</p>
-      <NuxtLink to="/roasters">
-        <UiButton variant="secondary" class="mt-4">Volver a tostadores</UiButton>
-      </NuxtLink>
-    </div>
+    <Card v-else-if="roasterStore.error && !roaster" class="max-w-md mx-auto mt-12 border-destructive/30 bg-destructive/5">
+      <CardContent class="flex flex-col items-center text-center py-10">
+        <div class="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+          <Icon name="lucide:alert-triangle" class="w-7 h-7 text-destructive" />
+        </div>
+        <p class="text-destructive font-medium">{{ roasterStore.error }}</p>
+        <NuxtLink to="/roasters">
+          <Button variant="outline" class="mt-4">
+            <Icon name="lucide:arrow-left" class="w-4 h-4" />
+            Volver a tostadores
+          </Button>
+        </NuxtLink>
+      </CardContent>
+    </Card>
 
     <!-- Content -->
     <template v-else-if="roaster">
-      <LayoutPageHeader :title="roaster.name">
-        <template #actions>
-          <NuxtLink to="/roasters">
-            <UiButton variant="ghost" size="sm">
-              <Icon name="heroicons:arrow-left" class="w-4 h-4 mr-1" />
-              Volver
-            </UiButton>
-          </NuxtLink>
-          <UiButton variant="secondary" size="sm" @click="showEditModal = true">
-            <Icon name="heroicons:pencil-square" class="w-4 h-4 mr-1" />
-            Editar
-          </UiButton>
-          <UiButton variant="danger" size="sm" @click="showDeleteConfirm = true">
-            <Icon name="heroicons:trash" class="w-4 h-4 mr-1" />
-            Eliminar
-          </UiButton>
-        </template>
-      </LayoutPageHeader>
+      <LayoutHeader :title="roaster.name">
+        <NuxtLink to="/roasters">
+          <Button variant="ghost" size="sm">
+            <Icon name="lucide:arrow-left" class="w-4 h-4" />
+            Volver
+          </Button>
+        </NuxtLink>
+        <Button variant="outline" size="sm" @click="showEditDialog = true">
+          <Icon name="lucide:pencil" class="w-4 h-4" />
+          Editar
+        </Button>
+        <Button variant="destructive" size="sm" @click="showDeleteDialog = true">
+          <Icon name="lucide:trash-2" class="w-4 h-4" />
+          Eliminar
+        </Button>
+      </LayoutHeader>
 
       <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Info card -->
-        <UiCard class="lg:col-span-2">
-          <div class="space-y-4">
+        <!-- Main info card -->
+        <Card class="lg:col-span-2">
+          <CardHeader class="pb-3">
+            <CardTitle class="text-base">Informacion</CardTitle>
+          </CardHeader>
+          <CardContent class="space-y-5">
             <!-- Location -->
             <div class="flex items-start gap-3">
-              <Icon name="heroicons:map-pin" class="w-5 h-5 text-coffee-400 mt-0.5" />
+              <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+                <Icon name="lucide:map-pin" class="w-4 h-4 text-muted-foreground" />
+              </div>
               <div>
-                <p class="text-sm font-medium text-coffee-600">Ubicación</p>
-                <p class="text-coffee-900">
+                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Ubicacion</p>
+                <p class="text-sm text-foreground mt-0.5">
                   <span v-if="roaster.city">{{ roaster.city }}, </span>
                   {{ roaster.country }}
                 </p>
@@ -94,14 +106,16 @@ async function onDelete() {
 
             <!-- Website -->
             <div v-if="roaster.website" class="flex items-start gap-3">
-              <Icon name="heroicons:globe-alt" class="w-5 h-5 text-coffee-400 mt-0.5" />
+              <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+                <Icon name="lucide:globe" class="w-4 h-4 text-muted-foreground" />
+              </div>
               <div>
-                <p class="text-sm font-medium text-coffee-600">Sitio web</p>
+                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Sitio web</p>
                 <a
                   :href="roaster.website"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-coffee-700 hover:text-coffee-900 underline underline-offset-2 transition-colors"
+                  class="text-sm text-primary hover:underline underline-offset-2 transition-colors mt-0.5 inline-block"
                 >
                   {{ roaster.website }}
                 </a>
@@ -110,14 +124,16 @@ async function onDelete() {
 
             <!-- Instagram -->
             <div v-if="roaster.instagram" class="flex items-start gap-3">
-              <Icon name="heroicons:camera" class="w-5 h-5 text-coffee-400 mt-0.5" />
+              <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+                <Icon name="lucide:camera" class="w-4 h-4 text-muted-foreground" />
+              </div>
               <div>
-                <p class="text-sm font-medium text-coffee-600">Instagram</p>
+                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Instagram</p>
                 <a
                   :href="`https://instagram.com/${roaster.instagram.replace('@', '')}`"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-coffee-700 hover:text-coffee-900 underline underline-offset-2 transition-colors"
+                  class="text-sm text-primary hover:underline underline-offset-2 transition-colors mt-0.5 inline-block"
                 >
                   {{ roaster.instagram }}
                 </a>
@@ -126,80 +142,124 @@ async function onDelete() {
 
             <!-- Rating -->
             <div v-if="roaster.rating" class="flex items-start gap-3">
-              <Icon name="heroicons:star" class="w-5 h-5 text-coffee-400 mt-0.5" />
+              <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+                <Icon name="lucide:star" class="w-4 h-4 text-muted-foreground" />
+              </div>
               <div>
-                <p class="text-sm font-medium text-coffee-600">Calificación</p>
-                <UiRating :model-value="roaster.rating" readonly />
+                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Calificacion</p>
+                <div class="flex items-center gap-0.5 mt-1">
+                  <Icon
+                    v-for="i in 5"
+                    :key="i"
+                    name="lucide:star"
+                    :class="[
+                      'w-4 h-4 transition-colors',
+                      i <= roaster.rating
+                        ? 'text-yellow-500 fill-yellow-500'
+                        : 'text-muted-foreground/20',
+                    ]"
+                  />
+                </div>
               </div>
             </div>
 
             <!-- Notes -->
             <div v-if="roaster.notes" class="flex items-start gap-3">
-              <Icon name="heroicons:document-text" class="w-5 h-5 text-coffee-400 mt-0.5" />
+              <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+                <Icon name="lucide:file-text" class="w-4 h-4 text-muted-foreground" />
+              </div>
               <div>
-                <p class="text-sm font-medium text-coffee-600">Notas</p>
-                <p class="text-coffee-900 whitespace-pre-line">{{ roaster.notes }}</p>
+                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Notas</p>
+                <p class="text-sm text-foreground whitespace-pre-line mt-0.5">{{ roaster.notes }}</p>
               </div>
             </div>
 
-            <!-- Dates -->
-            <div class="pt-4 border-t border-coffee-100 text-sm text-coffee-400">
+            <!-- Date -->
+            <Separator />
+            <p class="text-xs text-muted-foreground">
               Agregado el {{ formatDate(roaster.createdAt) }}
-            </div>
-          </div>
-        </UiCard>
+            </p>
+          </CardContent>
+        </Card>
 
         <!-- Coffees sidebar -->
-        <div>
-          <UiCard title="Cafés de este tostador">
-            <div v-if="coffeesStore.loading" class="flex items-center justify-center py-4">
-              <Icon name="heroicons:arrow-path" class="w-5 h-5 text-coffee-400 animate-spin" />
+        <Card>
+          <CardHeader class="pb-3">
+            <div class="flex items-center justify-between">
+              <CardTitle class="text-base">Cafes de este tostador</CardTitle>
+              <Badge variant="secondary" class="text-xs">{{ roasterCoffees.length }}</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div v-if="coffeesStore.loading" class="flex items-center justify-center py-6">
+              <Icon name="lucide:loader-2" class="w-5 h-5 text-muted-foreground animate-spin" />
             </div>
 
-            <div v-else-if="roasterCoffees.length === 0" class="text-center py-4">
-              <p class="text-sm text-coffee-400">No hay cafés registrados</p>
+            <div v-else-if="roasterCoffees.length === 0" class="flex flex-col items-center py-6 text-center">
+              <div class="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-2">
+                <Icon name="lucide:coffee" class="w-5 h-5 text-muted-foreground/50" />
+              </div>
+              <p class="text-sm text-muted-foreground">No hay cafes registrados</p>
             </div>
 
-            <ul v-else class="space-y-2">
-              <li v-for="coffee in roasterCoffees" :key="coffee.id">
-                <NuxtLink
-                  :to="`/coffees/${coffee.id}`"
-                  class="block p-2 rounded-lg hover:bg-coffee-50 transition-colors"
-                >
-                  <p class="text-sm font-medium text-coffee-900">{{ coffee.name }}</p>
-                  <p class="text-xs text-coffee-500">{{ coffee.variety }} · {{ coffee.originRegion }}</p>
-                </NuxtLink>
-              </li>
-            </ul>
-          </UiCard>
-        </div>
+            <div v-else class="divide-y divide-border">
+              <NuxtLink
+                v-for="coffee in roasterCoffees"
+                :key="coffee.id"
+                :to="`/coffees/${coffee.id}`"
+                class="block py-3 first:pt-0 last:pb-0 group hover:bg-muted/50 -mx-3 px-3 rounded-lg transition-colors"
+              >
+                <p class="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                  {{ coffee.name }}
+                </p>
+                <p class="text-xs text-muted-foreground mt-0.5">
+                  {{ coffee.variety }} · {{ coffee.originRegion }}
+                </p>
+              </NuxtLink>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </template>
 
-    <!-- Edit Modal -->
-    <UiModal v-model="showEditModal" title="Editar Tostador">
-      <RoasterRoasterForm
-        v-if="roaster"
-        :initial-data="roaster"
-        :loading="roasterStore.loading"
-        @submit="onEditSubmit"
-        @cancel="showEditModal = false"
-      />
-    </UiModal>
+    <!-- Edit Dialog -->
+    <Dialog v-model:open="showEditDialog">
+      <DialogContent class="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Editar Tostador</DialogTitle>
+          <DialogDescription>Modifica los datos del tostador.</DialogDescription>
+        </DialogHeader>
+        <RoasterForm
+          v-if="roaster"
+          :initial-data="roaster"
+          :loading="roasterStore.loading"
+          @submit="onEditSubmit"
+          @cancel="showEditDialog = false"
+        />
+      </DialogContent>
+    </Dialog>
 
-    <!-- Delete Confirmation Modal -->
-    <UiModal v-model="showDeleteConfirm" title="Eliminar Tostador">
-      <p class="text-coffee-700">
-        ¿Estás seguro de que deseas eliminar <strong>{{ roaster?.name }}</strong>? Esta acción no se puede deshacer.
-      </p>
-      <template #footer>
-        <UiButton variant="ghost" @click="showDeleteConfirm = false">
-          Cancelar
-        </UiButton>
-        <UiButton variant="danger" :loading="roasterStore.loading" @click="onDelete">
-          Eliminar
-        </UiButton>
-      </template>
-    </UiModal>
+    <!-- Delete Confirmation Dialog -->
+    <Dialog v-model:open="showDeleteDialog">
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Eliminar Tostador</DialogTitle>
+          <DialogDescription>Esta accion es irreversible.</DialogDescription>
+        </DialogHeader>
+        <p class="text-sm text-muted-foreground">
+          Estas seguro de que deseas eliminar <strong class="text-foreground">{{ roaster?.name }}</strong>?
+          Todos los datos asociados se perderan permanentemente.
+        </p>
+        <DialogFooter class="gap-2 sm:gap-0">
+          <Button variant="outline" @click="showDeleteDialog = false">
+            Cancelar
+          </Button>
+          <Button variant="destructive" :disabled="roasterStore.loading" @click="onDelete">
+            <Icon v-if="roasterStore.loading" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+            Eliminar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>

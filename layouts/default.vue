@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="min-h-screen bg-coffee-50 font-sans">
+  <div class="min-h-screen bg-background font-sans">
     <!-- Desktop sidebar -->
     <LayoutSidebar />
 
@@ -12,13 +12,13 @@
     <!-- Main content area -->
     <main
       class="
-        lg:ml-[260px]
-        pt-14 lg:pt-0
-        pb-20 lg:pb-0
+        lg:ml-[240px]
+        pt-13 lg:pt-0
+        pb-14 lg:pb-0
         min-h-screen
       "
     >
-      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-6">
         <slot />
       </div>
     </main>

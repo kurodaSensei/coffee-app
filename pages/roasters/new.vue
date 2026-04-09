@@ -13,28 +13,24 @@ async function onSubmit(data: Record<string, any>) {
 </script>
 
 <template>
-  <div>
-    <LayoutPageHeader title="Nuevo Tostador">
-      <template #actions>
-        <NuxtLink to="/roasters">
-          <UiButton variant="ghost">
-            <Icon name="heroicons:arrow-left" class="w-5 h-5 mr-1" />
-            Volver
-          </UiButton>
-        </NuxtLink>
-      </template>
-    </LayoutPageHeader>
+  <div class="space-y-6">
+    <LayoutHeader title="Nuevo Tostador">
+      <NuxtLink to="/roasters">
+        <Button variant="ghost">
+          <Icon name="lucide:arrow-left" class="w-4 h-4" />
+          Volver
+        </Button>
+      </NuxtLink>
+    </LayoutHeader>
 
-    <div v-if="store.error" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+    <div v-if="store.error" class="max-w-2xl mx-auto p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
       {{ store.error }}
     </div>
 
-    <UiCard>
-      <RoasterRoasterForm
-        :loading="store.loading"
-        @submit="onSubmit"
-        @cancel="router.push('/roasters')"
-      />
-    </UiCard>
+    <RoasterForm
+      :loading="store.loading"
+      @submit="onSubmit"
+      @cancel="router.push('/roasters')"
+    />
   </div>
 </template>

@@ -2,75 +2,73 @@
 const route = useRoute()
 const { currentUser, logout } = useAuth()
 
-interface NavItem {
-  label: string
-  icon: string
-  to: string
-}
-
-const navItems: NavItem[] = [
-  { label: 'Dashboard', icon: 'heroicons:home', to: '/' },
-  { label: 'Cafés', icon: 'heroicons:fire', to: '/coffees' },
-  { label: 'Tostadores', icon: 'heroicons:building-storefront', to: '/roasters' },
-  { label: 'Degustaciones', icon: 'heroicons:star', to: '/tastings' },
-  { label: 'Recetas', icon: 'heroicons:document-text', to: '/recipes' },
-  { label: 'Wishlist', icon: 'heroicons:heart', to: '/wishlist' },
+const navItems = [
+  { label: 'Dashboard', icon: 'lucide:layout-dashboard', to: '/' },
+  { label: 'Cafés', icon: 'lucide:coffee', to: '/coffees' },
+  { label: 'Tostadores', icon: 'lucide:store', to: '/roasters' },
+  { label: 'Degustaciones', icon: 'lucide:star', to: '/tastings' },
+  { label: 'Recetas', icon: 'lucide:book-open', to: '/recipes' },
+  { label: 'Wishlist', icon: 'lucide:heart', to: '/wishlist' },
 ]
 
 function isActive(path: string): boolean {
   if (path === '/') return route.path === '/'
   return route.path.startsWith(path)
 }
+
+const userInitial = computed(() =>
+  currentUser.value?.displayName?.[0] || currentUser.value?.email?.[0]?.toUpperCase() || '?'
+)
 </script>
 
 <template>
-  <aside
-    class="hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 w-[260px] bg-coffee-900 text-cream-50 border-r border-coffee-800"
-  >
-    <!-- Logo / Title -->
-    <div class="flex items-center gap-3 px-6 py-5 border-b border-coffee-800">
-      <Icon name="heroicons:fire" class="w-8 h-8 text-cream-200" />
-      <span class="text-xl font-bold tracking-tight text-cream-50">
-        Coffee Tracker
-      </span>
+  <aside class="hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 w-[240px] bg-coffee-900">
+    <!-- Logo -->
+    <div class="flex items-center gap-2.5 px-5 h-14 border-b border-white/10">
+      <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
+        <Icon name="lucide:flame" class="w-4.5 h-4.5 text-white" />
+      </div>
+      <span class="text-[15px] font-semibold text-white tracking-tight">Coffee Tracker</span>
     </div>
 
-    <!-- Navigation -->
-    <nav class="flex-1 flex flex-col gap-1 px-3 py-4 overflow-y-auto">
+    <!-- Nav -->
+    <nav class="flex-1 flex flex-col gap-0.5 px-3 py-3 overflow-y-auto">
       <NuxtLink
         v-for="item in navItems"
         :key="item.to"
         :to="item.to"
         :class="[
-          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150',
+          'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
           isActive(item.to)
-            ? 'bg-coffee-800 text-cream-50'
-            : 'text-coffee-300 hover:bg-coffee-800/60 hover:text-cream-100',
+            ? 'bg-white/15 text-white shadow-sm'
+            : 'text-white/55 hover:bg-white/8 hover:text-white/80',
         ]"
       >
-        <Icon :name="item.icon" class="w-5 h-5 flex-shrink-0" />
-        <span>{{ item.label }}</span>
+        <Icon :name="item.icon" class="w-[18px] h-[18px] flex-shrink-0" />
+        {{ item.label }}
       </NuxtLink>
     </nav>
 
-    <!-- User & Logout -->
-    <div class="px-4 py-4 border-t border-coffee-800">
-      <div class="flex items-center gap-3 px-2 mb-3">
-        <div class="w-8 h-8 rounded-full bg-coffee-700 flex items-center justify-center text-cream-200 text-sm font-bold">
-          {{ currentUser?.displayName?.[0] || currentUser?.email?.[0]?.toUpperCase() || '?' }}
-        </div>
+    <!-- User -->
+    <div class="px-3 py-3 border-t border-white/10">
+      <div class="flex items-center gap-2.5 px-2 mb-2">
+        <Avatar class="h-7 w-7 rounded-lg">
+          <AvatarFallback class="rounded-lg bg-white/15 text-white/90 text-xs font-semibold">
+            {{ userInitial }}
+          </AvatarFallback>
+        </Avatar>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-cream-100 truncate">
+          <p class="text-xs font-medium text-white/90 truncate">
             {{ currentUser?.displayName || 'Usuario' }}
           </p>
-          <p class="text-xs text-coffee-400 truncate">{{ currentUser?.email }}</p>
+          <p class="text-[10px] text-white/40 truncate">{{ currentUser?.email }}</p>
         </div>
       </div>
       <button
         @click="logout"
-        class="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-coffee-400 hover:bg-coffee-800 hover:text-cream-100 transition-colors"
+        class="flex items-center gap-2 w-full px-3 py-1.5 rounded-md text-[12px] text-white/40 hover:text-white/70 hover:bg-white/8 transition-colors"
       >
-        <Icon name="heroicons:arrow-right-on-rectangle" class="w-4 h-4" />
+        <Icon name="lucide:log-out" class="w-3.5 h-3.5" />
         Cerrar sesión
       </button>
     </div>

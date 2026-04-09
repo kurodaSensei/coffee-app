@@ -22,15 +22,17 @@ async function handleSubmit(data: Record<string, any>) {
 </script>
 
 <template>
-  <div>
-    <LayoutPageHeader title="Nueva Degustación" subtitle="Registra una nueva cata">
-      <NuxtLink to="/tastings" class="btn-secondary inline-flex items-center gap-2">
-        <Icon name="heroicons:arrow-left" class="w-5 h-5" />
-        Volver
+  <div class="space-y-6">
+    <LayoutHeader title="Nueva Degustación">
+      <NuxtLink to="/tastings">
+        <Button variant="ghost">
+          <Icon name="lucide:arrow-left" class="w-4 h-4" />
+          Volver
+        </Button>
       </NuxtLink>
-    </LayoutPageHeader>
+    </LayoutHeader>
 
-    <TastingTastingForm
+    <TastingForm
       :loading="loading"
       @submit="handleSubmit"
       @cancel="router.push('/tastings')"

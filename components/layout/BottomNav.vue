@@ -1,19 +1,13 @@
 <script setup lang="ts">
 const route = useRoute()
 
-interface NavTab {
-  label: string
-  icon: string
-  to: string
-}
-
-const tabs: NavTab[] = [
-  { label: 'Inicio', icon: 'heroicons:home', to: '/' },
-  { label: 'Cafés', icon: 'heroicons:fire', to: '/coffees' },
-  { label: 'Tostadores', icon: 'heroicons:building-storefront', to: '/roasters' },
-  { label: 'Catas', icon: 'heroicons:star', to: '/tastings' },
-  { label: 'Recetas', icon: 'heroicons:document-text', to: '/recipes' },
-  { label: 'Wishlist', icon: 'heroicons:heart', to: '/wishlist' },
+const tabs = [
+  { label: 'Inicio', icon: 'lucide:layout-dashboard', to: '/' },
+  { label: 'Cafés', icon: 'lucide:coffee', to: '/coffees' },
+  { label: 'Tostadores', icon: 'lucide:store', to: '/roasters' },
+  { label: 'Catas', icon: 'lucide:star', to: '/tastings' },
+  { label: 'Recetas', icon: 'lucide:book-open', to: '/recipes' },
+  { label: 'Wishlist', icon: 'lucide:heart', to: '/wishlist' },
 ]
 
 function isActive(path: string): boolean {
@@ -23,27 +17,17 @@ function isActive(path: string): boolean {
 </script>
 
 <template>
-  <nav
-    class="lg:hidden fixed bottom-0 inset-x-0 z-40 flex items-center justify-around h-16 bg-coffee-900 border-t border-coffee-800 safe-area-bottom"
-  >
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 flex items-center justify-around h-14 bg-coffee-900 safe-area-bottom">
     <NuxtLink
       v-for="tab in tabs"
       :key="tab.to"
       :to="tab.to"
       :class="[
-        'flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-[10px] font-medium transition-colors duration-150',
-        isActive(tab.to)
-          ? 'text-cream-200'
-          : 'text-coffee-400 hover:text-coffee-200',
+        'flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-[10px] font-medium transition-colors',
+        isActive(tab.to) ? 'text-amber-400' : 'text-white/35',
       ]"
     >
-      <Icon
-        :name="tab.icon"
-        :class="[
-          'w-5 h-5',
-          isActive(tab.to) ? 'text-cream-200' : 'text-coffee-400',
-        ]"
-      />
+      <Icon :name="tab.icon" class="w-[18px] h-[18px]" />
       <span>{{ tab.label }}</span>
     </NuxtLink>
   </nav>

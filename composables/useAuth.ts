@@ -8,7 +8,6 @@ import {
   EmailAuthProvider,
   signOut,
   updateProfile,
-  fetchSignInMethodsForEmail,
   type User,
 } from 'firebase/auth'
 
@@ -66,32 +65,22 @@ export const useAuth = () => {
     }
   }
 
-  const linkGoogle = async () => {
-    if (!currentUser.value) throw new Error('No hay sesión activa')
-    const provider = new GoogleAuthProvider()
-    const result = await linkWithCredential(
-      currentUser.value,
-      GoogleAuthProvider.credential(
-        (await signInWithPopup($auth, provider)).user.getIdToken()
-      )
-    ).catch(async () => {
-      // Fallback: if already linked or popup approach, just use signInWithPopup
-      // The account linking is handled by Firebase when "one account per email" is enabled
-      return null
-    })
-    return result?.user || currentUser.value
-  }
-
   const linkEmailPassword = async (password: string) => {
     if (!currentUser.value?.email) throw new Error('No hay sesión activa con email')
     const credential = EmailAuthProvider.credential(currentUser.value.email, password)
-    const result = await linkWithCredential(currentUser.value, credential)
-    currentUser.value = result.user
-    return result.user
-  }
-
-  const getSignInMethods = async (email: string) => {
-    return fetchSignInMethodsForEmail($auth, email)
+    try {
+      const result = await linkWithCredential(currentUser.value, credential)
+      currentUser.value = result.user
+      return result.user
+    } catch (e: any) {
+      if (e.code === 'auth/provider-already-linked') {
+        throw new Error('Esta cuenta ya tiene contraseña configurada')
+      }
+      if (e.code === 'auth/credential-already-in-use') {
+        throw new Error('Este correo ya está vinculado a otra cuenta')
+      }
+      throw e
+    }
   }
 
   const logout = async () => {
@@ -110,7 +99,6 @@ export const useAuth = () => {
     register,
     loginWithGoogle,
     linkEmailPassword,
-    getSignInMethods,
     logout,
   }
 }

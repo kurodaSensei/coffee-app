@@ -23,16 +23,19 @@ function onCancel() {
 
 <template>
   <div class="space-y-6">
-    <LayoutPageHeader title="Nuevo Cafe" />
+    <LayoutHeader title="Nuevo Café">
+      <NuxtLink to="/coffees">
+        <Button variant="ghost">
+          <Icon name="lucide:arrow-left" class="w-4 h-4" />
+          Volver
+        </Button>
+      </NuxtLink>
+    </LayoutHeader>
 
-    <div class="max-w-3xl">
-      <UiCard>
-        <CoffeeCoffeeForm
-          :loading="submitting"
-          @submit="onSubmit"
-          @cancel="onCancel"
-        />
-      </UiCard>
-    </div>
+    <CoffeeForm
+      :loading="submitting"
+      @submit="onSubmit"
+      @cancel="onCancel"
+    />
   </div>
 </template>

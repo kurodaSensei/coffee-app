@@ -64,7 +64,12 @@ export const useFirebase = () => {
     id: string,
     data: Partial<T>,
   ): Promise<void> => {
+    if (!userId.value) throw new Error('No authenticated user')
     const docRef = doc($db, collectionName, id)
+    const docSnap = await getDoc(docRef)
+    if (!docSnap.exists() || docSnap.data().userId !== userId.value) {
+      throw new Error('Unauthorized: document not found or access denied')
+    }
     await updateDoc(docRef, {
       ...data,
       updatedAt: Timestamp.now(),
@@ -72,7 +77,12 @@ export const useFirebase = () => {
   }
 
   const remove = async (collectionName: string, id: string): Promise<void> => {
+    if (!userId.value) throw new Error('No authenticated user')
     const docRef = doc($db, collectionName, id)
+    const docSnap = await getDoc(docRef)
+    if (!docSnap.exists() || docSnap.data().userId !== userId.value) {
+      throw new Error('Unauthorized: document not found or access denied')
+    }
     await deleteDoc(docRef)
   }
 
