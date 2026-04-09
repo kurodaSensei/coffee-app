@@ -48,7 +48,7 @@ Todo funciona dentro de la **capa gratuita** de Firebase y Vercel.
 ### 1. Clona el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/coffee-tracker.git
+git clone https://github.com/kurodasensei/coffee-tracker.git
 cd coffee-tracker
 npm install
 ```
@@ -207,6 +207,6 @@ Este proyecto esta bajo la licencia [Polyform Noncommercial 1.0.0](LICENSE).
 
 ---
 
-Hecho con mucho cafe por [Alfredo Romero](https://github.com/alfredoromero)
+Hecho con mucho cafe por [KurodaSensei](https://github.com/kurodasensei)
 
 > *Si, este proyecto fue construido con IA ([Claude Code](https://claude.ai/code)). El humano puso el cafe, el criterio y las ideas. La IA puso las manos (que no tiene) en el teclado (que tampoco tiene). Ningun barista fue reemplazado en el proceso.*
