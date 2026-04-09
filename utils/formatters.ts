@@ -1,0 +1,94 @@
+import type { Timestamp } from 'firebase/firestore'
+
+export function formatDate(timestamp: Timestamp | undefined): string {
+  if (!timestamp) return ''
+  const date = timestamp.toDate()
+  return date.toLocaleDateString('es-CO', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+export function formatDateShort(timestamp: Timestamp | undefined): string {
+  if (!timestamp) return ''
+  const date = timestamp.toDate()
+  return date.toLocaleDateString('es-CO', {
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+export function formatPrice(price: number | undefined): string {
+  if (price === undefined) return ''
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0,
+  }).format(price)
+}
+
+export function formatWeight(weight: number | undefined): string {
+  if (weight === undefined) return ''
+  return `${weight}g`
+}
+
+export function formatAltitude(altitude: number | undefined): string {
+  if (altitude === undefined) return ''
+  return `${altitude.toLocaleString()} msnm`
+}
+
+export function formatRatio(dose: number | undefined, water: number | undefined): string {
+  if (!dose || !water) return ''
+  const ratio = Math.round(water / dose)
+  return `1:${ratio}`
+}
+
+export function formatBrewTime(seconds: number | undefined): string {
+  if (seconds === undefined) return ''
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return mins > 0 ? `${mins}:${secs.toString().padStart(2, '0')}` : `${secs}s`
+}
+
+export function getProcessLabel(value: string): string {
+  const labels: Record<string, string> = {
+    washed: 'Lavado',
+    natural: 'Natural',
+    honey: 'Honey',
+    anaerobic: 'Anaeróbico',
+    carbonic: 'Maceración Carbónica',
+    experimental: 'Experimental',
+    other: 'Otro',
+  }
+  return labels[value] || value
+}
+
+export function getBrewMethodLabel(value: string): string {
+  const labels: Record<string, string> = {
+    v60: 'V60',
+    kalita: 'Kalita',
+    chemex: 'Chemex',
+    aeropress: 'AeroPress',
+    french_press: 'Prensa Francesa',
+    origami: 'Origami',
+    suiren: 'Suiren',
+    espresso: 'Espresso',
+    moka_pot: 'Moka',
+    phin: 'Phin',
+    cold_brew: 'Cold Brew',
+    other: 'Otro',
+  }
+  return labels[value] || value
+}
+
+export function getRoastLevelLabel(value: string): string {
+  const labels: Record<string, string> = {
+    light: 'Claro',
+    medium_light: 'Medio-Claro',
+    medium: 'Medio',
+    medium_dark: 'Medio-Oscuro',
+    dark: 'Oscuro',
+  }
+  return labels[value] || value
+}
