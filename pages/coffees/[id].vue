@@ -303,7 +303,7 @@ async function confirmDelete() {
 
       <!-- Edit Dialog -->
       <Dialog v-model:open="showEditDialog">
-        <DialogContent class="max-w-2xl">
+        <DialogScrollContent class="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Editar Cafe</DialogTitle>
             <DialogDescription>Modifica los datos del cafe.</DialogDescription>
@@ -314,7 +314,7 @@ async function confirmDelete() {
             @submit="onEditSubmit"
             @cancel="showEditDialog = false"
           />
-        </DialogContent>
+        </DialogScrollContent>
       </Dialog>
 
       <!-- Delete confirmation Dialog -->

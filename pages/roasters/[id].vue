@@ -224,7 +224,7 @@ async function onDelete() {
 
     <!-- Edit Dialog -->
     <Dialog v-model:open="showEditDialog">
-      <DialogContent class="max-w-2xl">
+      <DialogScrollContent class="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Editar Tostador</DialogTitle>
           <DialogDescription>Modifica los datos del tostador.</DialogDescription>
@@ -236,7 +236,7 @@ async function onDelete() {
           @submit="onEditSubmit"
           @cancel="showEditDialog = false"
         />
-      </DialogContent>
+      </DialogScrollContent>
     </Dialog>
 
     <!-- Delete Confirmation Dialog -->

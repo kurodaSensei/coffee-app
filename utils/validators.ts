@@ -30,7 +30,6 @@ export const coffeeSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   roasterId: z.string().optional(),
   roasterName: z.string().optional(),
-  brand: z.string().optional(),
   variety: z.string().min(1, 'La variedad es requerida'),
   process: z.enum(['washed', 'natural', 'honey', 'anaerobic', 'carbonic', 'experimental', 'other']),
   originRegion: z.string().min(1, 'La región es requerida'),

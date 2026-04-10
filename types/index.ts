@@ -54,7 +54,6 @@ export interface Coffee {
   name: string
   roasterId?: string
   roasterName?: string
-  brand?: string
   variety: string
   process: CoffeeProcess
   originRegion: string

@@ -71,7 +71,7 @@ async function onDelete() {
 
     <!-- Detail / Edit Dialog -->
     <Dialog v-model:open="showDetailDialog">
-      <DialogContent class="max-w-lg">
+      <DialogScrollContent class="max-w-lg">
         <DialogHeader>
           <DialogTitle>{{ showEditMode ? 'Editar receta' : (selectedRecipe?.name || '') }}</DialogTitle>
         </DialogHeader>
@@ -138,7 +138,7 @@ async function onDelete() {
             @cancel="showEditMode = false"
           />
         </div>
-      </DialogContent>
+      </DialogScrollContent>
     </Dialog>
 
     <!-- Delete Confirmation Dialog -->

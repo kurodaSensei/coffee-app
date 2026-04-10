@@ -217,7 +217,7 @@ async function removeItem(item: WishlistItem) {
 
     <!-- Add item dialog -->
     <Dialog v-model:open="showAddDialog">
-      <DialogContent>
+      <DialogScrollContent>
         <DialogHeader>
           <DialogTitle>Agregar a wishlist</DialogTitle>
           <DialogDescription>Registra un cafe que quieras probar.</DialogDescription>
@@ -305,7 +305,7 @@ async function removeItem(item: WishlistItem) {
             Agregar
           </Button>
         </DialogFooter>
-      </DialogContent>
+      </DialogScrollContent>
     </Dialog>
   </div>
 </template>

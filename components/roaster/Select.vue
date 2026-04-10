@@ -73,7 +73,7 @@ async function handleCreateRoaster(data: Record<string, any>) {
 
     <!-- Dialog para crear tostador sin salir del form -->
     <Dialog v-model:open="showNewRoasterDialog">
-      <DialogContent class="max-w-lg">
+      <DialogScrollContent class="max-w-lg">
         <DialogHeader>
           <DialogTitle>Nuevo Tostador</DialogTitle>
           <DialogDescription>Registra un tostador para asociarlo a este café.</DialogDescription>
@@ -83,7 +83,7 @@ async function handleCreateRoaster(data: Record<string, any>) {
           @submit="handleCreateRoaster"
           @cancel="showNewRoasterDialog = false"
         />
-      </DialogContent>
+      </DialogScrollContent>
     </Dialog>
   </div>
 </template>

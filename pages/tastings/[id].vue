@@ -134,7 +134,7 @@ async function handleUpdate(data: Record<string, any>) {
 
     <!-- Edit Dialog -->
     <Dialog v-model:open="showEditDialog">
-      <DialogContent class="max-w-2xl">
+      <DialogScrollContent class="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Editar Degustacion</DialogTitle>
           <DialogDescription>Modifica los datos de la catacion.</DialogDescription>
@@ -145,7 +145,7 @@ async function handleUpdate(data: Record<string, any>) {
           @submit="handleUpdate"
           @cancel="showEditDialog = false"
         />
-      </DialogContent>
+      </DialogScrollContent>
     </Dialog>
 
     <!-- Delete Confirmation Dialog -->

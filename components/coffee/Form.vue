@@ -19,7 +19,6 @@ const form = reactive({
   name: props.initialData?.name ?? '',
   roasterId: props.initialData?.roasterId ?? '',
   roasterName: props.initialData?.roasterName ?? '',
-  brand: props.initialData?.brand ?? '',
   variety: props.initialData?.variety ?? '',
   process: (props.initialData?.process ?? 'washed') as CoffeeProcess,
   originCountry: props.initialData?.originCountry ?? 'Colombia',
@@ -39,6 +38,27 @@ const customVariety = ref(false)
 const varietyOptions = computed(() => COMMON_VARIETIES.map(v => ({ value: v, label: v })))
 const regionOptions = computed(() => COLOMBIAN_REGIONS.map(r => ({ value: r, label: r })))
 
+// Flavor notes: load existing notes from all coffees for autocomplete
+const coffeesStore = useCoffeesStore()
+const existingNotes = computed(() => {
+  const all = new Set<string>()
+  coffeesStore.list.forEach(c => c.flavorNotes?.forEach(n => all.add(n)))
+  return [...all].sort()
+})
+const newNote = ref('')
+const showNoteSuggestions = ref(false)
+const filteredSuggestions = computed(() => {
+  if (!newNote.value.trim()) return []
+  const q = newNote.value.toLowerCase()
+  return existingNotes.value
+    .filter(n => n.toLowerCase().includes(q) && !form.flavorNotes.includes(n))
+    .slice(0, 6)
+})
+
+onMounted(() => {
+  if (coffeesStore.list.length === 0) coffeesStore.loadAll()
+})
+
 if (props.initialData?.variety && !COMMON_VARIETIES.includes(props.initialData.variety)) {
   customVariety.value = true
 }
@@ -48,26 +68,33 @@ function toggleCustomVariety() {
   if (!customVariety.value) form.variety = ''
 }
 
-const newNote = ref('')
-function addNote() {
-  const note = newNote.value.trim()
-  if (note && !form.flavorNotes.includes(note)) form.flavorNotes.push(note)
+function addNote(note?: string) {
+  const value = (note || newNote.value).trim()
+  if (value && !form.flavorNotes.includes(value)) form.flavorNotes.push(value)
   newNote.value = ''
+  showNoteSuggestions.value = false
 }
 function removeNote(index: number) { form.flavorNotes.splice(index, 1) }
 function onNoteKeydown(e: KeyboardEvent) { if (e.key === 'Enter') { e.preventDefault(); addNote() } }
 function onRoasterNameUpdate(name: string) { form.roasterName = name }
+function clearRoaster() {
+  form.roasterId = ''
+  form.roasterName = ''
+}
 
 function validate(): boolean {
   errors.value = {}
-  const result = coffeeSchema.safeParse({
+  const data = {
     ...form,
-    altitude: form.altitude || undefined,
-    scaScore: form.scaScore || undefined,
-    price: form.price || undefined,
-    weight: form.weight || undefined,
+    roasterId: form.roasterId || undefined,
+    roasterName: form.roasterName || undefined,
+    altitude: form.altitude ? Number(form.altitude) : undefined,
+    scaScore: form.scaScore ? Number(form.scaScore) : undefined,
+    price: form.price ? Number(form.price) : undefined,
+    weight: form.weight ? Number(form.weight) : undefined,
     roastLevel: form.roastLevel || undefined,
-  })
+  }
+  const result = coffeeSchema.safeParse(data)
   if (!result.success) {
     for (const issue of result.error.issues) {
       const path = issue.path[0] as string
@@ -84,11 +111,10 @@ function onSubmit() {
     ...form,
     roasterId: form.roasterId || undefined,
     roasterName: form.roasterName || undefined,
-    brand: form.brand || undefined,
-    altitude: form.altitude || undefined,
+    altitude: form.altitude ? Number(form.altitude) : undefined,
     scaScore: form.scaScore ? Number(form.scaScore) : undefined,
-    price: form.price || undefined,
-    weight: form.weight || undefined,
+    price: form.price ? Number(form.price) : undefined,
+    weight: form.weight ? Number(form.weight) : undefined,
     roastLevel: form.roastLevel || undefined,
     originFarm: form.originFarm || undefined,
     originProducer: form.originProducer || undefined,
@@ -105,46 +131,61 @@ function onSubmit() {
           <Icon name="lucide:coffee" class="w-5 h-5 text-muted-foreground" />
           Información básica
         </h3>
-        <p class="text-sm text-muted-foreground mt-0.5">Nombre, tostador, marca, variedad y proceso</p>
+        <p class="text-sm text-muted-foreground mt-0.5">Nombre, tostador, variedad y proceso</p>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+      <div class="space-y-4">
+        <!-- Nombre - full width -->
         <div class="space-y-1.5">
           <Label for="coffee-name">Nombre *</Label>
           <Input id="coffee-name" v-model="form.name" placeholder="Ej: Gesha Finca El Paraíso" />
           <p v-if="errors.name" class="text-xs text-destructive">{{ errors.name }}</p>
         </div>
-        <div class="space-y-1.5">
-          <RoasterSelect v-model="form.roasterId" @update:roaster-name="onRoasterNameUpdate" />
-        </div>
-        <div class="space-y-1.5">
-          <Label for="coffee-brand">Marca</Label>
-          <Input id="coffee-brand" v-model="form.brand" placeholder="Ej: Selvanegra, Libertario..." />
-        </div>
+
+        <!-- Tostador/Marca con opción de limpiar -->
         <div class="space-y-1.5">
           <div class="flex items-center justify-between">
-            <Label>Variedad *</Label>
-            <button type="button" class="text-xs text-primary hover:underline" @click="toggleCustomVariety">
-              {{ customVariety ? 'Seleccionar de lista' : 'Escribir manual' }}
+            <Label>Tostador / Marca</Label>
+            <button
+              v-if="form.roasterId"
+              type="button"
+              class="text-xs text-muted-foreground hover:text-destructive transition-colors"
+              @click="clearRoaster"
+            >
+              Quitar
             </button>
           </div>
-          <Input v-if="customVariety" v-model="form.variety" placeholder="Escribir variedad" />
-          <Select v-else v-model="form.variety">
-            <SelectTrigger><SelectValue placeholder="Seleccionar variedad" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem v-for="opt in varietyOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</SelectItem>
-            </SelectContent>
-          </Select>
-          <p v-if="errors.variety" class="text-xs text-destructive">{{ errors.variety }}</p>
+          <RoasterSelect v-model="form.roasterId" @update:roaster-name="onRoasterNameUpdate" label="" />
         </div>
-        <div class="space-y-1.5">
-          <Label>Proceso *</Label>
-          <Select v-model="form.process">
-            <SelectTrigger><SelectValue placeholder="Seleccionar proceso" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem v-for="opt in PROCESS_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</SelectItem>
-            </SelectContent>
-          </Select>
-          <p v-if="errors.process" class="text-xs text-destructive">{{ errors.process }}</p>
+
+        <!-- Variedad + Proceso -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <Label>Variedad *</Label>
+              <button type="button" class="text-xs text-primary hover:underline" @click="toggleCustomVariety">
+                {{ customVariety ? 'Seleccionar de lista' : 'Escribir manual' }}
+              </button>
+            </div>
+            <Input v-if="customVariety" v-model="form.variety" placeholder="Escribir variedad" />
+            <Select v-else v-model="form.variety">
+              <SelectTrigger><SelectValue placeholder="Seleccionar variedad" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="opt in varietyOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</SelectItem>
+              </SelectContent>
+            </Select>
+            <p v-if="errors.variety" class="text-xs text-destructive">{{ errors.variety }}</p>
+          </div>
+          <div class="space-y-1.5">
+            <Label>Proceso *</Label>
+            <Select v-model="form.process">
+              <SelectTrigger><SelectValue placeholder="Seleccionar proceso" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="opt in PROCESS_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</SelectItem>
+              </SelectContent>
+            </Select>
+            <p v-if="errors.process" class="text-xs text-destructive">{{ errors.process }}</p>
+          </div>
         </div>
       </div>
     </section>
@@ -214,7 +255,7 @@ function onSubmit() {
         </div>
         <div class="space-y-1.5">
           <Label for="coffee-sca">Puntaje SCA</Label>
-          <Input id="coffee-sca" v-model="form.scaScore" type="number" step="0.1" placeholder="Ej: 86.5" />
+          <Input id="coffee-sca" v-model="form.scaScore" type="number" step="0.1" min="60" max="100" placeholder="Ej: 86.5" />
         </div>
         <div class="space-y-1.5">
           <Label for="coffee-price">Precio (COP)</Label>
@@ -238,9 +279,33 @@ function onSubmit() {
         </h3>
         <p class="text-sm text-muted-foreground mt-0.5">Agrega las notas que percibes</p>
       </div>
-      <div class="flex gap-2">
-        <Input v-model="newNote" class="flex-1" placeholder="Ej: Manzana verde, panela, jazmín..." @keydown="onNoteKeydown" />
-        <Button type="button" variant="secondary" @click="addNote">Agregar</Button>
+      <div class="relative">
+        <div class="flex gap-2">
+          <Input
+            v-model="newNote"
+            class="flex-1"
+            placeholder="Ej: Manzana verde, panela, jazmín..."
+            @keydown="onNoteKeydown"
+            @focus="showNoteSuggestions = true"
+            @blur="setTimeout(() => showNoteSuggestions = false, 200)"
+          />
+          <Button type="button" variant="secondary" @click="addNote()">Agregar</Button>
+        </div>
+        <!-- Autocomplete suggestions -->
+        <div
+          v-if="showNoteSuggestions && filteredSuggestions.length > 0"
+          class="absolute z-10 top-full left-0 right-12 mt-1 bg-popover border rounded-lg shadow-lg overflow-hidden"
+        >
+          <button
+            v-for="suggestion in filteredSuggestions"
+            :key="suggestion"
+            type="button"
+            class="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors"
+            @mousedown.prevent="addNote(suggestion)"
+          >
+            {{ suggestion }}
+          </button>
+        </div>
       </div>
       <div v-if="form.flavorNotes.length > 0" class="flex flex-wrap gap-1.5">
         <Badge
@@ -253,7 +318,20 @@ function onSubmit() {
           <Icon name="lucide:x" class="w-3 h-3" />
         </Badge>
       </div>
-      <p v-if="form.flavorNotes.length > 0" class="text-xs text-muted-foreground">Clic en una nota para eliminarla</p>
+      <!-- Quick suggestions from existing notes -->
+      <div v-if="existingNotes.length > 0 && form.flavorNotes.length === 0" class="space-y-1.5">
+        <p class="text-xs text-muted-foreground">Notas usadas anteriormente:</p>
+        <div class="flex flex-wrap gap-1.5">
+          <Badge
+            v-for="note in existingNotes.slice(0, 10)" :key="note"
+            variant="outline"
+            class="cursor-pointer hover:bg-accent transition-colors"
+            @click="addNote(note)"
+          >
+            + {{ note }}
+          </Badge>
+        </div>
+      </div>
     </section>
 
     <!-- Submit -->
