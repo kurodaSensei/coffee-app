@@ -10,23 +10,23 @@ export const useTastings = () => {
     brewMethod?: string
     isFavorite?: boolean
   }): Promise<Tasting[]> => {
-    const constraints: QueryConstraint[] = [orderBy('brewDate', 'desc')]
-
-    if (filters?.coffeeId) {
-      constraints.unshift(where('coffeeId', '==', filters.coffeeId))
-    }
-    if (filters?.brewMethod) {
-      constraints.unshift(where('brewMethod', '==', filters.brewMethod))
-    }
-    if (filters?.isFavorite) {
-      constraints.unshift(where('isFavorite', '==', true))
-    }
-
-    return getAll<Tasting>(COLLECTION, constraints)
+    // No Firestore orderBy to avoid composite index requirement;
+    // sort client-side by brewDate desc.
+    const all = await getAll<Tasting>(COLLECTION)
+    let result = all
+    if (filters?.coffeeId) result = result.filter(t => t.coffeeId === filters.coffeeId)
+    if (filters?.brewMethod) result = result.filter(t => t.brewMethod === filters.brewMethod)
+    if (filters?.isFavorite) result = result.filter(t => t.isFavorite)
+    return result.sort((a, b) => {
+      const ta = a.brewDate?.toMillis?.() ?? 0
+      const tb = b.brewDate?.toMillis?.() ?? 0
+      return tb - ta
+    })
   }
 
   const fetchRecent = async (count: number = 5): Promise<Tasting[]> => {
-    return getAll<Tasting>(COLLECTION, [orderBy('brewDate', 'desc'), limit(count)])
+    const all = await fetchAll()
+    return all.slice(0, count)
   }
 
   const fetchById = async (id: string): Promise<Tasting | null> => {

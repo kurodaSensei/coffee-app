@@ -20,4 +20,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!currentUser.value) {
     return navigateTo('/login')
   }
+
+  // Lazy-load user preferences once authenticated
+  const settings = useSettingsStore()
+  if (!settings.prefs) settings.load()
 })

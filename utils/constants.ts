@@ -1,3 +1,35 @@
+export const DEFAULT_PROCESS_OPTIONS = [
+  { value: 'washed', label: 'Lavado' },
+  { value: 'natural', label: 'Natural' },
+  { value: 'honey', label: 'Honey' },
+  { value: 'anaerobic', label: 'Anaeróbico' },
+  { value: 'carbonic', label: 'Maceración Carbónica' },
+  { value: 'experimental', label: 'Experimental' },
+  { value: 'other', label: 'Otro' },
+]
+
+export const DEFAULT_BREW_METHOD_OPTIONS = [
+  { value: 'v60', label: 'V60' },
+  { value: 'kalita', label: 'Kalita' },
+  { value: 'chemex', label: 'Chemex' },
+  { value: 'aeropress', label: 'AeroPress' },
+  { value: 'french_press', label: 'Prensa Francesa' },
+  { value: 'origami', label: 'Origami' },
+  { value: 'suiren', label: 'Suiren' },
+  { value: 'espresso', label: 'Espresso' },
+  { value: 'moka_pot', label: 'Moka' },
+  { value: 'phin', label: 'Phin (Vietnamita)' },
+  { value: 'cold_brew', label: 'Cold Brew' },
+  { value: 'other', label: 'Otro' },
+]
+
+export const DEFAULT_VARIETIES = [
+  'Caturra', 'Castillo', 'Colombia', 'Typica', 'Bourbon', 'Gesha', 'Pacamara',
+  'Java', 'Tabí', 'Cenicafé 1', 'Pink Bourbon', 'Wush Wush', 'Sidra',
+  'Sudan Rume', 'Eugenioides', 'SL28', 'SL34', 'Maragogipe', 'Laurina',
+]
+
+// Kept for backwards compatibility (used only where catalog isn't available)
 export const PROCESS_OPTIONS = [
   { value: 'washed', label: 'Lavado' },
   { value: 'natural', label: 'Natural' },

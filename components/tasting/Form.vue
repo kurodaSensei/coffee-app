@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { Tasting, Coffee } from '~/types'
-import { BREW_METHOD_OPTIONS } from '~/utils/constants'
+import type { Tasting, Coffee, Recipe } from '~/types'
+
+const catalog = useCatalog()
+const BREW_METHOD_OPTIONS = catalog.brewMethodOptions
 
 const props = defineProps<{
   initialData?: Partial<Tasting>
@@ -9,11 +11,12 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  submit: [data: Record<string, any>]
+  submit: [data: Record<string, any>, saveAsRecipe?: boolean]
   cancel: []
 }>()
 
 const coffeesStore = useCoffeesStore()
+const recipesStore = useRecipesStore()
 
 const form = reactive({
   coffeeId: props.initialData?.coffeeId || props.coffeeId || '',
@@ -42,11 +45,26 @@ const form = reactive({
 })
 
 const coffees = ref<Coffee[]>([])
+const selectedRecipeId = ref<string>('__none__')
+const saveAsRecipe = ref(false)
 
 onMounted(async () => {
-  await coffeesStore.load()
+  await Promise.all([coffeesStore.loadAll(), recipesStore.loadAll()])
   coffees.value = coffeesStore.list
 })
+
+function applyRecipe(recipeId: string) {
+  selectedRecipeId.value = recipeId
+  if (recipeId === '__none__') return
+  const recipe = recipesStore.list.find(r => r.id === recipeId)
+  if (!recipe) return
+  form.brewMethod = recipe.brewMethod
+  form.dose = recipe.dose
+  form.water = recipe.water
+  form.grindSize = recipe.grindSize
+  form.waterTemp = recipe.waterTemp
+  form.recipeName = recipe.name
+}
 
 const computedRatio = computed(() => {
   if (form.dose && form.water) {
@@ -69,7 +87,7 @@ function handleSubmit() {
   emit('submit', {
     ...form,
     ratio: computedRatio.value,
-  })
+  }, saveAsRecipe.value)
 }
 
 const optionalRatings = [
@@ -164,6 +182,25 @@ const optionalRatings = [
           Parametros
         </h3>
         <p class="text-sm text-muted-foreground mt-0.5">Variables de la preparacion</p>
+      </div>
+
+      <!-- Recipe selector -->
+      <div v-if="recipesStore.list.length > 0" class="space-y-1.5">
+        <Label class="flex items-center gap-1.5">
+          <Icon name="lucide:book-open" class="w-3.5 h-3.5 text-muted-foreground" />
+          Usar una receta guardada
+        </Label>
+        <Select :model-value="selectedRecipeId" @update:model-value="applyRecipe">
+          <SelectTrigger>
+            <SelectValue placeholder="Ninguna" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__none__">Sin receta (parámetros manuales)</SelectItem>
+            <SelectItem v-for="r in recipesStore.list" :key="r.id" :value="r.id">
+              {{ r.name }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -297,7 +334,7 @@ const optionalRatings = [
         />
       </div>
 
-      <div class="flex items-center gap-6 py-1">
+      <div class="flex flex-wrap items-center gap-6 py-1">
         <label for="would-buy" class="flex items-center gap-2.5 cursor-pointer select-none">
           <Checkbox
             id="would-buy"
@@ -318,6 +355,30 @@ const optionalRatings = [
             Favorito
           </span>
         </label>
+      </div>
+
+      <!-- Save as recipe -->
+      <div v-if="!initialData?.id && selectedRecipeId === '__none__' && form.dose && form.water" class="rounded-lg border border-dashed p-4">
+        <label for="save-recipe" class="flex items-start gap-2.5 cursor-pointer select-none">
+          <Checkbox
+            id="save-recipe"
+            :checked="saveAsRecipe"
+            @update:checked="(v: boolean) => saveAsRecipe = v"
+            class="mt-0.5"
+          />
+          <div class="flex-1">
+            <span class="text-sm font-medium flex items-center gap-1.5">
+              <Icon name="lucide:book-plus" class="w-3.5 h-3.5 text-primary" />
+              Guardar estos parámetros como receta
+            </span>
+            <p class="text-xs text-muted-foreground mt-0.5">
+              Crea una nueva receta <span v-if="form.recipeName" class="font-medium">"{{ form.recipeName }}"</span> para reutilizarla en futuras catas.
+            </p>
+          </div>
+        </label>
+        <div v-if="saveAsRecipe && !form.recipeName" class="mt-2 ml-7">
+          <Input v-model="form.recipeName" placeholder="Nombre de la receta (requerido)" class="h-8 text-xs" />
+        </div>
       </div>
     </section>
 

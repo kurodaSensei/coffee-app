@@ -9,12 +9,27 @@ interface TastingFilters {
 
 export const useTastingsStore = defineStore('tastings', () => {
   const { fetchAll, fetchRecent, fetchById, createTasting, updateTasting, deleteTasting } = useTastings()
+  const { getSharedWithMe } = useFirebase()
 
   const list = ref<Tasting[]>([])
+  const sharedList = ref<Tasting[]>([])
   const recent = ref<Tasting[]>([])
   const current = ref<Tasting | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+
+  async function loadShared() {
+    try {
+      const shared = await getSharedWithMe<Tasting>('tastings')
+      sharedList.value = shared.sort((a, b) => {
+        const ta = a.brewDate?.toMillis?.() ?? 0
+        const tb = b.brewDate?.toMillis?.() ?? 0
+        return tb - ta
+      })
+    } catch (e: any) {
+      console.error('Failed to load shared tastings:', e)
+    }
+  }
 
   async function loadAll(filters?: TastingFilters) {
     loading.value = true
@@ -103,11 +118,13 @@ export const useTastingsStore = defineStore('tastings', () => {
 
   return {
     list,
+    sharedList,
     recent,
     current,
     loading,
     error,
     loadAll,
+    loadShared,
     loadRecent,
     loadById,
     create,

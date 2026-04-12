@@ -10,6 +10,7 @@ const tastingsStore = useTastingsStore()
 const coffeeId = computed(() => route.params.id as string)
 const showEditDialog = ref(false)
 const showDeleteDialog = ref(false)
+const showShareDialog = ref(false)
 const editLoading = ref(false)
 
 onMounted(async () => {
@@ -73,6 +74,13 @@ async function confirmDelete() {
             Volver
           </Button>
         </NuxtLink>
+        <Button variant="outline" size="sm" @click="showShareDialog = true">
+          <Icon name="lucide:share-2" class="w-4 h-4" />
+          Compartir
+          <Badge v-if="coffee?.sharedWith?.length" variant="secondary" class="ml-1 h-5 px-1.5">
+            {{ coffee.sharedWith.length }}
+          </Badge>
+        </Button>
         <Button variant="outline" size="sm" @click="showEditDialog = true">
           <Icon name="lucide:pencil" class="w-4 h-4" />
           Editar
@@ -339,6 +347,17 @@ async function confirmDelete() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <!-- Share Dialog -->
+      <ShareDialog
+        v-if="coffee"
+        v-model:open="showShareDialog"
+        collection="coffees"
+        :item-id="coffee.id"
+        :item-name="coffee.name"
+        :current-shared="coffee.sharedWith"
+        @shared="coffeesStore.loadById(coffeeId)"
+      />
     </template>
   </div>
 </template>

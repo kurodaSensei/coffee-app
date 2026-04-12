@@ -9,6 +9,8 @@ const navItems = [
   { label: 'Degustaciones', icon: 'lucide:star', to: '/tastings' },
   { label: 'Recetas', icon: 'lucide:book-open', to: '/recipes' },
   { label: 'Wishlist', icon: 'lucide:heart', to: '/wishlist' },
+  { label: 'Amigos', icon: 'lucide:users', to: '/friends' },
+  { label: 'Configuración', icon: 'lucide:settings', to: '/settings' },
 ]
 
 function isActive(path: string): boolean {

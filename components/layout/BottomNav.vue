@@ -4,10 +4,10 @@ const route = useRoute()
 const tabs = [
   { label: 'Inicio', icon: 'lucide:layout-dashboard', to: '/' },
   { label: 'Cafés', icon: 'lucide:coffee', to: '/coffees' },
-  { label: 'Tostadores', icon: 'lucide:store', to: '/roasters' },
   { label: 'Catas', icon: 'lucide:star', to: '/tastings' },
   { label: 'Recetas', icon: 'lucide:book-open', to: '/recipes' },
   { label: 'Wishlist', icon: 'lucide:heart', to: '/wishlist' },
+  { label: 'Ajustes', icon: 'lucide:settings', to: '/settings' },
 ]
 
 function isActive(path: string): boolean {

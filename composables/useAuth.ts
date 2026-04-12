@@ -21,9 +21,23 @@ export const useAuth = () => {
 
   if (!_initialized) {
     _initialized = true
-    onAuthStateChanged($auth, (user) => {
+    onAuthStateChanged($auth, async (user) => {
       currentUser.value = user
       authLoading.value = false
+      // Upsert user profile in Firestore so others can find them by email
+      if (user && user.email) {
+        try {
+          const { upsertProfile } = useUsers()
+          await upsertProfile({
+            id: user.uid,
+            email: user.email.toLowerCase(),
+            displayName: user.displayName || undefined,
+            photoURL: user.photoURL || undefined,
+          })
+        } catch (e) {
+          console.error('Failed to upsert user profile:', e)
+        }
+      }
     })
   }
 

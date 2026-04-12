@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { Recipe, BrewMethod } from '~/types'
-import { BREW_METHOD_OPTIONS } from '~/utils/constants'
 import { formatRatio } from '~/utils/formatters'
+
+const catalog = useCatalog()
+const BREW_METHOD_OPTIONS = catalog.brewMethodOptions
 
 interface Props {
   initialData?: Partial<Recipe>

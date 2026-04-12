@@ -1,4 +1,3 @@
-import { orderBy } from 'firebase/firestore'
 import type { WishlistItem } from '~/types'
 
 export const useWishlist = () => {
@@ -6,7 +5,8 @@ export const useWishlist = () => {
   const COLLECTION = 'wishlist'
 
   const fetchAll = async (): Promise<WishlistItem[]> => {
-    return getAll<WishlistItem>(COLLECTION, [orderBy('priority', 'desc')])
+    const all = await getAll<WishlistItem>(COLLECTION)
+    return all.sort((a, b) => (b.priority || 0) - (a.priority || 0))
   }
 
   const fetchById = async (id: string): Promise<WishlistItem | null> => {

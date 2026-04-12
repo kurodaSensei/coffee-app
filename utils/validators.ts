@@ -31,7 +31,7 @@ export const coffeeSchema = z.object({
   roasterId: z.string().optional(),
   roasterName: z.string().optional(),
   variety: z.string().min(1, 'La variedad es requerida'),
-  process: z.enum(['washed', 'natural', 'honey', 'anaerobic', 'carbonic', 'experimental', 'other']),
+  process: z.string().min(1, 'Proceso requerido'),
   originRegion: z.string().min(1, 'La región es requerida'),
   originCountry: z.string().min(1, 'El país es requerido'),
   originFarm: z.string().optional(),
@@ -48,7 +48,7 @@ export const tastingSchema = z.object({
   coffeeId: z.string().min(1, 'El café es requerido'),
   coffeeName: z.string(),
   roasterName: z.string(),
-  brewMethod: z.enum(['v60', 'kalita', 'chemex', 'aeropress', 'french_press', 'origami', 'suiren', 'espresso', 'moka_pot', 'phin', 'cold_brew', 'other']),
+  brewMethod: z.string().min(1, 'Método requerido'),
   brewDate: z.date(),
   dose: z.number().positive().optional(),
   water: z.number().positive().optional(),
@@ -71,7 +71,7 @@ export const tastingSchema = z.object({
 
 export const recipeSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
-  brewMethod: z.enum(['v60', 'kalita', 'chemex', 'aeropress', 'french_press', 'origami', 'suiren', 'espresso', 'moka_pot', 'phin', 'cold_brew', 'other']),
+  brewMethod: z.string().min(1, 'Método requerido'),
   dose: z.number().positive('La dosis es requerida'),
   water: z.number().positive('El agua es requerida'),
   ratio: z.string().optional(),

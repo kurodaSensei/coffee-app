@@ -3,11 +3,22 @@ import type { Recipe } from '~/types'
 
 export const useRecipesStore = defineStore('recipes', () => {
   const { fetchAll, fetchById, createRecipe, updateRecipe, deleteRecipe } = useRecipes()
+  const { getSharedWithMe } = useFirebase()
 
   const list = ref<Recipe[]>([])
+  const sharedList = ref<Recipe[]>([])
   const current = ref<Recipe | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+
+  async function loadShared() {
+    try {
+      const shared = await getSharedWithMe<Recipe>('recipes')
+      sharedList.value = shared.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    } catch (e: any) {
+      console.error('Failed to load shared recipes:', e)
+    }
+  }
 
   async function loadAll() {
     loading.value = true
@@ -84,10 +95,12 @@ export const useRecipesStore = defineStore('recipes', () => {
 
   return {
     list,
+    sharedList,
     current,
     loading,
     error,
     loadAll,
+    loadShared,
     loadById,
     create,
     update,

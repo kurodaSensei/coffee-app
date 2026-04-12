@@ -1,4 +1,3 @@
-import { orderBy } from 'firebase/firestore'
 import type { Recipe } from '~/types'
 
 export const useRecipes = () => {
@@ -6,7 +5,8 @@ export const useRecipes = () => {
   const COLLECTION = 'recipes'
 
   const fetchAll = async (): Promise<Recipe[]> => {
-    return getAll<Recipe>(COLLECTION, [orderBy('name')])
+    const all = await getAll<Recipe>(COLLECTION)
+    return all.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
   }
 
   const fetchById = async (id: string): Promise<Recipe | null> => {

@@ -68,6 +68,7 @@ export interface Coffee {
   weight?: number
   flavorNotes: string[]
   photoUrl?: string
+  sharedWith?: string[]
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -97,6 +98,7 @@ export interface Tasting {
   wouldBuyAgain?: boolean
   isFavorite?: boolean
   photoUrl?: string
+  sharedWith?: string[]
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -112,6 +114,7 @@ export interface Recipe {
   waterTemp?: number
   instructions?: string
   bestFor?: string
+  sharedWith?: string[]
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -127,6 +130,40 @@ export interface WishlistItem {
   status: WishlistStatus
   createdAt: Timestamp
   updatedAt: Timestamp
+}
+
+export interface UserProfile {
+  id: string
+  email: string
+  displayName?: string
+  photoURL?: string
+  createdAt?: Timestamp
+  updatedAt?: Timestamp
+}
+
+export type FriendshipStatus = 'pending' | 'accepted' | 'rejected'
+
+export interface Friendship {
+  id: string
+  uids: string[]
+  users: Array<{ uid: string; email: string; displayName?: string }>
+  status: FriendshipStatus
+  initiatedBy: string
+  createdAt?: Timestamp
+  updatedAt?: Timestamp
+}
+
+export interface UserPreferences {
+  id: string
+  userId: string
+  customVarieties: string[]
+  customProcesses: { value: string; label: string }[]
+  customBrewMethods: { value: string; label: string }[]
+  disabledVarieties: string[]
+  disabledProcesses: string[]
+  disabledBrewMethods: string[]
+  createdAt?: Timestamp
+  updatedAt?: Timestamp
 }
 
 export interface Variety {

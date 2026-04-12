@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import type { Coffee, CoffeeProcess, RoastLevel } from '~/types'
 import { coffeeSchema } from '~/utils/validators'
-import { PROCESS_OPTIONS, ROAST_LEVEL_OPTIONS, COMMON_VARIETIES, COLOMBIAN_REGIONS } from '~/utils/constants'
+import { ROAST_LEVEL_OPTIONS, COLOMBIAN_REGIONS } from '~/utils/constants'
+
+const catalog = useCatalog()
+const PROCESS_OPTIONS = catalog.processOptions
+const COMMON_VARIETIES = catalog.varieties
 
 const props = withDefaults(defineProps<{
   initialData?: Partial<Coffee>
@@ -35,7 +39,7 @@ const form = reactive({
 
 const errors = ref<Record<string, string>>({})
 const customVariety = ref(false)
-const varietyOptions = computed(() => COMMON_VARIETIES.map(v => ({ value: v, label: v })))
+const varietyOptions = computed(() => COMMON_VARIETIES.value.map(v => ({ value: v, label: v })))
 const regionOptions = computed(() => COLOMBIAN_REGIONS.map(r => ({ value: r, label: r })))
 
 // Flavor notes: load existing notes from all coffees for autocomplete
@@ -59,7 +63,7 @@ onMounted(() => {
   if (coffeesStore.list.length === 0) coffeesStore.loadAll()
 })
 
-if (props.initialData?.variety && !COMMON_VARIETIES.includes(props.initialData.variety)) {
+if (props.initialData?.variety && !COMMON_VARIETIES.value.includes(props.initialData.variety)) {
   customVariety.value = true
 }
 

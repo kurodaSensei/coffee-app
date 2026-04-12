@@ -1,4 +1,3 @@
-import { orderBy, where, type QueryConstraint } from 'firebase/firestore'
 import type { Coffee } from '~/types'
 
 export const useCoffees = () => {
@@ -10,16 +9,16 @@ export const useCoffees = () => {
     process?: string
     variety?: string
   }): Promise<Coffee[]> => {
-    const constraints: QueryConstraint[] = [orderBy('createdAt', 'desc')]
-
-    if (filters?.roasterId) {
-      constraints.unshift(where('roasterId', '==', filters.roasterId))
-    }
-    if (filters?.process) {
-      constraints.unshift(where('process', '==', filters.process))
-    }
-
-    return getAll<Coffee>(COLLECTION, constraints)
+    const all = await getAll<Coffee>(COLLECTION)
+    let result = all
+    if (filters?.roasterId) result = result.filter(c => c.roasterId === filters.roasterId)
+    if (filters?.process) result = result.filter(c => c.process === filters.process)
+    if (filters?.variety) result = result.filter(c => c.variety === filters.variety)
+    return result.sort((a, b) => {
+      const ta = a.createdAt?.toMillis?.() ?? 0
+      const tb = b.createdAt?.toMillis?.() ?? 0
+      return tb - ta
+    })
   }
 
   const fetchById = async (id: string): Promise<Coffee | null> => {

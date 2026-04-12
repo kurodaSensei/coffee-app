@@ -38,11 +38,38 @@ export const useFirebase = () => {
     const docSnap = await getDoc(docRef)
     if (docSnap.exists()) {
       const data = docSnap.data()
-      // Verify ownership
-      if (data.userId !== userId.value) return null
+      // Owner OR shared-with can read
+      const isOwner = data.userId === userId.value
+      const isShared = Array.isArray(data.sharedWith) && data.sharedWith.includes(userId.value)
+      if (!isOwner && !isShared) return null
       return { id: docSnap.id, ...data } as T
     }
     return null
+  }
+
+  // Fetch items shared with the current user (across a collection)
+  const getSharedWithMe = async <T>(collectionName: string): Promise<T[]> => {
+    if (!userId.value) return []
+    const q = query(
+      collection($db, collectionName),
+      where('sharedWith', 'array-contains', userId.value),
+    )
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as T[]
+  }
+
+  const updateSharing = async (
+    collectionName: string,
+    id: string,
+    sharedWith: string[],
+  ): Promise<void> => {
+    if (!userId.value) throw new Error('No authenticated user')
+    const docRef = doc($db, collectionName, id)
+    const docSnap = await getDoc(docRef)
+    if (!docSnap.exists() || docSnap.data().userId !== userId.value) {
+      throw new Error('Unauthorized')
+    }
+    await updateDoc(docRef, { sharedWith, updatedAt: Timestamp.now() })
   }
 
   const create = async <T extends DocumentData>(
@@ -89,6 +116,8 @@ export const useFirebase = () => {
   return {
     getAll,
     getById,
+    getSharedWithMe,
+    updateSharing,
     create,
     update,
     remove,

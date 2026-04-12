@@ -7,6 +7,7 @@ const router = useRouter()
 const tastingsStore = useTastingsStore()
 const showEditDialog = ref(false)
 const showDeleteDialog = ref(false)
+const showShareDialog = ref(false)
 const loading = ref(false)
 
 const id = route.params.id as string
@@ -46,6 +47,13 @@ async function handleUpdate(data: Record<string, any>) {
           Volver
         </Button>
       </NuxtLink>
+      <Button variant="outline" size="sm" @click="showShareDialog = true">
+        <Icon name="lucide:share-2" class="w-4 h-4" />
+        Compartir
+        <Badge v-if="tasting?.sharedWith?.length" variant="secondary" class="ml-1 h-5 px-1.5">
+          {{ tasting.sharedWith.length }}
+        </Badge>
+      </Button>
       <Button variant="outline" size="sm" @click="showEditDialog = true">
         <Icon name="lucide:pencil" class="w-4 h-4" />
         Editar
@@ -169,6 +177,16 @@ async function handleUpdate(data: Record<string, any>) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    <ShareDialog
+      v-if="tasting"
+      v-model:open="showShareDialog"
+      collection="tastings"
+      :item-id="tasting.id"
+      :item-name="tasting.coffeeName"
+      :current-shared="tasting.sharedWith"
+      @shared="tastingsStore.loadById(id)"
+    />
   </div>
 
   <!-- Loading -->
