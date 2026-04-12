@@ -57,11 +57,12 @@ function isMethodDisabled(v: string) {
     </div>
 
     <Tabs v-else default-value="varieties" class="space-y-6">
-      <TabsList class="grid w-full grid-cols-4 max-w-2xl">
+      <TabsList class="grid w-full grid-cols-3 sm:grid-cols-5 max-w-3xl">
         <TabsTrigger value="varieties">Variedades</TabsTrigger>
         <TabsTrigger value="processes">Procesos</TabsTrigger>
         <TabsTrigger value="methods">Métodos</TabsTrigger>
         <TabsTrigger value="roasters">Tostadores</TabsTrigger>
+        <TabsTrigger value="friends">Amigos</TabsTrigger>
       </TabsList>
 
       <!-- Variedades -->
@@ -218,6 +219,25 @@ function isMethodDisabled(v: string) {
             </Badge>
           </div>
         </div>
+      </TabsContent>
+
+      <!-- Amigos -->
+      <TabsContent value="friends" class="space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-base">Amigos y compartir</CardTitle>
+            <CardDescription>Gestiona tus amigos para compartir cafés, catas y recetas</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <NuxtLink to="/friends">
+              <Button variant="outline">
+                <Icon name="lucide:users" class="w-4 h-4" />
+                Ir a amigos
+                <Icon name="lucide:arrow-right" class="w-4 h-4" />
+              </Button>
+            </NuxtLink>
+          </CardContent>
+        </Card>
       </TabsContent>
 
       <!-- Tostadores -->

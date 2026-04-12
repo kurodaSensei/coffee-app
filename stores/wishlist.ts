@@ -34,14 +34,17 @@ export const useWishlistStore = defineStore('wishlist', () => {
   }
 
   async function create(data: Omit<WishlistItem, 'id' | 'createdAt' | 'updatedAt'>) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
       const id = await createItem(data)
       await loadAll()
+      toast.success('Agregado a wishlist')
       return id
     } catch (e: any) {
       error.value = e.message ?? 'Failed to create wishlist item'
+      toast.error('No se pudo crear el item de wishlist', e)
       throw e
     } finally {
       loading.value = false
@@ -49,6 +52,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
   }
 
   async function update(id: string, data: Partial<WishlistItem>) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
@@ -57,8 +61,10 @@ export const useWishlistStore = defineStore('wishlist', () => {
       if (current.value?.id === id) {
         current.value = await fetchById(id)
       }
+      toast.success('Wishlist actualizada')
     } catch (e: any) {
       error.value = e.message ?? 'Failed to update wishlist item'
+      toast.error('No se pudo actualizar el item de wishlist', e)
       throw e
     } finally {
       loading.value = false
@@ -66,10 +72,27 @@ export const useWishlistStore = defineStore('wishlist', () => {
   }
 
   async function changeStatus(id: string, status: WishlistStatus) {
-    return update(id, { status })
+    const toast = useToast()
+    loading.value = true
+    error.value = null
+    try {
+      await updateItem(id, { status })
+      await loadAll()
+      if (current.value?.id === id) {
+        current.value = await fetchById(id)
+      }
+      toast.success('Estado actualizado')
+    } catch (e: any) {
+      error.value = e.message ?? 'Failed to update wishlist item'
+      toast.error('No se pudo actualizar el estado', e)
+      throw e
+    } finally {
+      loading.value = false
+    }
   }
 
   async function remove(id: string) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
@@ -78,8 +101,10 @@ export const useWishlistStore = defineStore('wishlist', () => {
       if (current.value?.id === id) {
         current.value = null
       }
+      toast.success('Eliminado de wishlist')
     } catch (e: any) {
       error.value = e.message ?? 'Failed to delete wishlist item'
+      toast.error('No se pudo eliminar el item de wishlist', e)
       throw e
     } finally {
       loading.value = false

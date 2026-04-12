@@ -59,14 +59,17 @@ export const useCoffeesStore = defineStore('coffees', () => {
   }
 
   async function create(data: Omit<Coffee, 'id' | 'createdAt' | 'updatedAt'>) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
       const id = await createCoffee(data)
       await loadAll()
+      toast.success('Café creado')
       return id
     } catch (e: any) {
       error.value = e.message ?? 'Failed to create coffee'
+      toast.error('No se pudo crear el café', e)
       throw e
     } finally {
       loading.value = false
@@ -74,6 +77,7 @@ export const useCoffeesStore = defineStore('coffees', () => {
   }
 
   async function update(id: string, data: Partial<Coffee>) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
@@ -82,8 +86,10 @@ export const useCoffeesStore = defineStore('coffees', () => {
       if (current.value?.id === id) {
         current.value = await fetchById(id)
       }
+      toast.success('Café actualizado')
     } catch (e: any) {
       error.value = e.message ?? 'Failed to update coffee'
+      toast.error('No se pudo actualizar el café', e)
       throw e
     } finally {
       loading.value = false
@@ -91,6 +97,7 @@ export const useCoffeesStore = defineStore('coffees', () => {
   }
 
   async function remove(id: string) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
@@ -99,8 +106,10 @@ export const useCoffeesStore = defineStore('coffees', () => {
       if (current.value?.id === id) {
         current.value = null
       }
+      toast.success('Café eliminado')
     } catch (e: any) {
       error.value = e.message ?? 'Failed to delete coffee'
+      toast.error('No se pudo eliminar el café', e)
       throw e
     } finally {
       loading.value = false

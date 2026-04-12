@@ -34,14 +34,17 @@ export const useRoastersStore = defineStore('roasters', () => {
   }
 
   async function create(data: Omit<Roaster, 'id' | 'createdAt' | 'updatedAt'>) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
       const id = await createRoaster(data)
       await loadAll()
+      toast.success('Tostador creado')
       return id
     } catch (e: any) {
       error.value = e.message ?? 'Failed to create roaster'
+      toast.error('No se pudo crear el tostador', e)
       throw e
     } finally {
       loading.value = false
@@ -49,6 +52,7 @@ export const useRoastersStore = defineStore('roasters', () => {
   }
 
   async function update(id: string, data: Partial<Roaster>) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
@@ -57,8 +61,10 @@ export const useRoastersStore = defineStore('roasters', () => {
       if (current.value?.id === id) {
         current.value = await fetchById(id)
       }
+      toast.success('Tostador actualizado')
     } catch (e: any) {
       error.value = e.message ?? 'Failed to update roaster'
+      toast.error('No se pudo actualizar el tostador', e)
       throw e
     } finally {
       loading.value = false
@@ -66,6 +72,7 @@ export const useRoastersStore = defineStore('roasters', () => {
   }
 
   async function remove(id: string) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
@@ -74,8 +81,10 @@ export const useRoastersStore = defineStore('roasters', () => {
       if (current.value?.id === id) {
         current.value = null
       }
+      toast.success('Tostador eliminado')
     } catch (e: any) {
       error.value = e.message ?? 'Failed to delete roaster'
+      toast.error('No se pudo eliminar el tostador', e)
       throw e
     } finally {
       loading.value = false

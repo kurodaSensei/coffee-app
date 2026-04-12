@@ -45,14 +45,17 @@ export const useRecipesStore = defineStore('recipes', () => {
   }
 
   async function create(data: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
       const id = await createRecipe(data)
       await loadAll()
+      toast.success('Receta creada')
       return id
     } catch (e: any) {
       error.value = e.message ?? 'Failed to create recipe'
+      toast.error('No se pudo crear la receta', e)
       throw e
     } finally {
       loading.value = false
@@ -60,6 +63,7 @@ export const useRecipesStore = defineStore('recipes', () => {
   }
 
   async function update(id: string, data: Partial<Recipe>) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
@@ -68,8 +72,10 @@ export const useRecipesStore = defineStore('recipes', () => {
       if (current.value?.id === id) {
         current.value = await fetchById(id)
       }
+      toast.success('Receta actualizada')
     } catch (e: any) {
       error.value = e.message ?? 'Failed to update recipe'
+      toast.error('No se pudo actualizar la receta', e)
       throw e
     } finally {
       loading.value = false
@@ -77,6 +83,7 @@ export const useRecipesStore = defineStore('recipes', () => {
   }
 
   async function remove(id: string) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
@@ -85,8 +92,10 @@ export const useRecipesStore = defineStore('recipes', () => {
       if (current.value?.id === id) {
         current.value = null
       }
+      toast.success('Receta eliminada')
     } catch (e: any) {
       error.value = e.message ?? 'Failed to delete recipe'
+      toast.error('No se pudo eliminar la receta', e)
       throw e
     } finally {
       loading.value = false

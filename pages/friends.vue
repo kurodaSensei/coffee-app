@@ -32,9 +32,9 @@ function initial(name?: string, emailStr?: string) {
         <CardDescription>Busca a alguien por su correo electrónico. Debe tener una cuenta en Coffee Tracker.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form @submit.prevent="submit" class="flex gap-2">
+        <form @submit.prevent="submit" class="flex flex-col sm:flex-row gap-2">
           <Input v-model="email" type="email" placeholder="amigo@email.com" class="flex-1" />
-          <Button type="submit" :disabled="submitting || !email.trim()">
+          <Button type="submit" :disabled="submitting || !email.trim()" class="w-full sm:w-auto">
             <Icon v-if="submitting" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
             <Icon v-else name="lucide:user-plus" class="w-4 h-4" />
             Enviar solicitud

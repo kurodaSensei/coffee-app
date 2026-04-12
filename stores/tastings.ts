@@ -68,14 +68,17 @@ export const useTastingsStore = defineStore('tastings', () => {
   }
 
   async function create(data: Omit<Tasting, 'id' | 'createdAt' | 'updatedAt'>) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
       const id = await createTasting(data)
       await loadAll()
+      toast.success('Cata registrada')
       return id
     } catch (e: any) {
       error.value = e.message ?? 'Failed to create tasting'
+      toast.error('No se pudo crear la cata', e)
       throw e
     } finally {
       loading.value = false
@@ -83,6 +86,7 @@ export const useTastingsStore = defineStore('tastings', () => {
   }
 
   async function update(id: string, data: Partial<Tasting>) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
@@ -91,8 +95,10 @@ export const useTastingsStore = defineStore('tastings', () => {
       if (current.value?.id === id) {
         current.value = await fetchById(id)
       }
+      toast.success('Cata actualizada')
     } catch (e: any) {
       error.value = e.message ?? 'Failed to update tasting'
+      toast.error('No se pudo actualizar la cata', e)
       throw e
     } finally {
       loading.value = false
@@ -100,6 +106,7 @@ export const useTastingsStore = defineStore('tastings', () => {
   }
 
   async function remove(id: string) {
+    const toast = useToast()
     loading.value = true
     error.value = null
     try {
@@ -108,8 +115,10 @@ export const useTastingsStore = defineStore('tastings', () => {
       if (current.value?.id === id) {
         current.value = null
       }
+      toast.success('Cata eliminada')
     } catch (e: any) {
       error.value = e.message ?? 'Failed to delete tasting'
+      toast.error('No se pudo eliminar la cata', e)
       throw e
     } finally {
       loading.value = false
