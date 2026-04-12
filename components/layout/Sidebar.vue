@@ -22,13 +22,16 @@ const userInitial = computed(() =>
 </script>
 
 <template>
-  <aside class="hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 w-[240px] bg-coffee-900">
+  <aside class="hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 w-[240px] bg-neutral-950">
     <!-- Logo -->
     <div class="flex items-center gap-2.5 px-5 h-14 border-b border-white/10">
-      <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
-        <Icon name="lucide:flame" class="w-4.5 h-4.5 text-white" />
+      <div class="w-8 h-8 rounded-lg bg-[#f5f0e8] flex items-center justify-center">
+        <Icon name="lucide:coffee" class="w-4 h-4 text-neutral-950" />
       </div>
-      <span class="text-[15px] font-semibold text-white tracking-tight">Coffee Tracker</span>
+      <div class="flex flex-col leading-tight">
+        <span class="text-[14px] font-semibold text-white tracking-tight">Coffee Tracker</span>
+        <span class="text-[10px] text-white/40 tracking-wider uppercase">by KurodaCafe</span>
+      </div>
     </div>
 
     <!-- Nav -->
@@ -40,7 +43,7 @@ const userInitial = computed(() =>
         :class="[
           'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
           isActive(item.to)
-            ? 'bg-white/15 text-white shadow-sm'
+            ? 'bg-white/15 text-white'
             : 'text-white/55 hover:bg-white/8 hover:text-white/80',
         ]"
       >

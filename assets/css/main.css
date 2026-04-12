@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 30 33% 98%;
-    --foreground: 20 20% 16%;
-    --card: 0 0% 100%;
-    --card-foreground: 20 20% 16%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 20 20% 16%;
-    --primary: 25 46% 30%;
-    --primary-foreground: 30 33% 98%;
-    --secondary: 28 20% 93%;
-    --secondary-foreground: 25 46% 30%;
-    --muted: 28 16% 93%;
-    --muted-foreground: 20 10% 48%;
-    --accent: 28 20% 93%;
-    --accent-foreground: 25 46% 30%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 28 14% 89%;
-    --input: 28 14% 89%;
-    --ring: 25 46% 30%;
+    --background: 40 33% 96%;
+    --foreground: 20 14% 8%;
+    --card: 40 40% 99%;
+    --card-foreground: 20 14% 8%;
+    --popover: 40 40% 99%;
+    --popover-foreground: 20 14% 8%;
+    --primary: 20 14% 8%;
+    --primary-foreground: 40 33% 96%;
+    --secondary: 38 20% 90%;
+    --secondary-foreground: 20 14% 8%;
+    --muted: 38 18% 91%;
+    --muted-foreground: 20 8% 40%;
+    --accent: 38 20% 90%;
+    --accent-foreground: 20 14% 8%;
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 40 33% 96%;
+    --border: 38 16% 85%;
+    --input: 38 16% 85%;
+    --ring: 20 14% 8%;
     --radius: 0.625rem;
   }
 
@@ -35,7 +35,6 @@
   }
 }
 
-/* Ensure button styles are visible - debug override */
 @layer components {
   [data-slot="button"] {
     cursor: pointer;

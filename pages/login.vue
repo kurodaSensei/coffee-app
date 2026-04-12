@@ -91,15 +91,16 @@ async function handleGoogle() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-amber-50/80 via-background to-orange-50/50 dark:from-amber-950/20 dark:via-background dark:to-orange-950/10 flex items-center justify-center px-4 py-12">
+  <div class="min-h-screen bg-background flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-md">
       <!-- Logo & branding -->
       <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-600 shadow-lg shadow-amber-600/25 mb-5">
-          <Icon name="lucide:flame" class="w-8 h-8 text-white" />
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-neutral-950 mb-5">
+          <Icon name="lucide:coffee" class="w-8 h-8 text-[#f5f0e8]" />
         </div>
         <h1 class="text-2xl font-bold text-foreground tracking-tight">Coffee Tracker</h1>
-        <p class="text-sm text-muted-foreground mt-1.5">Tu coleccion personal de cafes de especialidad</p>
+        <p class="text-[11px] text-muted-foreground mt-1 tracking-widest uppercase">by KurodaCafe</p>
+        <p class="text-sm text-muted-foreground mt-3">Tu colección personal de cafés de especialidad</p>
       </div>
 
       <!-- Form Card -->
@@ -217,7 +218,7 @@ async function handleGoogle() {
                 Ya tienes cuenta?
                 <button
                   @click="isRegister = false; error = ''"
-                  class="text-amber-600 dark:text-amber-400 font-medium hover:underline underline-offset-2 transition-colors"
+                  class="text-primary font-medium hover:underline underline-offset-2 transition-colors"
                 >
                   Iniciar sesion
                 </button>
@@ -226,7 +227,7 @@ async function handleGoogle() {
                 No tienes cuenta?
                 <button
                   @click="isRegister = true; error = ''"
-                  class="text-amber-600 dark:text-amber-400 font-medium hover:underline underline-offset-2 transition-colors"
+                  class="text-primary font-medium hover:underline underline-offset-2 transition-colors"
                 >
                   Registrarse
                 </button>
