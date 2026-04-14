@@ -72,7 +72,7 @@ const filteredCoffees = computed(() => {
     </LayoutHeader>
 
     <Tabs v-model="activeTab" class="space-y-4">
-      <TabsList>
+      <TabsList class="grid grid-cols-2 w-full">
         <TabsTrigger value="mine">
           Mis cafés
           <Badge variant="secondary" class="ml-2">{{ coffeesStore.list.length }}</Badge>

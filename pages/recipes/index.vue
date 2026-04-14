@@ -55,7 +55,7 @@ async function onDelete() {
     </LayoutHeader>
 
     <Tabs v-model="activeTab" class="space-y-4">
-      <TabsList>
+      <TabsList class="grid grid-cols-2 w-full">
         <TabsTrigger value="mine">
           Mis recetas
           <Badge variant="secondary" class="ml-2">{{ recipesStore.list.length }}</Badge>

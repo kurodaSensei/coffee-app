@@ -28,6 +28,8 @@ export const useCoffeesStore = defineStore('coffees', () => {
       })
     } catch (e: any) {
       console.error('Failed to load shared coffees:', e)
+      const toast = useToast()
+      toast.error('No se pudieron cargar cafés compartidos', e)
     }
   }
 

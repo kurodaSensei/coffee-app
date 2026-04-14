@@ -50,12 +50,19 @@ export const useFirebase = () => {
   // Fetch items shared with the current user (across a collection)
   const getSharedWithMe = async <T>(collectionName: string): Promise<T[]> => {
     if (!userId.value) return []
-    const q = query(
-      collection($db, collectionName),
-      where('sharedWith', 'array-contains', userId.value),
-    )
-    const snapshot = await getDocs(q)
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as T[]
+    console.log(`[getSharedWithMe] querying ${collectionName} where sharedWith contains UID:`, userId.value)
+    try {
+      const q = query(
+        collection($db, collectionName),
+        where('sharedWith', 'array-contains', userId.value),
+      )
+      const snapshot = await getDocs(q)
+      console.log(`[getSharedWithMe] ${collectionName} returned ${snapshot.size} docs`)
+      return snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as T[]
+    } catch (e: any) {
+      console.error(`[getSharedWithMe] ${collectionName} failed:`, e)
+      throw e
+    }
   }
 
   const updateSharing = async (

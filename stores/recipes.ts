@@ -17,6 +17,8 @@ export const useRecipesStore = defineStore('recipes', () => {
       sharedList.value = shared.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
     } catch (e: any) {
       console.error('Failed to load shared recipes:', e)
+      const toast = useToast()
+      toast.error('No se pudieron cargar recetas compartidas', e)
     }
   }
 

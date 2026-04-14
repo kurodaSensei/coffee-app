@@ -14,13 +14,13 @@ const cards = computed(() => [
   {
     icon: 'lucide:coffee',
     value: props.stats.totalCoffees,
-    label: 'Cafés registrados',
+    label: 'Cafés',
     accent: 'bg-amber-500/10 text-amber-600',
   },
   {
     icon: 'lucide:clipboard-list',
     value: props.stats.totalTastings,
-    label: 'Degustaciones',
+    label: 'Catas',
     accent: 'bg-blue-500/10 text-blue-600',
   },
   {
@@ -32,7 +32,7 @@ const cards = computed(() => [
   {
     icon: 'lucide:star',
     value: props.stats.avgRating,
-    label: 'Rating promedio',
+    label: 'Rating',
     accent: 'bg-emerald-500/10 text-emerald-600',
   },
 ])
@@ -41,14 +41,14 @@ const cards = computed(() => [
 <template>
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
     <Card v-for="stat in cards" :key="stat.label" class="border-border/60 shadow-sm hover:shadow transition-shadow">
-      <CardContent class="p-4">
-        <div class="flex items-start justify-between">
-          <div>
-            <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">{{ stat.label }}</p>
-            <p class="text-3xl font-bold tracking-tight tabular-nums mt-1">{{ stat.value }}</p>
-          </div>
-          <div :class="['rounded-lg p-2', stat.accent]">
+      <CardContent class="p-3 sm:p-4">
+        <div class="flex items-center gap-3">
+          <div :class="['rounded-lg p-2 flex-shrink-0', stat.accent]">
             <Icon :name="stat.icon" class="w-4 h-4" />
+          </div>
+          <div class="min-w-0">
+            <p class="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider truncate">{{ stat.label }}</p>
+            <p class="text-xl sm:text-2xl font-bold tracking-tight tabular-nums leading-none mt-0.5">{{ stat.value }}</p>
           </div>
         </div>
       </CardContent>

@@ -25,19 +25,34 @@ watch(() => props.open, (open) => {
 })
 
 function toggle(uid: string) {
-  if (selectedUids.value.includes(uid)) {
+  if (!uid) return
+  const idx = selectedUids.value.indexOf(uid)
+  if (idx >= 0) {
     selectedUids.value = selectedUids.value.filter(u => u !== uid)
   } else {
     selectedUids.value = [...selectedUids.value, uid]
   }
 }
 
+function isSelected(uid?: string) {
+  if (!uid) return false
+  return selectedUids.value.includes(uid)
+}
+
 async function save() {
+  const toast = useToast()
   saving.value = true
   try {
     await updateSharing(props.collection, props.itemId, selectedUids.value)
+    toast.success(
+      selectedUids.value.length > 0
+        ? `Compartido con ${selectedUids.value.length} amigo${selectedUids.value.length !== 1 ? 's' : ''}`
+        : 'Compartido actualizado',
+    )
     emit('shared')
     emit('update:open', false)
+  } catch (e: any) {
+    toast.error('No se pudo compartir', e)
   } finally {
     saving.value = false
   }
@@ -67,15 +82,32 @@ function initial(name?: string, email?: string) {
       </div>
 
       <div v-else class="space-y-1 max-h-80 overflow-y-auto">
-        <label
+        <button
           v-for="f in friendsStore.accepted"
           :key="f.id"
-          class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-accent cursor-pointer transition-colors"
+          type="button"
+          :class="[
+            'w-full flex items-center gap-3 p-2.5 rounded-lg text-left transition-colors',
+            isSelected(friendsStore.getOtherUser(f)?.uid)
+              ? 'bg-primary/10 hover:bg-primary/15'
+              : 'hover:bg-accent',
+          ]"
+          @click="toggle(friendsStore.getOtherUser(f)?.uid || '')"
         >
-          <Checkbox
-            :checked="selectedUids.includes(friendsStore.getOtherUser(f)?.uid || '')"
-            @update:checked="() => toggle(friendsStore.getOtherUser(f)?.uid || '')"
-          />
+          <div
+            :class="[
+              'w-4 h-4 rounded-sm border flex items-center justify-center flex-shrink-0 transition-colors',
+              isSelected(friendsStore.getOtherUser(f)?.uid)
+                ? 'bg-primary border-primary'
+                : 'border-primary bg-background',
+            ]"
+          >
+            <Icon
+              v-if="isSelected(friendsStore.getOtherUser(f)?.uid)"
+              name="lucide:check"
+              class="w-3 h-3 text-primary-foreground"
+            />
+          </div>
           <Avatar class="h-8 w-8">
             <AvatarFallback class="bg-muted text-xs">
               {{ initial(friendsStore.getOtherUser(f)?.displayName, friendsStore.getOtherUser(f)?.email) }}
@@ -87,7 +119,7 @@ function initial(name?: string, email?: string) {
             </p>
             <p class="text-xs text-muted-foreground truncate">{{ friendsStore.getOtherUser(f)?.email }}</p>
           </div>
-        </label>
+        </button>
       </div>
 
       <DialogFooter>

@@ -5,18 +5,8 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    function isOwner() {
-      return request.auth != null && resource.data.userId == request.auth.uid;
-    }
-
     function isAuthenticatedCreate() {
       return request.auth != null && request.resource.data.userId == request.auth.uid;
-    }
-
-    function isSharedWithMe() {
-      return request.auth != null
-        && resource.data.sharedWith is list
-        && request.auth.uid in resource.data.sharedWith;
     }
 
     function isFriendshipParticipant() {
@@ -24,35 +14,42 @@ service cloud.firestore {
         && request.auth.uid in resource.data.uids;
     }
 
-    // User-owned collections (allow shared read for items with sharedWith array)
+    // User-owned collections
     match /roasters/{docId} {
-      allow read: if isOwner();
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if isOwner();
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
+    // Shareable collections: allow read if owner OR if included in sharedWith
     match /coffees/{docId} {
-      allow read: if isOwner() || isSharedWithMe();
+      allow read: if request.auth != null
+        && (resource.data.userId == request.auth.uid
+            || request.auth.uid in resource.data.sharedWith);
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if isOwner();
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     match /tastings/{docId} {
-      allow read: if isOwner() || isSharedWithMe();
+      allow read: if request.auth != null
+        && (resource.data.userId == request.auth.uid
+            || request.auth.uid in resource.data.sharedWith);
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if isOwner();
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     match /recipes/{docId} {
-      allow read: if isOwner() || isSharedWithMe();
+      allow read: if request.auth != null
+        && (resource.data.userId == request.auth.uid
+            || request.auth.uid in resource.data.sharedWith);
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if isOwner();
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     match /wishlist/{docId} {
-      allow read: if isOwner();
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if isOwner();
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     // User preferences: doc id equals user uid

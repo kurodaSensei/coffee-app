@@ -28,6 +28,8 @@ export const useTastingsStore = defineStore('tastings', () => {
       })
     } catch (e: any) {
       console.error('Failed to load shared tastings:', e)
+      const toast = useToast()
+      toast.error('No se pudieron cargar catas compartidas', e)
     }
   }
 
