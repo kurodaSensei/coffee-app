@@ -96,7 +96,14 @@ export const useFriendsStore = defineStore('friends', () => {
     await load()
   }
 
+  function reset() {
+    list.value = []
+    loading.value = false
+    error.value = null
+  }
+
   return {
+    reset,
     list,
     loading,
     error,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Tasting, Coffee, Recipe } from '~/types'
+import type { Tasting, TastingInput, Coffee, Recipe } from '~/types'
 
 const catalog = useCatalog()
 const BREW_METHOD_OPTIONS = catalog.brewMethodOptions
@@ -11,7 +11,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  submit: [data: Record<string, any>, saveAsRecipe?: boolean]
+  submit: [data: Partial<TastingInput> & { brewDate: string }, saveAsRecipe?: boolean]
   cancel: []
 }>()
 

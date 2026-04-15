@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Coffee } from '~/types'
+import type { Coffee, CoffeeInput } from '~/types'
 import { formatDate, getBrewMethodLabel, getProcessLabel, getRoastLevelLabel, formatPrice, formatWeight, formatAltitude } from '~/utils/formatters'
 
 const route = useRoute()
@@ -21,7 +21,7 @@ onMounted(async () => {
 const coffee = computed(() => coffeesStore.current)
 const tastings = computed(() => tastingsStore.list)
 
-async function onEditSubmit(data: Record<string, any>) {
+async function onEditSubmit(data: Partial<CoffeeInput>) {
   editLoading.value = true
   try {
     await coffeesStore.update(coffeeId.value, data as Partial<Coffee>)

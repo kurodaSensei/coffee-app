@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Roaster } from '~/types'
+import type { Roaster, RoasterInput } from '~/types'
 
 interface Props {
   modelValue?: string
@@ -34,10 +34,10 @@ function onChange(value: string) {
   if (roaster) emit('update:roasterName', roaster.name)
 }
 
-async function handleCreateRoaster(data: Record<string, any>) {
+async function handleCreateRoaster(data: Partial<RoasterInput>) {
   creatingRoaster.value = true
   try {
-    const id = await store.create(data as Omit<Roaster, 'id' | 'createdAt' | 'updatedAt'>)
+    const id = await store.create(data as RoasterInput)
     await store.loadAll()
     showNewRoasterDialog.value = false
     emit('update:modelValue', id!)

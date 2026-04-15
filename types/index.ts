@@ -174,3 +174,10 @@ export interface Variety {
   typicalNotes: string[]
   rarity: Rarity
 }
+
+// Form DTO types — fields required for creating or updating (no id/timestamps/userId)
+export type CoffeeInput = Omit<Coffee, 'id' | 'createdAt' | 'updatedAt'>
+export type TastingInput = Omit<Tasting, 'id' | 'createdAt' | 'updatedAt'>
+export type RecipeInput = Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>
+export type RoasterInput = Omit<Roaster, 'id' | 'createdAt' | 'updatedAt'>
+export type WishlistInput = Omit<WishlistItem, 'id' | 'createdAt' | 'updatedAt'>

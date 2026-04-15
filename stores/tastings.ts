@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Tasting, BrewMethod } from '~/types'
+import type { Tasting, TastingInput, BrewMethod } from '~/types'
 
 interface TastingFilters {
   coffeeId?: string
@@ -11,135 +11,52 @@ export const useTastingsStore = defineStore('tastings', () => {
   const { fetchAll, fetchRecent, fetchById, createTasting, updateTasting, deleteTasting } = useTastings()
   const { getSharedWithMe } = useFirebase()
 
-  const list = ref<Tasting[]>([])
-  const sharedList = ref<Tasting[]>([])
+  const base = useFirestoreStoreState<Tasting, TastingInput, TastingFilters>({
+    api: {
+      fetchAll,
+      fetchById,
+      create: createTasting,
+      update: updateTasting,
+      remove: deleteTasting,
+      fetchShared: () => getSharedWithMe<Tasting>('tastings'),
+    },
+    messages: {
+      created: 'Cata registrada',
+      updated: 'Cata actualizada',
+      removed: 'Cata eliminada',
+      createFailed: 'No se pudo crear la cata',
+      updateFailed: 'No se pudo actualizar la cata',
+      removeFailed: 'No se pudo eliminar la cata',
+      sharedLoadFailed: 'No se pudieron cargar catas compartidas',
+    },
+    sortShared: items => items.sort((a, b) => {
+      const ta = a.brewDate?.toMillis?.() ?? 0
+      const tb = b.brewDate?.toMillis?.() ?? 0
+      return tb - ta
+    }),
+  })
+
+  // Domain-specific: recent tastings list
   const recent = ref<Tasting[]>([])
-  const current = ref<Tasting | null>(null)
-  const loading = ref(false)
-  const error = ref<string | null>(null)
-
-  async function loadShared() {
-    try {
-      const shared = await getSharedWithMe<Tasting>('tastings')
-      sharedList.value = shared.sort((a, b) => {
-        const ta = a.brewDate?.toMillis?.() ?? 0
-        const tb = b.brewDate?.toMillis?.() ?? 0
-        return tb - ta
-      })
-    } catch (e: any) {
-      console.error('Failed to load shared tastings:', e)
-      const toast = useToast()
-      toast.error('No se pudieron cargar catas compartidas', e)
-    }
-  }
-
-  async function loadAll(filters?: TastingFilters) {
-    loading.value = true
-    error.value = null
-    try {
-      list.value = await fetchAll(filters)
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to load tastings'
-    } finally {
-      loading.value = false
-    }
-  }
 
   async function loadRecent(count: number = 5) {
-    loading.value = true
-    error.value = null
     try {
       recent.value = await fetchRecent(count)
     } catch (e: any) {
-      error.value = e.message ?? 'Failed to load recent tastings'
-    } finally {
-      loading.value = false
+      base.error.value = e.message ?? 'Failed to load recent tastings'
     }
   }
 
-  async function loadById(id: string) {
-    loading.value = true
-    error.value = null
-    try {
-      current.value = await fetchById(id)
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to load tasting'
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function create(data: Omit<Tasting, 'id' | 'createdAt' | 'updatedAt'>) {
-    const toast = useToast()
-    loading.value = true
-    error.value = null
-    try {
-      const id = await createTasting(data)
-      await loadAll()
-      toast.success('Cata registrada')
-      return id
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to create tasting'
-      toast.error('No se pudo crear la cata', e)
-      throw e
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function update(id: string, data: Partial<Tasting>) {
-    const toast = useToast()
-    loading.value = true
-    error.value = null
-    try {
-      await updateTasting(id, data)
-      await loadAll()
-      if (current.value?.id === id) {
-        current.value = await fetchById(id)
-      }
-      toast.success('Cata actualizada')
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to update tasting'
-      toast.error('No se pudo actualizar la cata', e)
-      throw e
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function remove(id: string) {
-    const toast = useToast()
-    loading.value = true
-    error.value = null
-    try {
-      await deleteTasting(id)
-      list.value = list.value.filter((t) => t.id !== id)
-      if (current.value?.id === id) {
-        current.value = null
-      }
-      toast.success('Cata eliminada')
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to delete tasting'
-      toast.error('No se pudo eliminar la cata', e)
-      throw e
-    } finally {
-      loading.value = false
-    }
+  const originalReset = base.reset
+  function reset() {
+    recent.value = []
+    originalReset()
   }
 
   return {
-    list,
-    sharedList,
+    ...base,
     recent,
-    current,
-    loading,
-    error,
-    loadAll,
-    loadShared,
     loadRecent,
-    loadById,
-    create,
-    update,
-    remove,
+    reset,
   }
 })

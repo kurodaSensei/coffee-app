@@ -2,7 +2,7 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { roasterSchema } from '~/utils/validators'
-import type { Roaster } from '~/types'
+import type { Roaster, RoasterInput } from '~/types'
 
 interface Props {
   initialData?: Partial<Roaster>
@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  submit: [data: Record<string, any>]
+  submit: [data: Partial<RoasterInput>]
   cancel: []
 }>()
 

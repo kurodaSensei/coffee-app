@@ -1,120 +1,30 @@
 import { defineStore } from 'pinia'
-import type { Recipe } from '~/types'
+import type { Recipe, RecipeInput } from '~/types'
 
 export const useRecipesStore = defineStore('recipes', () => {
   const { fetchAll, fetchById, createRecipe, updateRecipe, deleteRecipe } = useRecipes()
   const { getSharedWithMe } = useFirebase()
 
-  const list = ref<Recipe[]>([])
-  const sharedList = ref<Recipe[]>([])
-  const current = ref<Recipe | null>(null)
-  const loading = ref(false)
-  const error = ref<string | null>(null)
+  const base = useFirestoreStoreState<Recipe, RecipeInput>({
+    api: {
+      fetchAll,
+      fetchById,
+      create: createRecipe,
+      update: updateRecipe,
+      remove: deleteRecipe,
+      fetchShared: () => getSharedWithMe<Recipe>('recipes'),
+    },
+    messages: {
+      created: 'Receta creada',
+      updated: 'Receta actualizada',
+      removed: 'Receta eliminada',
+      createFailed: 'No se pudo crear la receta',
+      updateFailed: 'No se pudo actualizar la receta',
+      removeFailed: 'No se pudo eliminar la receta',
+      sharedLoadFailed: 'No se pudieron cargar recetas compartidas',
+    },
+    sortShared: items => items.sort((a, b) => (a.name || '').localeCompare(b.name || '')),
+  })
 
-  async function loadShared() {
-    try {
-      const shared = await getSharedWithMe<Recipe>('recipes')
-      sharedList.value = shared.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-    } catch (e: any) {
-      console.error('Failed to load shared recipes:', e)
-      const toast = useToast()
-      toast.error('No se pudieron cargar recetas compartidas', e)
-    }
-  }
-
-  async function loadAll() {
-    loading.value = true
-    error.value = null
-    try {
-      list.value = await fetchAll()
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to load recipes'
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function loadById(id: string) {
-    loading.value = true
-    error.value = null
-    try {
-      current.value = await fetchById(id)
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to load recipe'
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function create(data: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) {
-    const toast = useToast()
-    loading.value = true
-    error.value = null
-    try {
-      const id = await createRecipe(data)
-      await loadAll()
-      toast.success('Receta creada')
-      return id
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to create recipe'
-      toast.error('No se pudo crear la receta', e)
-      throw e
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function update(id: string, data: Partial<Recipe>) {
-    const toast = useToast()
-    loading.value = true
-    error.value = null
-    try {
-      await updateRecipe(id, data)
-      await loadAll()
-      if (current.value?.id === id) {
-        current.value = await fetchById(id)
-      }
-      toast.success('Receta actualizada')
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to update recipe'
-      toast.error('No se pudo actualizar la receta', e)
-      throw e
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function remove(id: string) {
-    const toast = useToast()
-    loading.value = true
-    error.value = null
-    try {
-      await deleteRecipe(id)
-      list.value = list.value.filter((r) => r.id !== id)
-      if (current.value?.id === id) {
-        current.value = null
-      }
-      toast.success('Receta eliminada')
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to delete recipe'
-      toast.error('No se pudo eliminar la receta', e)
-      throw e
-    } finally {
-      loading.value = false
-    }
-  }
-
-  return {
-    list,
-    sharedList,
-    current,
-    loading,
-    error,
-    loadAll,
-    loadShared,
-    loadById,
-    create,
-    update,
-    remove,
-  }
+  return base
 })

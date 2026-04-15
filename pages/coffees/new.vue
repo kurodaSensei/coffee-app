@@ -1,13 +1,15 @@
 <script setup lang="ts">
+import type { CoffeeInput } from '~/types'
+
 const coffeesStore = useCoffeesStore()
 const router = useRouter()
 
 const submitting = ref(false)
 
-async function onSubmit(data: Record<string, any>) {
+async function onSubmit(data: Partial<CoffeeInput>) {
   submitting.value = true
   try {
-    await coffeesStore.create(data as any)
+    await coffeesStore.create(data as CoffeeInput)
     router.push('/coffees')
   } catch {
     // Error is handled by the store

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Roaster, RoasterInput } from '~/types'
 import { formatDate } from '~/utils/formatters'
 
 const route = useRoute()
@@ -21,9 +22,9 @@ const roasterCoffees = computed(() =>
   coffeesStore.list.filter((c) => c.roasterId === roasterId.value),
 )
 
-async function onEditSubmit(data: Record<string, any>) {
+async function onEditSubmit(data: Partial<RoasterInput>) {
   try {
-    await roasterStore.update(roasterId.value, data)
+    await roasterStore.update(roasterId.value, data as Partial<Roaster>)
     showEditDialog.value = false
   } catch {
     // error handled by store

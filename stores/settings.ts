@@ -132,7 +132,13 @@ export const useSettingsStore = defineStore('settings', () => {
     await save()
   }
 
+  function reset() {
+    prefs.value = null
+    loading.value = false
+  }
+
   return {
+    reset,
     prefs,
     loading,
     load,

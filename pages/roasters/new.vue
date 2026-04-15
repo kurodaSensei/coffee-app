@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import type { RoasterInput } from '~/types'
+
 const store = useRoastersStore()
 const router = useRouter()
 
-async function onSubmit(data: Record<string, any>) {
+async function onSubmit(data: Partial<RoasterInput>) {
   try {
-    await store.create(data as any)
+    await store.create(data as RoasterInput)
     router.push('/roasters')
   } catch {
     // error is handled by the store

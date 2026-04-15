@@ -1,126 +1,50 @@
 import { defineStore } from 'pinia'
-import type { WishlistItem, WishlistStatus } from '~/types'
+import type { WishlistItem, WishlistInput, WishlistStatus } from '~/types'
 
 export const useWishlistStore = defineStore('wishlist', () => {
   const { fetchAll, fetchById, createItem, updateItem, deleteItem } = useWishlist()
 
-  const list = ref<WishlistItem[]>([])
-  const current = ref<WishlistItem | null>(null)
-  const loading = ref(false)
-  const error = ref<string | null>(null)
+  const base = useFirestoreStoreState<WishlistItem, WishlistInput>({
+    api: {
+      fetchAll,
+      fetchById,
+      create: createItem,
+      update: updateItem,
+      remove: deleteItem,
+    },
+    messages: {
+      created: 'Agregado a wishlist',
+      updated: 'Wishlist actualizada',
+      removed: 'Eliminado de wishlist',
+      createFailed: 'No se pudo crear el item de wishlist',
+      updateFailed: 'No se pudo actualizar el item de wishlist',
+      removeFailed: 'No se pudo eliminar el item de wishlist',
+    },
+  })
 
-  async function loadAll() {
-    loading.value = true
-    error.value = null
-    try {
-      list.value = await fetchAll()
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to load wishlist'
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function loadById(id: string) {
-    loading.value = true
-    error.value = null
-    try {
-      current.value = await fetchById(id)
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to load wishlist item'
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function create(data: Omit<WishlistItem, 'id' | 'createdAt' | 'updatedAt'>) {
-    const toast = useToast()
-    loading.value = true
-    error.value = null
-    try {
-      const id = await createItem(data)
-      await loadAll()
-      toast.success('Agregado a wishlist')
-      return id
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to create wishlist item'
-      toast.error('No se pudo crear el item de wishlist', e)
-      throw e
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function update(id: string, data: Partial<WishlistItem>) {
-    const toast = useToast()
-    loading.value = true
-    error.value = null
-    try {
-      await updateItem(id, data)
-      await loadAll()
-      if (current.value?.id === id) {
-        current.value = await fetchById(id)
-      }
-      toast.success('Wishlist actualizada')
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to update wishlist item'
-      toast.error('No se pudo actualizar el item de wishlist', e)
-      throw e
-    } finally {
-      loading.value = false
-    }
-  }
-
+  // Domain-specific: change status only
   async function changeStatus(id: string, status: WishlistStatus) {
     const toast = useToast()
-    loading.value = true
-    error.value = null
+    base.loading.value = true
+    base.error.value = null
     try {
       await updateItem(id, { status })
-      await loadAll()
-      if (current.value?.id === id) {
-        current.value = await fetchById(id)
+      await base.loadAll()
+      if (base.current.value?.id === id) {
+        base.current.value = await fetchById(id)
       }
       toast.success('Estado actualizado')
     } catch (e: any) {
-      error.value = e.message ?? 'Failed to update wishlist item'
+      base.error.value = e.message ?? 'Failed'
       toast.error('No se pudo actualizar el estado', e)
       throw e
     } finally {
-      loading.value = false
-    }
-  }
-
-  async function remove(id: string) {
-    const toast = useToast()
-    loading.value = true
-    error.value = null
-    try {
-      await deleteItem(id)
-      list.value = list.value.filter((item) => item.id !== id)
-      if (current.value?.id === id) {
-        current.value = null
-      }
-      toast.success('Eliminado de wishlist')
-    } catch (e: any) {
-      error.value = e.message ?? 'Failed to delete wishlist item'
-      toast.error('No se pudo eliminar el item de wishlist', e)
-      throw e
-    } finally {
-      loading.value = false
+      base.loading.value = false
     }
   }
 
   return {
-    list,
-    current,
-    loading,
-    error,
-    loadAll,
-    loadById,
-    create,
-    update,
+    ...base,
     changeStatus,
-    remove,
   }
 })

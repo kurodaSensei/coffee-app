@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { Timestamp } from 'firebase/firestore'
+import type { TastingInput, RecipeInput } from '~/types'
 
 const tastingsStore = useTastingsStore()
 const recipesStore = useRecipesStore()
 const router = useRouter()
 const loading = ref(false)
 
-async function handleSubmit(data: Record<string, any>, saveAsRecipe?: boolean) {
+async function handleSubmit(
+  data: Partial<TastingInput> & { brewDate: string },
+  saveAsRecipe?: boolean,
+) {
   loading.value = true
   try {
     await tastingsStore.create({
       ...data,
       brewDate: Timestamp.fromDate(new Date(data.brewDate)),
-    })
+    } as TastingInput)
     // Also save as recipe if requested
     if (saveAsRecipe && data.recipeName && data.dose && data.water) {
       await recipesStore.create({
@@ -23,7 +27,7 @@ async function handleSubmit(data: Record<string, any>, saveAsRecipe?: boolean) {
         ratio: data.ratio,
         grindSize: data.grindSize,
         waterTemp: data.waterTemp,
-      } as any)
+      } as RecipeInput)
     }
     router.push('/tastings')
   } catch (e) {

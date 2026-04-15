@@ -27,7 +27,7 @@ function startEdit() {
   showEditMode.value = true
 }
 
-async function onUpdate(data: Record<string, any>) {
+async function onUpdate(data: Partial<Recipe>) {
   if (!selectedRecipe.value) return
   await recipesStore.update(selectedRecipe.value.id, data)
   showDetailDialog.value = false

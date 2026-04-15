@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Timestamp } from 'firebase/firestore'
+import type { Tasting, TastingInput } from '~/types'
 import { formatDate, getBrewMethodLabel, formatBrewTime } from '~/utils/formatters'
 
 const route = useRoute()
@@ -23,13 +24,13 @@ async function handleDelete() {
   router.push('/tastings')
 }
 
-async function handleUpdate(data: Record<string, any>) {
+async function handleUpdate(data: Partial<TastingInput> & { brewDate: string }) {
   loading.value = true
   try {
     await tastingsStore.update(id, {
       ...data,
       brewDate: Timestamp.fromDate(new Date(data.brewDate)),
-    })
+    } as Partial<Tasting>)
     showEditDialog.value = false
     await tastingsStore.loadById(id)
   } finally {

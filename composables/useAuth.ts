@@ -100,6 +100,18 @@ export const useAuth = () => {
   const logout = async () => {
     await signOut($auth)
     currentUser.value = null
+    // Clear all app stores so no data leaks between users
+    try {
+      useCoffeesStore().reset()
+      useTastingsStore().reset()
+      useRecipesStore().reset()
+      useRoastersStore().reset()
+      useWishlistStore().reset()
+      useFriendsStore().reset()
+      useSettingsStore().reset()
+    } catch (e) {
+      console.error('Failed to reset stores on logout:', e)
+    }
     router.push('/login')
   }
 
