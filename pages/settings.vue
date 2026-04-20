@@ -84,7 +84,7 @@ function isMethodDisabled(v: string) {
         </Card>
 
         <div v-if="prefs?.customVarieties?.length" class="space-y-2">
-          <h3 class="text-sm font-semibold text-foreground">Tus variedades</h3>
+          <h3 class="font-mono text-eyebrow uppercase text-muted-foreground">Tus variedades</h3>
           <div class="flex flex-wrap gap-1.5">
             <Badge
               v-for="v in prefs.customVarieties" :key="v"
@@ -99,8 +99,8 @@ function isMethodDisabled(v: string) {
         </div>
 
         <div class="space-y-2">
-          <h3 class="text-sm font-semibold text-foreground">Variedades predefinidas</h3>
-          <p class="text-xs text-muted-foreground">Clic para desactivar / activar</p>
+          <h3 class="font-mono text-eyebrow uppercase text-muted-foreground">Variedades predefinidas</h3>
+          <p class="font-mono text-eyebrow text-muted-foreground/70">Clic para desactivar / activar</p>
           <div class="flex flex-wrap gap-1.5">
             <Badge
               v-for="v in DEFAULT_VARIETIES" :key="v"
@@ -136,7 +136,7 @@ function isMethodDisabled(v: string) {
         </Card>
 
         <div v-if="prefs?.customProcesses?.length" class="space-y-2">
-          <h3 class="text-sm font-semibold text-foreground">Tus procesos</h3>
+          <h3 class="font-mono text-eyebrow uppercase text-muted-foreground">Tus procesos</h3>
           <div class="flex flex-wrap gap-1.5">
             <Badge
               v-for="p in prefs.customProcesses" :key="p.value"
@@ -151,8 +151,8 @@ function isMethodDisabled(v: string) {
         </div>
 
         <div class="space-y-2">
-          <h3 class="text-sm font-semibold text-foreground">Procesos predefinidos</h3>
-          <p class="text-xs text-muted-foreground">Clic para desactivar / activar</p>
+          <h3 class="font-mono text-eyebrow uppercase text-muted-foreground">Procesos predefinidos</h3>
+          <p class="font-mono text-eyebrow text-muted-foreground/70">Clic para desactivar / activar</p>
           <div class="flex flex-wrap gap-1.5">
             <Badge
               v-for="p in DEFAULT_PROCESS_OPTIONS" :key="p.value"
@@ -188,7 +188,7 @@ function isMethodDisabled(v: string) {
         </Card>
 
         <div v-if="prefs?.customBrewMethods?.length" class="space-y-2">
-          <h3 class="text-sm font-semibold text-foreground">Tus métodos</h3>
+          <h3 class="font-mono text-eyebrow uppercase text-muted-foreground">Tus métodos</h3>
           <div class="flex flex-wrap gap-1.5">
             <Badge
               v-for="m in prefs.customBrewMethods" :key="m.value"
@@ -203,8 +203,8 @@ function isMethodDisabled(v: string) {
         </div>
 
         <div class="space-y-2">
-          <h3 class="text-sm font-semibold text-foreground">Métodos predefinidos</h3>
-          <p class="text-xs text-muted-foreground">Clic para desactivar / activar</p>
+          <h3 class="font-mono text-eyebrow uppercase text-muted-foreground">Métodos predefinidos</h3>
+          <p class="font-mono text-eyebrow text-muted-foreground/70">Clic para desactivar / activar</p>
           <div class="flex flex-wrap gap-1.5">
             <Badge
               v-for="m in DEFAULT_BREW_METHOD_OPTIONS" :key="m.value"

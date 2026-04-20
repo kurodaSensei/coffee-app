@@ -24,11 +24,11 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Coffee Tracker',
-      short_name: 'Coffee',
+      name: 'Sorbo',
+      short_name: 'Sorbo',
       description: 'Mi colección personal de cafés de especialidad',
-      theme_color: '#0a0a0a',
-      background_color: '#f5f0e8',
+      theme_color: '#141712',
+      background_color: '#F4F2EB',
       display: 'standalone',
       orientation: 'portrait',
       lang: 'es',
@@ -102,7 +102,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'Coffee Tracker',
+      title: 'Sorbo',
       meta: [
         { name: 'description', content: 'Mi colección personal de cafés de especialidad' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
@@ -111,13 +111,17 @@ export default defineNuxtConfig({
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap' },
         { rel: 'apple-touch-icon', href: '/icons/icon-192.png' },
       ],
     },
   },
 
   ssr: false,
+
+  experimental: {
+    appManifest: false,
+  },
 
   routeRules: {
     '/**': {

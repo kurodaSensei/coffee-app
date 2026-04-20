@@ -1,60 +1,63 @@
 <script setup lang="ts">
 import type { Coffee } from '~/types'
-import { formatPrice, getProcessLabel } from '~/utils/formatters'
+import { formatPrice, formatWeight, getProcessLabel } from '~/utils/formatters'
 
-defineProps<{
-  coffee: Coffee
-}>()
+defineProps<{ coffee: Coffee }>()
 </script>
 
 <template>
   <NuxtLink :to="`/coffees/${coffee.id}`" class="block group">
-    <Card class="h-full cursor-pointer border hover:shadow-md hover:border-primary/20 transition-all duration-200">
-      <CardHeader class="pb-2">
-        <CardTitle class="text-base truncate group-hover:text-primary transition-colors">
+    <div
+      class="relative overflow-hidden rounded-xl border border-moss/10 p-5 cursor-pointer hover:shadow-card transition-all duration-base"
+      style="background: linear-gradient(135deg, #E4E3D2, #EBE9DC)"
+    >
+      <!-- Decorative honey circle -->
+      <div class="absolute -top-10 -right-8 w-36 h-36 rounded-full bg-honey opacity-25 transition-transform duration-slow group-hover:scale-110" />
+
+      <div class="relative">
+        <!-- Process · Region eyebrow -->
+        <p class="font-mono text-[9px] uppercase tracking-[.14em] text-moss-ghost">
+          — {{ getProcessLabel(coffee.process) }} · {{ coffee.originRegion }}
+        </p>
+
+        <!-- Coffee name (serif large) -->
+        <h3 class="font-serif text-[38px] leading-[.95] tracking-[-0.02em] text-moss mt-1.5">
           {{ coffee.name }}
-        </CardTitle>
-        <CardDescription class="truncate">
+        </h3>
+
+        <!-- Roaster italic -->
+        <p class="font-serif italic text-[12px] text-moss-ghost mt-0.5">
           {{ coffee.roasterName }}
-        </CardDescription>
-      </CardHeader>
+        </p>
 
-      <CardContent class="space-y-3">
-        <!-- Process & Origin -->
-        <div class="flex items-center gap-2">
-          <Badge variant="secondary">
-            {{ getProcessLabel(coffee.process) }}
-          </Badge>
-          <span v-if="coffee.originRegion || coffee.originCountry" class="inline-flex items-center gap-1 text-xs text-muted-foreground">
-            <Icon name="lucide:map-pin" class="w-3 h-3" />
-            <span v-if="coffee.originRegion">{{ coffee.originRegion }}, </span>
-            <span v-if="coffee.originCountry">{{ coffee.originCountry }}</span>
-          </span>
-        </div>
-
-        <!-- Flavor notes -->
-        <div v-if="coffee.flavorNotes?.length" class="flex items-center gap-1.5 flex-wrap">
-          <Badge
+        <!-- Flavor chips -->
+        <div v-if="coffee.flavorNotes?.length" class="flex flex-wrap gap-1.5 mt-3.5">
+          <span
             v-for="note in coffee.flavorNotes.slice(0, 3)"
             :key="note"
-            variant="outline"
-            class="text-xs"
+            class="px-2.5 py-1 rounded-pill bg-white/70 text-[10px] font-medium text-moss"
           >
             {{ note }}
-          </Badge>
-          <span
-            v-if="coffee.flavorNotes.length > 3"
-            class="text-xs text-muted-foreground"
-          >
-            +{{ coffee.flavorNotes.length - 3 }} mas
+          </span>
+          <span v-if="coffee.flavorNotes.length > 3" class="text-[10px] text-moss-ghost self-center">
+            +{{ coffee.flavorNotes.length - 3 }}
           </span>
         </div>
 
-        <!-- Price -->
-        <p v-if="coffee.price" class="text-sm font-semibold">
-          {{ formatPrice(coffee.price) }}
-        </p>
-      </CardContent>
-    </Card>
+        <!-- Footer: SCA score + price/weight -->
+        <div class="flex items-end justify-between mt-4">
+          <div v-if="coffee.scaScore">
+            <p class="font-mono text-[9px] uppercase tracking-[.1em] text-moss-ghost">Score SCA</p>
+            <p class="font-serif text-[36px] leading-none text-olive mt-0.5">{{ coffee.scaScore }}</p>
+          </div>
+          <div v-else />
+          <p v-if="coffee.price || coffee.weight" class="font-mono text-[11px] font-medium text-moss self-end pb-0.5">
+            <span v-if="coffee.price">{{ formatPrice(coffee.price) }}</span>
+            <span v-if="coffee.price && coffee.weight"> · </span>
+            <span v-if="coffee.weight">{{ formatWeight(coffee.weight) }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
   </NuxtLink>
 </template>

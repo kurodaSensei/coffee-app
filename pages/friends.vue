@@ -29,7 +29,7 @@ function initial(name?: string, emailStr?: string) {
     <Card>
       <CardHeader>
         <CardTitle class="text-base">Agregar amigo</CardTitle>
-        <CardDescription>Busca a alguien por su correo electrónico. Debe tener una cuenta en Coffee Tracker.</CardDescription>
+        <CardDescription>Busca a alguien por su correo electrónico. Debe tener una cuenta en Sorbo.</CardDescription>
       </CardHeader>
       <CardContent>
         <form @submit.prevent="submit" class="flex flex-col sm:flex-row gap-2">
@@ -60,8 +60,8 @@ function initial(name?: string, emailStr?: string) {
 
     <!-- Pending incoming -->
     <section v-if="friendsStore.pendingIncoming.length > 0" class="space-y-3">
-      <h3 class="text-sm font-semibold text-foreground flex items-center gap-2">
-        <Icon name="lucide:bell" class="w-4 h-4 text-primary" />
+      <h3 class="font-mono text-eyebrow uppercase text-muted-foreground flex items-center gap-2">
+        <Icon name="lucide:bell" class="w-3 h-3 text-primary" />
         Solicitudes recibidas ({{ friendsStore.pendingIncoming.length }})
       </h3>
       <div class="space-y-2">
@@ -94,8 +94,8 @@ function initial(name?: string, emailStr?: string) {
 
     <!-- Friends list -->
     <section class="space-y-3">
-      <h3 class="text-sm font-semibold text-foreground flex items-center gap-2">
-        <Icon name="lucide:users" class="w-4 h-4 text-muted-foreground" />
+      <h3 class="font-mono text-eyebrow uppercase text-muted-foreground flex items-center gap-2">
+        <Icon name="lucide:users" class="w-3 h-3" />
         Mis amigos ({{ friendsStore.accepted.length }})
       </h3>
       <div v-if="friendsStore.accepted.length === 0" class="text-center py-12 border border-dashed rounded-lg">
@@ -127,8 +127,8 @@ function initial(name?: string, emailStr?: string) {
 
     <!-- Pending outgoing -->
     <section v-if="friendsStore.pendingOutgoing.length > 0" class="space-y-3">
-      <h3 class="text-sm font-semibold text-foreground flex items-center gap-2">
-        <Icon name="lucide:clock" class="w-4 h-4 text-muted-foreground" />
+      <h3 class="font-mono text-eyebrow uppercase text-muted-foreground flex items-center gap-2">
+        <Icon name="lucide:clock" class="w-3 h-3" />
         Solicitudes enviadas ({{ friendsStore.pendingOutgoing.length }})
       </h3>
       <div class="space-y-2">

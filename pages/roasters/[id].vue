@@ -97,7 +97,7 @@ async function onDelete() {
                 <Icon name="lucide:map-pin" class="w-4 h-4 text-muted-foreground" />
               </div>
               <div>
-                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Ubicacion</p>
+                <p class="font-mono text-eyebrow uppercase text-muted-foreground">Ubicacion</p>
                 <p class="text-sm text-foreground mt-0.5">
                   <span v-if="roaster.city">{{ roaster.city }}, </span>
                   {{ roaster.country }}
@@ -111,7 +111,7 @@ async function onDelete() {
                 <Icon name="lucide:globe" class="w-4 h-4 text-muted-foreground" />
               </div>
               <div>
-                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Sitio web</p>
+                <p class="font-mono text-eyebrow uppercase text-muted-foreground">Sitio web</p>
                 <a
                   :href="roaster.website"
                   target="_blank"
@@ -129,7 +129,7 @@ async function onDelete() {
                 <Icon name="lucide:camera" class="w-4 h-4 text-muted-foreground" />
               </div>
               <div>
-                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Instagram</p>
+                <p class="font-mono text-eyebrow uppercase text-muted-foreground">Instagram</p>
                 <a
                   :href="`https://instagram.com/${roaster.instagram.replace('@', '')}`"
                   target="_blank"
@@ -147,7 +147,7 @@ async function onDelete() {
                 <Icon name="lucide:star" class="w-4 h-4 text-muted-foreground" />
               </div>
               <div>
-                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Calificacion</p>
+                <p class="font-mono text-eyebrow uppercase text-muted-foreground">Calificacion</p>
                 <div class="flex items-center gap-0.5 mt-1">
                   <Icon
                     v-for="i in 5"
@@ -156,7 +156,7 @@ async function onDelete() {
                     :class="[
                       'w-4 h-4 transition-colors',
                       i <= roaster.rating
-                        ? 'text-yellow-500 fill-yellow-500'
+                        ? 'text-honey fill-honey'
                         : 'text-muted-foreground/20',
                     ]"
                   />
@@ -170,7 +170,7 @@ async function onDelete() {
                 <Icon name="lucide:file-text" class="w-4 h-4 text-muted-foreground" />
               </div>
               <div>
-                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Notas</p>
+                <p class="font-mono text-eyebrow uppercase text-muted-foreground">Notas</p>
                 <p class="text-sm text-foreground whitespace-pre-line mt-0.5">{{ roaster.notes }}</p>
               </div>
             </div>

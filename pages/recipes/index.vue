@@ -113,16 +113,16 @@ async function onDelete() {
 
           <div class="grid grid-cols-3 gap-3">
             <div class="text-center bg-muted rounded-lg p-3">
-              <p class="text-xs text-muted-foreground">Dosis</p>
-              <p class="text-lg font-semibold text-foreground">{{ selectedRecipe.dose }}g</p>
+              <p class="font-mono text-eyebrow uppercase text-muted-foreground">Dosis</p>
+              <p class="font-mono text-data text-foreground mt-0.5">{{ selectedRecipe.dose }}g</p>
             </div>
             <div class="text-center bg-muted rounded-lg p-3">
-              <p class="text-xs text-muted-foreground">Agua</p>
-              <p class="text-lg font-semibold text-foreground">{{ selectedRecipe.water }}ml</p>
+              <p class="font-mono text-eyebrow uppercase text-muted-foreground">Agua</p>
+              <p class="font-mono text-data text-foreground mt-0.5">{{ selectedRecipe.water }}ml</p>
             </div>
             <div class="text-center bg-muted rounded-lg p-3">
-              <p class="text-xs text-muted-foreground">Ratio</p>
-              <p class="text-lg font-semibold text-foreground">
+              <p class="font-mono text-eyebrow uppercase text-muted-foreground">Ratio</p>
+              <p class="font-mono text-data text-foreground mt-0.5">
                 {{ selectedRecipe.ratio || formatRatio(selectedRecipe.dose, selectedRecipe.water) }}
               </p>
             </div>
@@ -140,8 +140,8 @@ async function onDelete() {
           </div>
 
           <div v-if="selectedRecipe.instructions" class="bg-muted rounded-lg p-4">
-            <h4 class="text-sm font-medium text-foreground mb-2">Instrucciones</h4>
-            <p class="text-sm text-muted-foreground whitespace-pre-line">{{ selectedRecipe.instructions }}</p>
+            <h4 class="font-mono text-eyebrow uppercase text-muted-foreground mb-2">Instrucciones</h4>
+            <p class="font-sans text-body text-muted-foreground whitespace-pre-line">{{ selectedRecipe.instructions }}</p>
           </div>
 
           <div v-if="selectedRecipe.bestFor" class="text-sm text-muted-foreground">

@@ -87,42 +87,42 @@ async function handleUpdate(data: Partial<TastingInput> & { brewDate: string }) 
 
           <!-- Rating hero -->
           <div class="text-center py-6 bg-muted/50 rounded-xl">
-            <div class="text-5xl font-bold text-foreground tabular-nums">{{ tasting.ratingOverall }}</div>
-            <div class="text-sm text-muted-foreground mt-1">/ 10</div>
+            <div class="font-serif text-display text-foreground">{{ tasting.ratingOverall }}</div>
+            <div class="font-mono text-eyebrow uppercase text-muted-foreground mt-1">/ 10</div>
           </div>
 
           <!-- Brew parameters -->
           <div v-if="tasting.dose || tasting.water || tasting.waterTemp" class="grid grid-cols-3 gap-3 mt-6 pt-6 border-t">
             <div v-if="tasting.dose" class="text-center rounded-lg bg-muted/50 py-2.5">
-              <div class="text-[11px] text-muted-foreground uppercase tracking-wider">Dosis</div>
-              <div class="font-semibold text-foreground text-sm mt-0.5">{{ tasting.dose }}g</div>
+              <div class="font-mono text-eyebrow uppercase text-muted-foreground">Dosis</div>
+              <div class="font-mono text-data text-foreground mt-0.5">{{ tasting.dose }}g</div>
             </div>
             <div v-if="tasting.water" class="text-center rounded-lg bg-muted/50 py-2.5">
-              <div class="text-[11px] text-muted-foreground uppercase tracking-wider">Agua</div>
-              <div class="font-semibold text-foreground text-sm mt-0.5">{{ tasting.water }}g</div>
+              <div class="font-mono text-eyebrow uppercase text-muted-foreground">Agua</div>
+              <div class="font-mono text-data text-foreground mt-0.5">{{ tasting.water }}g</div>
             </div>
             <div v-if="tasting.ratio" class="text-center rounded-lg bg-muted/50 py-2.5">
-              <div class="text-[11px] text-muted-foreground uppercase tracking-wider">Ratio</div>
-              <div class="font-semibold text-foreground text-sm mt-0.5">{{ tasting.ratio }}</div>
+              <div class="font-mono text-eyebrow uppercase text-muted-foreground">Ratio</div>
+              <div class="font-mono text-data text-foreground mt-0.5">{{ tasting.ratio }}</div>
             </div>
             <div v-if="tasting.waterTemp" class="text-center rounded-lg bg-muted/50 py-2.5">
-              <div class="text-[11px] text-muted-foreground uppercase tracking-wider">Temp</div>
-              <div class="font-semibold text-foreground text-sm mt-0.5">{{ tasting.waterTemp }}°C</div>
+              <div class="font-mono text-eyebrow uppercase text-muted-foreground">Temp</div>
+              <div class="font-mono text-data text-foreground mt-0.5">{{ tasting.waterTemp }}°C</div>
             </div>
             <div v-if="tasting.grindSize" class="text-center rounded-lg bg-muted/50 py-2.5">
-              <div class="text-[11px] text-muted-foreground uppercase tracking-wider">Molienda</div>
-              <div class="font-semibold text-foreground text-sm mt-0.5">{{ tasting.grindSize }} clicks</div>
+              <div class="font-mono text-eyebrow uppercase text-muted-foreground">Molienda</div>
+              <div class="font-mono text-data text-foreground mt-0.5">{{ tasting.grindSize }} clicks</div>
             </div>
             <div v-if="tasting.brewTime" class="text-center rounded-lg bg-muted/50 py-2.5">
-              <div class="text-[11px] text-muted-foreground uppercase tracking-wider">Tiempo</div>
-              <div class="font-semibold text-foreground text-sm mt-0.5">{{ formatBrewTime(tasting.brewTime) }}</div>
+              <div class="font-mono text-eyebrow uppercase text-muted-foreground">Tiempo</div>
+              <div class="font-mono text-data text-foreground mt-0.5">{{ formatBrewTime(tasting.brewTime) }}</div>
             </div>
           </div>
 
           <!-- Personal notes -->
           <div v-if="tasting.personalNotes" class="mt-6 pt-6 border-t">
-            <h4 class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Notas personales</h4>
-            <p class="text-sm text-foreground leading-relaxed">{{ tasting.personalNotes }}</p>
+            <h4 class="font-mono text-eyebrow uppercase text-muted-foreground mb-2">Notas personales</h4>
+            <p class="font-serif italic text-body text-foreground leading-relaxed">{{ tasting.personalNotes }}</p>
           </div>
 
           <!-- Link to coffee -->

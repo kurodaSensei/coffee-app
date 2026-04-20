@@ -95,12 +95,12 @@ async function handleGoogle() {
     <div class="w-full max-w-md">
       <!-- Logo & branding -->
       <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-neutral-950 mb-5">
-          <Icon name="lucide:coffee" class="w-8 h-8 text-[#f5f0e8]" />
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-jungle mb-5">
+          <Icon name="lucide:coffee" class="w-8 h-8 text-paper" />
         </div>
-        <h1 class="text-2xl font-bold text-foreground tracking-tight">Coffee Tracker</h1>
-        <p class="text-[11px] text-muted-foreground mt-1 tracking-widest uppercase">by KurodaCafe</p>
-        <p class="text-sm text-muted-foreground mt-3">Tu colección personal de cafés de especialidad</p>
+        <h1 class="font-serif text-h2 text-foreground">Sorbo</h1>
+        <p class="font-mono text-eyebrow text-muted-foreground mt-1 uppercase">by KurodaCafe</p>
+        <p class="font-sans text-body text-muted-foreground mt-3">Tu colección personal de cafés de especialidad</p>
       </div>
 
       <!-- Form Card -->

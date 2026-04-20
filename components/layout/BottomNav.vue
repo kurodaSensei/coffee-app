@@ -2,39 +2,40 @@
 const route = useRoute()
 
 const tabs = [
-  { label: 'Inicio', icon: 'lucide:layout-dashboard', to: '/' },
-  { label: 'Cafés', icon: 'lucide:coffee', to: '/coffees' },
-  { label: 'Catas', icon: 'lucide:star', to: '/tastings' },
-  { label: 'Recetas', icon: 'lucide:book-open', to: '/recipes' },
-  { label: 'Wishlist', icon: 'lucide:heart', to: '/wishlist' },
-  { label: 'Ajustes', icon: 'lucide:settings', to: '/settings' },
+  { label: 'Inicio',   to: '/' },
+  { label: 'Cafés',   to: '/coffees' },
+  { label: 'Catas',   to: '/tastings' },
+  { label: 'Recetas', to: '/recipes' },
+  { label: 'Wishlist', to: '/wishlist' },
 ]
 
-function isActive(path: string): boolean {
-  if (path === '/') return route.path === '/'
-  return route.path.startsWith(path)
+function isActive(path: string) {
+  return path === '/' ? route.path === '/' : route.path.startsWith(path)
 }
 </script>
 
 <template>
-  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 flex items-center justify-around h-14 bg-neutral-950 safe-area-bottom">
-    <NuxtLink
-      v-for="tab in tabs"
-      :key="tab.to"
-      :to="tab.to"
-      :class="[
-        'flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-[10px] font-medium transition-colors',
-        isActive(tab.to) ? 'text-[#f5f0e8]' : 'text-white/35',
-      ]"
-    >
-      <Icon :name="tab.icon" class="w-[18px] h-[18px]" />
-      <span>{{ tab.label }}</span>
-    </NuxtLink>
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-paper border-t border-moss/10 safe-area-bottom">
+    <div class="flex items-center justify-around px-1 pt-2.5">
+      <NuxtLink
+        v-for="tab in tabs"
+        :key="tab.to"
+        :to="tab.to"
+        :class="[
+          'flex-1 text-center py-1 transition-colors duration-fast leading-tight',
+          isActive(tab.to)
+            ? 'font-serif italic text-[13px] text-primary'
+            : 'font-mono text-eyebrow uppercase text-foreground/40',
+        ]"
+      >
+        {{ tab.label }}
+      </NuxtLink>
+    </div>
   </nav>
 </template>
 
 <style scoped>
 .safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 12px);
 }
 </style>

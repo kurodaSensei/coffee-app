@@ -141,7 +141,7 @@ async function removeItem(item: WishlistItem) {
             <!-- Info -->
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <h3 class="font-semibold text-foreground truncate">
+                <h3 class="font-serif text-h3 text-foreground truncate">
                   {{ item.coffeeName }}
                 </h3>
               </div>
@@ -171,7 +171,7 @@ async function removeItem(item: WishlistItem) {
 
           <!-- Quick actions -->
           <div class="mt-4 flex items-center gap-2 pt-3 border-t">
-            <span class="text-[11px] text-muted-foreground uppercase tracking-wider mr-auto">Cambiar estado:</span>
+            <span class="font-mono text-eyebrow uppercase text-muted-foreground mr-auto">Cambiar estado:</span>
             <Button
               v-if="item.status !== 'pending'"
               variant="outline"
