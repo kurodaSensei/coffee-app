@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { resolveComponent } from 'vue'
 import { cn } from '~/lib/utils'
 
 export interface TabItem {
@@ -56,10 +55,9 @@ function onSelect(item: TabItem) {
   >
     <ul class="mx-auto flex max-w-xl items-center px-md py-sm">
       <li v-for="item in items" :key="item.key" class="flex flex-1 justify-center">
-        <component
-          :is="item.to ? resolveComponent('NuxtLink') : 'button'"
+        <NuxtLink
+          v-if="item.to"
           :to="item.to"
-          :type="item.to ? undefined : 'button'"
           :aria-current="isActive(item) ? 'page' : undefined"
           class="inline-flex items-center gap-xxs px-xs py-xs whitespace-nowrap"
           @click="onSelect(item)"
@@ -75,7 +73,26 @@ function onSelect(item: TabItem) {
               {{ item.label }}
             </span>
           </template>
-        </component>
+        </NuxtLink>
+        <button
+          v-else
+          type="button"
+          :aria-current="isActive(item) ? 'page' : undefined"
+          class="inline-flex items-center gap-xxs px-xs py-xs whitespace-nowrap"
+          @click="onSelect(item)"
+        >
+          <template v-if="isActive(item)">
+            <span aria-hidden="true" class="inline-block size-[6px] rounded-pill bg-olive" />
+            <span class="font-display italic text-[14px] leading-none lowercase text-olive">
+              {{ item.label }}
+            </span>
+          </template>
+          <template v-else>
+            <span class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-ghost">
+              {{ item.label }}
+            </span>
+          </template>
+        </button>
       </li>
     </ul>
   </nav>

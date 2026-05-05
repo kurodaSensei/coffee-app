@@ -86,7 +86,6 @@ const isEmpty = computed(() => items.value.length === 0)
         v-for="c in items"
         :key="c.id"
         :coffee="c"
-        :compact="$device?.isDesktop"
         class="lg:[&_h3]:text-[28px]"
       />
     </div>
