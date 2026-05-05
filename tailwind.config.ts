@@ -1,8 +1,6 @@
 import type { Config } from 'tailwindcss'
-import animate from 'tailwindcss-animate'
 
 export default {
-  darkMode: 'class',
   content: [
     './components/**/*.{js,vue,ts}',
     './layouts/**/*.vue',
@@ -13,83 +11,75 @@ export default {
   theme: {
     extend: {
       colors: {
-        coffee: {
-          50: '#fdf8f6',
-          100: '#f2e8e5',
-          200: '#eaddd7',
-          300: '#e0cec7',
-          400: '#d2bab0',
-          500: '#bfa094',
-          600: '#a18072',
-          700: '#977669',
-          800: '#6f4e37',
-          900: '#43302b',
+        paper: 'var(--paper)',
+        'surface-2': 'var(--surface-2)',
+        surface: 'var(--surface)',
+        jungle: 'var(--jungle)',
+
+        olive: {
+          DEFAULT: 'var(--olive)',
+          dark: 'var(--olive-dark)',
+          light: 'var(--olive-light)',
         },
-        cream: {
-          50: '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
+        honey: 'var(--honey)',
+
+        moss: {
+          DEFAULT: 'var(--moss)',
+          soft: 'var(--moss-soft)',
+          ghost: 'var(--moss-ghost)',
         },
-        // shadcn CSS variable colors
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-        },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-        },
-        destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
-        },
-        muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
-        },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
-        },
-        popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
-        },
-        card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
-        },
+
+        terracotta: 'var(--terracotta)',
       },
-      borderRadius: {
-        xl: 'calc(var(--radius) + 4px)',
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
-      },
+
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        display: ['DM Serif Display', 'ui-serif', 'Georgia', 'serif'],
+        sans: ['Geist', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
-      keyframes: {
-        'accordion-down': {
-          from: { height: '0' },
-          to: { height: 'var(--radix-accordion-content-height)' },
-        },
-        'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
-        },
+
+      fontSize: {
+        eyebrow: ['10px', { lineHeight: '1', letterSpacing: '0.14em' }],
+        label: ['13px', { lineHeight: '16px' }],
+        body: ['14px', { lineHeight: '22px' }],
+
+        'mono-data': ['11px', { lineHeight: '14px' }],
+
+        'display-m': ['30px', { lineHeight: '28px' }],
+        'display-l': ['38px', { lineHeight: '35px', letterSpacing: '-0.01em' }],
+        'display-xl': ['56px', { lineHeight: '52px', letterSpacing: '-0.02em' }],
       },
-      animation: {
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out',
+
+      spacing: {
+        // Sorbo named scale aliases (4 / 8 / 12 / 16 / 24 / 40 / 64 / 80)
+        xxs: '4px',
+        xs: '8px',
+        sm: '12px',
+        md: '16px',
+        lg: '24px',
+        xl: '40px',
+        '2xl': '64px',
+        '3xl': '80px',
+      },
+
+      borderRadius: {
+        input: '8px',
+        'card-sm': '12px',
+        cta: '14px',
+        card: '14px',
+        'card-lg': '18px',
+        sheet: '24px',
+        pill: '9999px',
+      },
+
+      letterSpacing: {
+        eyebrow: '0.14em',
+      },
+
+      transitionTimingFunction: {
+        sorbo: 'cubic-bezier(0.4, 0, 0.2, 1)',
       },
     },
   },
-  plugins: [animate],
+  plugins: [],
 } satisfies Config

@@ -9,13 +9,7 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@vueuse/nuxt',
     '@vite-pwa/nuxt',
-    'shadcn-nuxt',
   ],
-
-  shadcn: {
-    prefix: '',
-    componentDir: './components/ui',
-  },
 
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
@@ -24,11 +18,11 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Coffee Tracker',
-      short_name: 'Coffee',
-      description: 'Mi colección personal de cafés de especialidad',
-      theme_color: '#0a0a0a',
-      background_color: '#f5f0e8',
+      name: 'Sorbo',
+      short_name: 'Sorbo',
+      description: 'Un diario para cada sorbo',
+      theme_color: '#141712',
+      background_color: '#f4f2eb',
       display: 'standalone',
       orientation: 'portrait',
       lang: 'es',
@@ -102,16 +96,19 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'Coffee Tracker',
+      title: 'Sorbo',
       meta: [
-        { name: 'description', content: 'Mi colección personal de cafés de especialidad' },
+        { name: 'description', content: 'Un diario para cada sorbo' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
       ],
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap' },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500&family=JetBrains+Mono:wght@400;500;700&display=swap',
+        },
         { rel: 'apple-touch-icon', href: '/icons/icon-192.png' },
       ],
     },

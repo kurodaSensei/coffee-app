@@ -4,39 +4,106 @@
 
 @layer base {
   :root {
-    --background: 40 33% 96%;
-    --foreground: 20 14% 8%;
-    --card: 40 40% 99%;
-    --card-foreground: 20 14% 8%;
-    --popover: 40 40% 99%;
-    --popover-foreground: 20 14% 8%;
-    --primary: 20 14% 8%;
-    --primary-foreground: 40 33% 96%;
-    --secondary: 38 20% 90%;
-    --secondary-foreground: 20 14% 8%;
-    --muted: 38 18% 91%;
-    --muted-foreground: 20 8% 40%;
-    --accent: 38 20% 90%;
-    --accent-foreground: 20 14% 8%;
-    --destructive: 0 72% 48%;
-    --destructive-foreground: 40 33% 96%;
-    --border: 38 16% 85%;
-    --input: 38 16% 85%;
-    --ring: 20 14% 8%;
-    --radius: 0.625rem;
+    /* Surfaces */
+    --paper: #f4f2eb;
+    --surface-2: #ebe9dc;
+    --surface: #e4e3d2;
+    --jungle: #141712;
+
+    /* Brand */
+    --olive: #556b3a;
+    --olive-dark: #46592f;
+    --olive-light: #96b36a;
+    --honey: #e5b84b;
+
+    /* Text */
+    --moss: #2f3528;
+    --moss-soft: #5f6652;
+    --moss-ghost: #8a8c7f;
+
+    /* Critical */
+    --terracotta: #c14a3a;
+
+    /* Type */
+    --font-display: 'DM Serif Display', ui-serif, Georgia, serif;
+    --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    /* Eyebrow letter-spacing baseline (.14em) */
+    --tracking-eyebrow: 0.14em;
   }
 
-  * {
-    @apply border-border;
+  html, body {
+    background: var(--paper);
+    color: var(--moss);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
+  /* Tap target reset for mobile */
+  button, [role="button"], a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Selection */
+  ::selection {
+    background: var(--olive-light);
+    color: var(--jungle);
   }
 }
 
 @layer components {
-  [data-slot="button"] {
-    cursor: pointer;
+  /* Eyebrow — mono uppercase prefijado con guion */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--moss-soft);
+  }
+
+  /* Display utilities */
+  .display-xl {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 56px;
+    line-height: 52px;
+    letter-spacing: -0.02em;
+  }
+
+  .display-l {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 38px;
+    line-height: 35px;
+    letter-spacing: -0.01em;
+  }
+
+  .display-m {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 28px;
+  }
+
+  .subtitle-italic {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--moss-soft);
+  }
+
+  /* Mono data — números, precios, métricas */
+  .mono-data {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 14px;
   }
 }
