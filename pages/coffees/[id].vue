@@ -96,6 +96,32 @@ function formatPrice(p?: number): string {
   if (!p) return '—'
   return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(p)
 }
+
+function onEdit() {
+  if (!coffee.value) return
+  router.push(`/coffees/${coffee.value.id}/edit`)
+}
+
+const deleting = ref(false)
+
+async function onDelete() {
+  if (!coffee.value || deleting.value) return
+  const ok = window.confirm(
+    `¿Eliminar "${coffee.value.name}"? Esta acción no se puede deshacer.`,
+  )
+  if (!ok) return
+  deleting.value = true
+  try {
+    await coffeesStore.remove(coffee.value.id)
+    router.replace('/coffees')
+  }
+  catch {
+    // Toast surfaced by store
+  }
+  finally {
+    deleting.value = false
+  }
+}
 </script>
 
 <template>
@@ -114,13 +140,15 @@ function formatPrice(p?: number): string {
         <UiEyebrow class="truncate text-center flex-1">
           {{ coffee?.roasterName || 'Café' }}
         </UiEyebrow>
-        <button
-          type="button"
-          class="inline-flex items-center justify-center size-[40px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
-          aria-label="Más acciones"
-        >
-          <Icon name="lucide:more-horizontal" class="size-5" />
-        </button>
+        <UiActionMenu v-if="coffee" aria-label="Más acciones">
+          <UiActionMenuItem icon="lucide:pencil" @click="onEdit">
+            Editar
+          </UiActionMenuItem>
+          <UiActionMenuItem destructive icon="lucide:trash-2" @click="onDelete">
+            Eliminar
+          </UiActionMenuItem>
+        </UiActionMenu>
+        <div v-else class="size-[40px]" aria-hidden="true" />
       </div>
     </header>
 
@@ -208,10 +236,10 @@ function formatPrice(p?: number): string {
       </template>
     </main>
 
-    <!-- Sticky CTA -->
+    <!-- Sticky CTA — sits above the mobile TabBar (~56px + safe-area), pinned to viewport bottom on desktop. -->
     <div
       v-if="coffee && !loading && !notFound"
-      class="fixed inset-x-0 bottom-0 z-20 px-md pb-[calc(env(safe-area-inset-bottom)+12px)] pt-sm lg:px-xl xl:px-2xl"
+      class="fixed inset-x-0 z-20 px-md pt-sm pb-sm lg:px-xl xl:px-2xl bottom-[calc(56px+env(safe-area-inset-bottom))] lg:bottom-0 lg:pb-[calc(env(safe-area-inset-bottom)+12px)]"
     >
       <div class="mx-auto w-full max-w-[1200px]">
         <NuxtLink
