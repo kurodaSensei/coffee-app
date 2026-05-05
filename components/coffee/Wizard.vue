@@ -293,7 +293,7 @@ const submitLabel = computed(() =>
         </button>
 
         <div v-else class="mt-lg flex flex-col gap-md">
-          <UiInput
+          <VarietyPicker
             v-model="variety"
             label="Variedad"
             placeholder="Caturra, Geisha…"
