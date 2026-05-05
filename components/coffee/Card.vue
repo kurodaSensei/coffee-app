@@ -18,12 +18,18 @@ const processLabel: Record<CoffeeProcess, string> = {
   other: 'Otro',
 }
 
-const blobTone = computed<'honey' | 'olive-light' | 'surface-2'>(() => {
+const blobTone = computed<'honey' | 'olive-light' | 'surface-2' | 'peach'>(() => {
   switch (props.coffee.process) {
     case 'natural':
-    case 'honey':
       return 'honey'
+    case 'honey':
+      return 'peach'
     case 'washed':
+      return 'olive-light'
+    case 'anaerobic':
+    case 'carbonic':
+      return 'peach'
+    case 'experimental':
       return 'olive-light'
     default:
       return 'surface-2'

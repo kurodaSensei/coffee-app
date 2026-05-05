@@ -16,7 +16,7 @@ const props = withDefaults(
     /** Right-side meta line (e.g. "$60K · 250g"). */
     meta?: string
     /** Decorative blob color — uses honey by default. */
-    blobTone?: 'honey' | 'olive-light' | 'surface-2' | 'none'
+    blobTone?: 'honey' | 'olive-light' | 'surface-2' | 'peach' | 'none'
     /** Internal route — renders as NuxtLink when provided. */
     to?: string
     /** External href — renders as <a>. */
@@ -42,10 +42,13 @@ const tag = computed(() => {
 
 const interactive = computed(() => !!(props.to || props.href))
 
-const blobToneClass: Record<'honey' | 'olive-light' | 'surface-2' | 'none', string> = {
-  honey: 'bg-honey/70',
-  'olive-light': 'bg-olive-light/60',
+// Use `opacity-N` instead of `bg-color/N` because Tailwind opacity modifiers
+// don't reliably resolve when the underlying color is a CSS variable.
+const blobToneClass: Record<'honey' | 'olive-light' | 'surface-2' | 'peach' | 'none', string> = {
+  honey: 'bg-honey opacity-70',
+  'olive-light': 'bg-olive-light opacity-60',
   'surface-2': 'bg-surface-2',
+  peach: 'bg-terracotta opacity-40',
   none: 'hidden',
 }
 </script>
