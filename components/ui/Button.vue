@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { cn } from '~/lib/utils'
 
-type Variant = 'primary' | 'dark' | 'ghost'
+type Variant = 'primary' | 'dark' | 'ghost' | 'secondary'
 type Size = 'md' | 'sm'
 
 const props = withDefaults(
@@ -30,11 +30,13 @@ const props = withDefaults(
 
 const variantClass: Record<Variant, string> = {
   primary:
-    'bg-olive text-paper hover:bg-olive-dark active:bg-olive-dark focus-visible:outline-olive-dark',
+    'bg-olive text-paper hover:bg-olive-dark active:bg-olive-dark focus-visible:outline-olive-dark rounded-cta',
   dark:
-    'bg-jungle text-paper hover:bg-moss active:bg-moss focus-visible:outline-jungle',
+    'bg-jungle text-paper hover:bg-moss active:bg-moss focus-visible:outline-jungle rounded-cta',
   ghost:
-    'bg-transparent text-moss hover:bg-surface-2 active:bg-surface focus-visible:outline-moss-soft',
+    'bg-transparent text-moss hover:bg-surface-2 active:bg-surface focus-visible:outline-moss-soft rounded-cta',
+  secondary:
+    'bg-surface-2 text-moss border border-moss/10 hover:bg-surface active:bg-surface focus-visible:outline-moss-soft rounded-card-sm',
 }
 
 const sizeClass: Record<Size, string> = {
@@ -52,9 +54,10 @@ const tag = computed(() => (props.href ? 'a' : 'button'))
     :type="!href ? type : undefined"
     :disabled="!href ? disabled || loading : undefined"
     :aria-disabled="(disabled || loading) || undefined"
+    :aria-busy="loading || undefined"
     :class="
       cn(
-        'inline-flex items-center justify-center gap-xs rounded-cta font-sans font-medium tracking-tight',
+        'inline-flex items-center justify-center gap-xs font-sans font-medium tracking-tight',
         'transition-colors duration-150 ease-sorbo',
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
         'disabled:opacity-50 disabled:pointer-events-none',
@@ -65,7 +68,11 @@ const tag = computed(() => (props.href ? 'a' : 'button'))
       )
     "
   >
-    <span v-if="loading" class="inline-block h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" aria-hidden="true" />
+    <span
+      v-if="loading"
+      aria-hidden="true"
+      class="inline-block h-3 w-3 animate-spin rounded-full border border-current border-t-transparent"
+    />
     <slot />
   </component>
 </template>

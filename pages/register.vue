@@ -3,14 +3,15 @@ import { computed, ref, watchEffect } from 'vue'
 
 definePageMeta({ layout: 'auth', auth: false })
 
-const { login, loginWithGoogle, currentUser } = useAuth()
+const { register, loginWithGoogle, currentUser } = useAuth()
 const router = useRouter()
 const route = useRoute()
 
+const name = ref('')
 const email = ref('')
 const password = ref('')
 
-const errors = ref<{ email?: string; password?: string; general?: string }>({})
+const errors = ref<{ name?: string; email?: string; password?: string; general?: string }>({})
 const loading = ref(false)
 const loadingGoogle = ref(false)
 
@@ -25,10 +26,13 @@ watchEffect(() => {
 
 function validate() {
   errors.value = {}
+  if (!name.value.trim()) errors.value.name = 'Cuéntanos tu nombre'
   if (!email.value) errors.value.email = 'Correo requerido'
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value))
     errors.value.email = 'Correo no válido'
   if (!password.value) errors.value.password = 'Contraseña requerida'
+  else if (password.value.length < 8)
+    errors.value.password = 'Mínimo 8 caracteres'
   return Object.keys(errors.value).length === 0
 }
 
@@ -37,7 +41,7 @@ async function onSubmit(e: Event) {
   if (!validate()) return
   loading.value = true
   try {
-    await login(email.value.trim(), password.value)
+    await register(email.value.trim(), password.value, name.value.trim())
     router.replace(redirectTo.value)
   }
   catch (err: any) {
@@ -66,36 +70,47 @@ async function onGoogle() {
 function mapAuthError(code?: string): string {
   switch (code) {
     case 'auth/invalid-email': return 'Correo no válido'
-    case 'auth/user-not-found':
-    case 'auth/wrong-password':
-    case 'auth/invalid-credential': return 'Correo o contraseña incorrectos'
-    case 'auth/too-many-requests': return 'Demasiados intentos. Espera un momento.'
+    case 'auth/email-already-in-use': return 'Ese correo ya tiene cuenta. Inicia sesión.'
+    case 'auth/weak-password': return 'Contraseña muy débil. Mínimo 8 caracteres.'
     case 'auth/network-request-failed': return 'Sin conexión. Revisa tu red.'
-    case 'auth/popup-closed-by-user': return 'Cancelaste el inicio con Google'
-    default: return 'No pudimos iniciar sesión. Inténtalo otra vez.'
+    case 'auth/popup-closed-by-user': return 'Cancelaste el registro con Google'
+    default: return 'No pudimos crear tu cuenta. Inténtalo otra vez.'
   }
 }
 </script>
 
 <template>
-  <main class="flex min-h-svh items-center justify-center px-md py-2xl">
+  <main class="flex min-h-svh items-center justify-center px-md py-xl">
     <div class="w-full max-w-[390px]">
-      <UiEyebrow>Sorbo · by KurodaCafe</UiEyebrow>
+      <UiLogo variant="mark" size="md" />
 
-      <h1 class="mt-md font-display text-[46px] leading-[42px] tracking-[-0.01em] text-moss">
-        Bienvenido<br>
-        de <span class="italic text-olive">vuelta</span>.
+      <h1 class="mt-lg font-display text-[34px] leading-[34px] tracking-[-0.01em] text-moss">
+        Un diario<br>
+        para cada<br>
+        <span class="italic text-olive">sorbo</span>.
       </h1>
 
-      <p class="subtitle-italic mt-md">Continúa donde dejaste el sorbo.</p>
+      <p class="subtitle-italic mt-md">
+        Colecciona, cata y recuerda cada café que pase por tu taza.
+      </p>
 
-      <form class="mt-xl flex flex-col gap-xs" novalidate @submit="onSubmit">
+      <form class="mt-lg flex flex-col gap-[6px]" novalidate @submit="onSubmit">
+        <UiInput
+          v-model="name"
+          label="Nombre"
+          type="text"
+          autocomplete="name"
+          placeholder="Cómo te llamas"
+          :error="errors.name"
+          required
+        />
         <UiInput
           v-model="email"
           label="Correo"
           type="email"
           autocomplete="email"
           inputmode="email"
+          placeholder="tucorreo@ejemplo.com"
           :error="errors.email"
           required
         />
@@ -103,7 +118,8 @@ function mapAuthError(code?: string): string {
           v-model="password"
           label="Contraseña"
           type="password"
-          autocomplete="current-password"
+          autocomplete="new-password"
+          placeholder="Mínimo 8 caracteres"
           :error="errors.password"
           required
         />
@@ -118,35 +134,28 @@ function mapAuthError(code?: string): string {
 
         <UiButton
           type="submit"
-          variant="dark"
+          variant="primary"
           class="mt-lg"
           :loading="loading"
           :disabled="loadingGoogle"
         >
-          Entrar
+          Empezar mi diario
         </UiButton>
       </form>
 
-      <div class="my-md flex items-center gap-md">
-        <span aria-hidden="true" class="h-px flex-1 bg-moss/10" />
-        <UiEyebrow>o continúa con</UiEyebrow>
-        <span aria-hidden="true" class="h-px flex-1 bg-moss/10" />
-      </div>
-
-      <UiButton
-        variant="secondary"
-        :loading="loadingGoogle"
-        :disabled="loading"
+      <button
+        type="button"
+        :disabled="loading || loadingGoogle"
+        class="mt-md w-full py-xs font-mono text-[10px] font-medium uppercase tracking-eyebrow text-olive transition-opacity duration-150 ease-sorbo hover:opacity-80 disabled:opacity-50 disabled:pointer-events-none"
         @click="onGoogle"
       >
-        <span aria-hidden="true" class="font-mono text-[13px] font-bold leading-none">G</span>
-        Continuar con Google
-      </UiButton>
+        Continuar con Google →
+      </button>
 
-      <p class="mt-2xl text-center font-display text-[13px] italic text-moss-soft">
-        ¿Primera vez?
-        <NuxtLink to="/register" class="font-sans font-medium not-italic text-olive">
-          Crea tu cuenta
+      <p class="mt-xl text-center font-display text-[13px] italic text-moss-soft">
+        ¿Ya tienes cuenta?
+        <NuxtLink to="/login" class="font-sans font-medium not-italic text-olive">
+          Inicia sesión
         </NuxtLink>
       </p>
     </div>
