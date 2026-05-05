@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { resolveComponent } from 'vue'
 import { cn } from '~/lib/utils'
 
 export interface TabItem {
@@ -6,14 +7,12 @@ export interface TabItem {
   label: string
   /** Route for NuxtLink. When omitted the tab is treated as a plain button. */
   to?: string
-  /** Optional icon name (when integrating with @nuxt/icon). */
-  icon?: string
 }
 
 const props = withDefaults(
   defineProps<{
     items: TabItem[]
-    /** Currently active tab key. When `to` is set on items, NuxtLink active state is used instead. */
+    /** Currently active tab key. When `to` is set on items, route matching is used instead. */
     modelValue?: string
     /** Use fixed bottom positioning with safe-area padding. */
     fixed?: boolean
@@ -29,6 +28,15 @@ const emit = defineEmits<{
   select: [item: TabItem]
 }>()
 
+const route = useRoute()
+
+function isActive(item: TabItem): boolean {
+  if (props.modelValue !== undefined) return props.modelValue === item.key
+  if (!item.to) return false
+  if (item.to === '/') return route.path === '/'
+  return route.path === item.to || route.path.startsWith(`${item.to}/`)
+}
+
 function onSelect(item: TabItem) {
   emit('update:modelValue', item.key)
   emit('select', item)
@@ -37,40 +45,36 @@ function onSelect(item: TabItem) {
 
 <template>
   <nav
-    aria-label="Navegación principal"
+    aria-label="Navegación"
     :class="
       cn(
-        'z-30 bg-paper/90 backdrop-blur-md border-t border-moss/10',
+        'z-30 bg-paper/95 backdrop-blur-md border-t border-moss/10',
         fixed && 'fixed inset-x-0 bottom-0 pb-[env(safe-area-inset-bottom)]',
         $props.class,
       )
     "
   >
-    <ul class="mx-auto flex max-w-md items-center justify-between px-md py-sm">
-      <li v-for="item in items" :key="item.key" class="flex-1">
+    <ul class="mx-auto flex max-w-xl items-center px-md py-sm">
+      <li v-for="item in items" :key="item.key" class="flex flex-1 justify-center">
         <component
           :is="item.to ? resolveComponent('NuxtLink') : 'button'"
           :to="item.to"
           :type="item.to ? undefined : 'button'"
-          :aria-current="!item.to && modelValue === item.key ? 'page' : undefined"
-          class="group relative flex w-full flex-col items-center gap-xxs py-xs font-mono text-[11px] uppercase tracking-eyebrow text-moss-ghost transition-colors duration-150 ease-sorbo"
-          :class="[
-            'aria-[current=page]:text-moss',
-            // Active state for NuxtLink — applied via active-class
-            item.to ? 'router-link-active:text-moss' : '',
-            modelValue === item.key && !item.to ? 'text-moss' : '',
-          ]"
-          :active-class="item.to ? 'text-moss' : undefined"
+          :aria-current="isActive(item) ? 'page' : undefined"
+          class="inline-flex items-center gap-xxs px-xs py-xs whitespace-nowrap"
           @click="onSelect(item)"
         >
-          <span
-            aria-hidden="true"
-            class="h-[6px] w-[6px] rounded-pill transition-colors duration-150 ease-sorbo"
-            :class="[
-              modelValue === item.key ? 'bg-olive' : 'bg-transparent',
-            ]"
-          />
-          <span>{{ item.label }}</span>
+          <template v-if="isActive(item)">
+            <span aria-hidden="true" class="inline-block size-[6px] rounded-pill bg-olive" />
+            <span class="font-display italic text-[14px] leading-none lowercase text-olive">
+              {{ item.label }}
+            </span>
+          </template>
+          <template v-else>
+            <span class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-ghost">
+              {{ item.label }}
+            </span>
+          </template>
         </component>
       </li>
     </ul>
