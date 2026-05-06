@@ -33,6 +33,15 @@ export type BrewMethod =
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'very_rare'
 
+export type GrindSize = 'fine' | 'medium' | 'coarse'
+
+export interface RecipeStep {
+  /** Time of this milestone since brew start, in seconds. */
+  timeSeconds: number
+  title: string
+  description?: string
+}
+
 export type WishlistStatus = 'pending' | 'purchased' | 'unavailable'
 
 // Interfaces
@@ -110,10 +119,14 @@ export interface Recipe {
   dose: number
   water: number
   ratio?: string
-  grindSize?: number
+  grindSize?: GrindSize
   waterTemp?: number
   instructions?: string
   bestFor?: string
+  /** Author or source — e.g. "James Hoffmann", "Tetsu Kasuya". */
+  author?: string
+  /** Ordered timeline of milestones during the brew. */
+  steps?: RecipeStep[]
   sharedWith?: string[]
   createdAt: Timestamp
   updatedAt: Timestamp
