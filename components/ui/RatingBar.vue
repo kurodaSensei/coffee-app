@@ -102,15 +102,15 @@ function onKeydown(e: KeyboardEvent) {
     :class="cn('rounded-card-lg bg-jungle p-md flex flex-col gap-sm', $props.class)"
   >
     <div class="flex items-center justify-between gap-md">
-      <UiEyebrow class="text-paper/60">{{ label }}</UiEyebrow>
+      <UiEyebrow class="text-paper/70">{{ label }}</UiEyebrow>
       <slot name="trailing" />
     </div>
 
     <div class="flex items-baseline gap-xxs">
-      <span class="font-display text-[48px] sm:text-[56px] leading-none text-honey">
+      <span class="font-display text-[48px] sm:text-[56px] leading-none text-paper">
         {{ displayValue }}
       </span>
-      <span class="font-mono text-[13px] text-paper/60">{{ unitSuffix }}</span>
+      <span class="font-mono text-[13px] text-paper/70">{{ unitSuffix }}</span>
     </div>
 
     <div
@@ -122,7 +122,7 @@ function onKeydown(e: KeyboardEvent) {
       :aria-valuenow="modelValue ?? min"
       :aria-label="label"
       :aria-readonly="readonly || undefined"
-      class="relative h-[6px] rounded-pill bg-paper/10 touch-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-honey"
+      class="relative h-[6px] rounded-pill bg-paper/15 touch-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-honey"
       :class="readonly ? 'cursor-default' : 'cursor-pointer'"
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
@@ -131,7 +131,7 @@ function onKeydown(e: KeyboardEvent) {
       @keydown="onKeydown"
     >
       <span
-        class="absolute inset-y-0 left-0 rounded-pill bg-olive transition-[width] duration-100 ease-sorbo"
+        class="absolute inset-y-0 left-0 rounded-pill bg-honey transition-[width] duration-100 ease-sorbo"
         :style="{ width: `${fillPercent}%` }"
       />
     </div>
