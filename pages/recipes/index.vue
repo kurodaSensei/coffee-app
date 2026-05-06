@@ -209,11 +209,11 @@ function openSheet(r: Recipe) {
     <!-- Mobile FAB (hidden because we have the dashed pill instead) -->
 
     <!-- Detail sheet -->
-    <UiBottomSheet v-model="sheetOpen" :title="activeRecipe ? methodPill(activeRecipe) : ''">
+    <UiBottomSheet v-model="sheetOpen">
       <RecipeDetail v-if="activeRecipe" :recipe="activeRecipe" />
       <div v-if="activeRecipe" class="mt-lg">
         <UiButton
-          variant="ghost"
+          variant="primary"
           :to="`/recipes/${activeRecipe.id}`"
           @click="sheetOpen = false"
         >

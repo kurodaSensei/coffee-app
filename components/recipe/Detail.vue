@@ -16,6 +16,24 @@ const grindLabel: Record<string, string> = {
   coarse: 'Gruesa',
 }
 
+/** Coerce a possibly-legacy numeric grindSize (1-15 scale) into the enum label. */
+function readableGrind(g: unknown): string | null {
+  if (typeof g === 'string' && grindLabel[g]) return grindLabel[g]
+  if (typeof g === 'number') {
+    if (g <= 5) return 'Fina'
+    if (g <= 10) return 'Media'
+    return 'Gruesa'
+  }
+  return null
+}
+
+const grindText = computed(() => readableGrind(props.recipe.grindSize))
+
+function cleanName(n: string): string {
+  const trimmed = (n || '').trim().replace(/\.+$/, '')
+  return `${trimmed}.`
+}
+
 const sortedSteps = computed(() => [...(props.recipe.steps || [])].sort((a, b) => a.timeSeconds - b.timeSeconds))
 
 const totalSeconds = computed(() => {
@@ -92,21 +110,22 @@ const isFinished = computed(
 
 <template>
   <div class="flex flex-col gap-md">
-    <UiEyebrow>{{ methodLabel }}</UiEyebrow>
-
-    <h2 class="font-display tracking-[-0.02em] leading-[0.95] text-moss text-[44px] sm:text-[56px]">
-      <template v-if="recipe.author">
-        {{ getBrewMethodLabel(recipe.brewMethod) }}<br>
-        <span class="italic text-olive">{{ recipe.author }}</span><span>.</span>
-      </template>
-      <template v-else>
-        {{ recipe.name.endsWith('.') ? recipe.name : `${recipe.name}.` }}
-      </template>
-    </h2>
+    <header class="flex flex-col gap-xs">
+      <UiEyebrow>{{ methodLabel }}</UiEyebrow>
+      <h2 class="font-display tracking-[-0.02em] leading-[1.0] text-moss text-[36px] sm:text-[44px] break-words">
+        <template v-if="recipe.author">
+          {{ getBrewMethodLabel(recipe.brewMethod) }}<br>
+          <span class="italic text-olive">{{ recipe.author }}</span><span>.</span>
+        </template>
+        <template v-else>
+          {{ cleanName(recipe.name) }}
+        </template>
+      </h2>
+    </header>
 
     <!-- Params card -->
-    <div class="rounded-card-sm bg-surface-2 p-md">
-      <div class="grid grid-cols-4 gap-md">
+    <div class="rounded-card-sm bg-surface-2 px-md py-sm">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-md gap-y-sm">
         <div class="flex flex-col gap-xxs">
           <UiEyebrow>Dosis</UiEyebrow>
           <span class="font-mono text-[14px] text-moss">{{ recipe.dose }}g</span>
@@ -124,9 +143,9 @@ const isFinished = computed(
           <span class="font-mono text-[14px] text-moss">{{ recipe.waterTemp ? `${recipe.waterTemp}°C` : '—' }}</span>
         </div>
       </div>
-      <div v-if="recipe.grindSize" class="mt-sm pt-sm border-t border-moss/10 flex items-center gap-sm">
+      <div v-if="grindText" class="mt-sm pt-sm border-t border-moss/10 flex items-center justify-between gap-sm">
         <UiEyebrow>Molienda</UiEyebrow>
-        <span class="font-sans text-[13px] text-moss">{{ grindLabel[recipe.grindSize] || recipe.grindSize }}</span>
+        <span class="font-sans text-[13px] text-moss">{{ grindText }}</span>
       </div>
     </div>
 
