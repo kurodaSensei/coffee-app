@@ -102,7 +102,7 @@ function onKeydown(e: KeyboardEvent) {
     :class="cn('rounded-card-lg bg-jungle p-md flex flex-col gap-sm', $props.class)"
   >
     <div class="flex items-center justify-between gap-md">
-      <UiEyebrow class="text-paper/70">{{ label }}</UiEyebrow>
+      <UiEyebrow class="text-paper/80">{{ label }}</UiEyebrow>
       <slot name="trailing" />
     </div>
 
@@ -110,7 +110,7 @@ function onKeydown(e: KeyboardEvent) {
       <span class="font-display text-[48px] sm:text-[56px] leading-none text-paper">
         {{ displayValue }}
       </span>
-      <span class="font-mono text-[13px] text-paper/70">{{ unitSuffix }}</span>
+      <span class="font-mono text-[13px] text-paper/80">{{ unitSuffix }}</span>
     </div>
 
     <div
@@ -122,7 +122,7 @@ function onKeydown(e: KeyboardEvent) {
       :aria-valuenow="modelValue ?? min"
       :aria-label="label"
       :aria-readonly="readonly || undefined"
-      class="relative h-[6px] rounded-pill bg-paper/15 touch-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-honey"
+      class="group relative h-[6px] rounded-pill bg-paper/25 touch-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-honey"
       :class="readonly ? 'cursor-default' : 'cursor-pointer'"
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
@@ -133,6 +133,12 @@ function onKeydown(e: KeyboardEvent) {
       <span
         class="absolute inset-y-0 left-0 rounded-pill bg-honey transition-[width] duration-100 ease-sorbo"
         :style="{ width: `${fillPercent}%` }"
+      />
+      <span
+        v-if="!readonly"
+        aria-hidden="true"
+        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-[14px] rounded-pill bg-honey ring-2 ring-jungle transition-[left] duration-100 ease-sorbo"
+        :style="{ left: `${fillPercent}%` }"
       />
     </div>
   </div>
@@ -153,7 +159,7 @@ function onKeydown(e: KeyboardEvent) {
       :aria-valuenow="modelValue ?? min"
       :aria-label="label"
       :aria-readonly="readonly || undefined"
-      class="relative flex-1 h-[3px] rounded-pill bg-moss/10 touch-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-moss-soft"
+      class="relative flex-1 h-[3px] rounded-pill bg-moss/20 touch-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-moss-soft"
       :class="readonly ? 'cursor-default' : 'cursor-pointer'"
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
@@ -164,6 +170,12 @@ function onKeydown(e: KeyboardEvent) {
       <span
         class="absolute inset-y-0 left-0 rounded-pill bg-olive transition-[width] duration-100 ease-sorbo"
         :style="{ width: `${fillPercent}%` }"
+      />
+      <span
+        v-if="!readonly"
+        aria-hidden="true"
+        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-[12px] rounded-pill bg-olive ring-2 ring-paper transition-[left] duration-100 ease-sorbo"
+        :style="{ left: `${fillPercent}%` }"
       />
     </div>
 
