@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { cn } from '~/lib/utils'
 
 type Variant = 'primary' | 'dark' | 'ghost' | 'secondary'
@@ -9,7 +8,9 @@ const props = withDefaults(
   defineProps<{
     variant?: Variant
     size?: Size
-    /** Render as <a> when an href is provided. */
+    /** Internal route — renders as NuxtLink when provided. */
+    to?: string
+    /** External href — renders as <a>. */
     href?: string
     type?: 'button' | 'submit' | 'reset'
     disabled?: boolean
@@ -44,29 +45,28 @@ const sizeClass: Record<Size, string> = {
   sm: 'h-[38px] text-[12px] px-sm',
 }
 
-const tag = computed(() => (props.href ? 'a' : 'button'))
+const baseClass = cn(
+  'inline-flex items-center justify-center gap-xs font-sans font-medium tracking-tight',
+  'transition-colors duration-150 ease-sorbo',
+  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+  'disabled:opacity-50 disabled:pointer-events-none',
+)
+
+const fullClass = cn(
+  baseClass,
+  props.block && 'w-full',
+  sizeClass[props.size],
+  variantClass[props.variant],
+  props.class,
+)
 </script>
 
 <template>
-  <component
-    :is="tag"
-    :href="href"
-    :type="!href ? type : undefined"
-    :disabled="!href ? disabled || loading : undefined"
+  <NuxtLink
+    v-if="to && !disabled && !loading"
+    :to="to"
     :aria-disabled="(disabled || loading) || undefined"
-    :aria-busy="loading || undefined"
-    :class="
-      cn(
-        'inline-flex items-center justify-center gap-xs font-sans font-medium tracking-tight',
-        'transition-colors duration-150 ease-sorbo',
-        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
-        'disabled:opacity-50 disabled:pointer-events-none',
-        block && 'w-full',
-        sizeClass[size],
-        variantClass[variant],
-        $props.class,
-      )
-    "
+    :class="fullClass"
   >
     <span
       v-if="loading"
@@ -74,5 +74,33 @@ const tag = computed(() => (props.href ? 'a' : 'button'))
       class="inline-block h-3 w-3 animate-spin rounded-full border border-current border-t-transparent"
     />
     <slot />
-  </component>
+  </NuxtLink>
+  <a
+    v-else-if="href && !disabled && !loading"
+    :href="href"
+    :aria-disabled="(disabled || loading) || undefined"
+    :class="fullClass"
+  >
+    <span
+      v-if="loading"
+      aria-hidden="true"
+      class="inline-block h-3 w-3 animate-spin rounded-full border border-current border-t-transparent"
+    />
+    <slot />
+  </a>
+  <button
+    v-else
+    :type="type"
+    :disabled="disabled || loading"
+    :aria-disabled="(disabled || loading) || undefined"
+    :aria-busy="loading || undefined"
+    :class="fullClass"
+  >
+    <span
+      v-if="loading"
+      aria-hidden="true"
+      class="inline-block h-3 w-3 animate-spin rounded-full border border-current border-t-transparent"
+    />
+    <slot />
+  </button>
 </template>
