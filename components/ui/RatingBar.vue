@@ -99,7 +99,7 @@ function onKeydown(e: KeyboardEvent) {
   <!-- ━━━━━━━━━━ HERO VARIANT ━━━━━━━━━━ -->
   <div
     v-if="variant === 'hero'"
-    :class="cn('rounded-card-lg bg-jungle p-md flex flex-col gap-sm', $props.class)"
+    :class="cn('rounded-card-lg bg-moss p-md flex flex-col gap-sm', $props.class)"
   >
     <div class="flex items-center justify-between gap-md">
       <UiEyebrow class="text-paper">{{ label }}</UiEyebrow>
@@ -137,7 +137,7 @@ function onKeydown(e: KeyboardEvent) {
       <span
         v-if="!readonly"
         aria-hidden="true"
-        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-[14px] rounded-pill bg-honey ring-2 ring-jungle transition-[left] duration-100 ease-sorbo"
+        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-[14px] rounded-pill bg-honey ring-2 ring-moss transition-[left] duration-100 ease-sorbo"
         :style="{ left: `${fillPercent}%` }"
       />
     </div>
