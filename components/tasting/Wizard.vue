@@ -412,10 +412,10 @@ function coffeeEyebrow(c: Coffee): string {
         </div>
 
         <!-- Preview -->
-        <div v-if="selectedCoffee && ratingOverall !== null" class="mt-xl rounded-card-lg bg-jungle p-md">
+        <div v-if="selectedCoffee && ratingOverall !== null" class="mt-xl rounded-card-lg bg-moss p-md">
           <div class="flex items-center justify-between gap-md">
-            <UiEyebrow class="text-paper/60">Vista previa</UiEyebrow>
-            <span class="font-display text-[28px] leading-none text-honey">
+            <UiEyebrow class="text-paper">Vista previa</UiEyebrow>
+            <span class="font-display text-[28px] leading-none text-paper">
               {{ ratingOverall.toFixed(1) }}
             </span>
           </div>
