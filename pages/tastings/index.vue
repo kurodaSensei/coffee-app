@@ -9,6 +9,7 @@ const { getBrewMethodLabel } = useCatalog()
 
 onMounted(() => {
   tastingsStore.loadAll().catch(() => {})
+  tastingsStore.loadShared().catch(() => {})
   coffeesStore.loadAll().catch(() => {})
 })
 
@@ -16,9 +17,21 @@ const userName = computed(() =>
   currentUser.value?.displayName || currentUser.value?.email?.split('@')[0] || '',
 )
 
+const tab = ref<'mine' | 'shared'>('mine')
+
+const mineCount = computed(() => tastingsStore.list.length)
+const sharedCount = computed(() => tastingsStore.sharedList.length)
+
+const segments = computed(() => [
+  { key: 'mine', label: 'Mías', count: mineCount.value },
+  { key: 'shared', label: 'Compartidas', count: sharedCount.value },
+])
+
 const items = computed<Tasting[]>(() => {
-  const list = (tastingsStore.list as Tasting[]) || []
-  return [...list].sort((a, b) => {
+  const source = tab.value === 'mine'
+    ? (tastingsStore.list as Tasting[])
+    : (tastingsStore.sharedList as Tasting[])
+  return [...(source || [])].sort((a, b) => {
     const ta = tsMillis(a.brewDate) || tsMillis(a.createdAt)
     const tb = tsMillis(b.brewDate) || tsMillis(b.createdAt)
     return tb - ta
@@ -82,30 +95,39 @@ const activeCoffee = computed<Coffee | null>(() => {
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px] lg:text-[64px]">
           Catas<span>.</span>
         </h1>
-        <p v-if="items.length > 0" class="subtitle-italic mt-xs">
-          {{ items.length }} sorbo{{ items.length === 1 ? '' : 's' }} registrado{{ items.length === 1 ? '' : 's' }}.
-        </p>
-        <p v-else class="subtitle-italic mt-xs">
-          Tu memoria de taza.
+        <p class="subtitle-italic mt-xs">
+          <template v-if="tab === 'shared'">Lo que han catado tus amigos.</template>
+          <template v-else-if="items.length > 0">
+            {{ items.length }} sorbo{{ items.length === 1 ? '' : 's' }} registrado{{ items.length === 1 ? '' : 's' }}.
+          </template>
+          <template v-else>Tu memoria de taza.</template>
         </p>
       </div>
-      <UiButton
-        variant="primary"
-        :block="false"
-        to="/tastings/new"
-        size="sm"
-        class="hidden lg:inline-flex"
-      >
-        + Nueva cata
-      </UiButton>
+      <div class="flex items-center gap-md">
+        <UiSegmented v-model="tab" :items="segments" />
+        <UiButton
+          variant="primary"
+          :block="false"
+          to="/tastings/new"
+          size="sm"
+          class="hidden lg:inline-flex"
+        >
+          + Nueva cata
+        </UiButton>
+      </div>
     </div>
 
     <!-- Empty -->
     <div v-if="isEmpty" class="mt-2xl flex flex-col items-center gap-lg">
       <p class="font-display italic text-[16px] text-moss text-center max-w-[300px] leading-relaxed">
-        "Cada sorbo es un pequeño viaje. Empieza el tuyo registrando uno."
+        <template v-if="tab === 'shared'">
+          Aún no te han compartido catas. Pide a un amigo que comparta una.
+        </template>
+        <template v-else>
+          "Cada sorbo es un pequeño viaje. Empieza el tuyo registrando uno."
+        </template>
       </p>
-      <UiButton variant="dark" :block="false" to="/tastings/new">
+      <UiButton v-if="tab === 'mine'" variant="dark" :block="false" to="/tastings/new">
         + Nueva cata
       </UiButton>
     </div>

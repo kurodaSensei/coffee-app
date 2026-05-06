@@ -8,15 +8,28 @@ const { getBrewMethodLabel } = useCatalog()
 
 onMounted(() => {
   recipesStore.loadAll().catch(() => {})
+  recipesStore.loadShared().catch(() => {})
 })
 
 const userName = computed(() =>
   currentUser.value?.displayName || currentUser.value?.email?.split('@')[0] || '',
 )
 
+const tab = ref<'mine' | 'shared'>('mine')
+
+const mineCount = computed(() => recipesStore.list.length)
+const sharedCount = computed(() => recipesStore.sharedList.length)
+
+const segments = computed(() => [
+  { key: 'mine', label: 'Mías', count: mineCount.value },
+  { key: 'shared', label: 'Compartidas', count: sharedCount.value },
+])
+
 const items = computed<Recipe[]>(() => {
-  const list = (recipesStore.list as Recipe[]) || []
-  return [...list].sort((a, b) => {
+  const source = tab.value === 'mine'
+    ? (recipesStore.list as Recipe[])
+    : (recipesStore.sharedList as Recipe[])
+  return [...(source || [])].sort((a, b) => {
     const ta = a.createdAt?.toMillis?.() ?? 0
     const tb = b.createdAt?.toMillis?.() ?? 0
     return tb - ta
@@ -81,26 +94,36 @@ function openSheet(r: Recipe) {
           Recetas<span>.</span>
         </h1>
         <p class="subtitle-italic mt-xs">
-          {{ items.length > 0 ? 'Tus brews favoritos.' : 'Tu próximo brew empieza aquí.' }}
+          <template v-if="tab === 'shared'">Lo que tus amigos comparten.</template>
+          <template v-else-if="items.length > 0">Tus brews favoritos.</template>
+          <template v-else>Tu próximo brew empieza aquí.</template>
         </p>
       </div>
-      <UiButton
-        variant="primary"
-        :block="false"
-        to="/recipes/new"
-        size="sm"
-        class="hidden lg:inline-flex"
-      >
-        + Nueva receta
-      </UiButton>
+      <div class="flex items-center gap-md">
+        <UiSegmented v-model="tab" :items="segments" />
+        <UiButton
+          variant="primary"
+          :block="false"
+          to="/recipes/new"
+          size="sm"
+          class="hidden lg:inline-flex"
+        >
+          + Nueva receta
+        </UiButton>
+      </div>
     </div>
 
     <!-- Empty -->
     <div v-if="isEmpty" class="mt-2xl flex flex-col items-center gap-lg">
       <p class="font-display italic text-[16px] text-moss text-center max-w-[320px] leading-relaxed">
-        "Una buena receta es repetir el sorbo perfecto."
+        <template v-if="tab === 'shared'">
+          Aún no te han compartido recetas. Pide a un amigo que comparta una.
+        </template>
+        <template v-else>
+          "Una buena receta es repetir el sorbo perfecto."
+        </template>
       </p>
-      <UiButton variant="dark" :block="false" to="/recipes/new">
+      <UiButton v-if="tab === 'mine'" variant="dark" :block="false" to="/recipes/new">
         + Nueva receta
       </UiButton>
     </div>
