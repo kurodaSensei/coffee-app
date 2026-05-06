@@ -33,7 +33,7 @@ const variantClass: Record<Variant, string> = {
   primary:
     'bg-olive text-paper hover:bg-olive-dark active:bg-olive-dark focus-visible:outline-olive-dark rounded-cta',
   dark:
-    'bg-jungle text-paper hover:bg-moss active:bg-moss focus-visible:outline-jungle rounded-cta',
+    'bg-moss text-paper hover:bg-jungle active:bg-jungle focus-visible:outline-moss rounded-cta',
   ghost:
     'bg-transparent text-moss hover:bg-surface-2 active:bg-surface focus-visible:outline-moss-soft rounded-cta',
   secondary:
