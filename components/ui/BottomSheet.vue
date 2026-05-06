@@ -55,7 +55,7 @@ onUnmounted(() => {
     >
       <div
         v-if="modelValue"
-        class="fixed inset-0 z-50 bg-jungle/40 backdrop-blur-[2px]"
+        class="fixed inset-0 z-50 bg-[rgba(20,23,18,0.55)] backdrop-blur-[2px]"
         @click="close"
       />
     </Transition>
@@ -72,11 +72,12 @@ onUnmounted(() => {
         aria-modal="true"
         :aria-label="title"
         class="fixed inset-x-0 bottom-0 z-50 max-h-[88svh] flex flex-col rounded-t-sheet bg-paper text-moss
-               lg:inset-auto lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-full lg:max-w-[440px] lg:rounded-card-lg lg:max-h-[80vh]"
+               shadow-[0_-12px_40px_rgba(20,23,18,0.18)]
+               lg:inset-auto lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-full lg:max-w-[440px] lg:rounded-card-lg lg:max-h-[80vh] lg:shadow-[0_24px_60px_rgba(20,23,18,0.24)]"
       >
         <!-- Drag handle (mobile only) -->
         <div class="lg:hidden flex justify-center pt-sm pb-xs shrink-0">
-          <span aria-hidden="true" class="h-1 w-12 rounded-pill bg-moss/15" />
+          <span aria-hidden="true" class="h-[5px] w-12 rounded-pill bg-moss-ghost" />
         </div>
 
         <div class="flex items-center justify-between px-md pt-xs pb-sm shrink-0">
