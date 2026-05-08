@@ -41,9 +41,15 @@ const isEmpty = computed(() => items.value.length === 0)
     </header>
 
     <div class="mt-lg flex items-end justify-between gap-md flex-wrap">
-      <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px] lg:text-[64px]">
-        Mi <span class="italic text-olive">colección</span>
-      </h1>
+      <div>
+        <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px] lg:text-[64px]">
+          Mi <span class="italic text-olive">colección</span>
+        </h1>
+        <p class="subtitle-italic mt-xs">
+          <template v-if="tab === 'shared'">Lo que tus amigos comparten contigo.</template>
+          <template v-else>Cafés que has descubierto.</template>
+        </p>
+      </div>
 
       <div class="flex items-center gap-md">
         <UiSegmented v-model="tab" :items="segments" />
@@ -63,7 +69,12 @@ const isEmpty = computed(() => items.value.length === 0)
     <div v-if="isEmpty" class="mt-2xl flex flex-col items-center gap-lg">
       <div class="w-full max-w-[340px] rounded-card-lg bg-surface px-lg py-2xl text-center">
         <p class="font-display italic text-[16px] text-moss leading-relaxed">
-          "El próximo café espera en tu cafetera."
+          <template v-if="tab === 'shared'">
+            Aún no te han compartido cafés. Pide a un amigo que comparta uno.
+          </template>
+          <template v-else>
+            "El próximo café espera en tu cafetera."
+          </template>
         </p>
       </div>
       <UiButton

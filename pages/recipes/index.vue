@@ -82,7 +82,7 @@ function openSheet(r: Recipe) {
 <template>
   <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
-      <UiEyebrow>Recetas{{ items.length > 0 ? ` · ${items.length}` : '' }}</UiEyebrow>
+      <UiEyebrow>Recetas · {{ mineCount }}</UiEyebrow>
       <NuxtLink to="/settings" class="lg:hidden inline-flex">
         <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
       </NuxtLink>
@@ -115,14 +115,16 @@ function openSheet(r: Recipe) {
 
     <!-- Empty -->
     <div v-if="isEmpty" class="mt-2xl flex flex-col items-center gap-lg">
-      <p class="font-display italic text-[16px] text-moss text-center max-w-[320px] leading-relaxed">
-        <template v-if="tab === 'shared'">
-          Aún no te han compartido recetas. Pide a un amigo que comparta una.
-        </template>
-        <template v-else>
-          "Una buena receta es repetir el sorbo perfecto."
-        </template>
-      </p>
+      <div class="w-full max-w-[340px] rounded-card-lg bg-surface px-lg py-2xl text-center">
+        <p class="font-display italic text-[16px] text-moss leading-relaxed">
+          <template v-if="tab === 'shared'">
+            Aún no te han compartido recetas. Pide a un amigo que comparta una.
+          </template>
+          <template v-else>
+            "Una buena receta es repetir el sorbo perfecto."
+          </template>
+        </p>
+      </div>
       <UiButton v-if="tab === 'mine'" variant="dark" :block="false" to="/recipes/new">
         + Nueva receta
       </UiButton>
