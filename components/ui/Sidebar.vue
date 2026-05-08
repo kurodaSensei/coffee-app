@@ -36,8 +36,11 @@ function isActive(to: string): boolean {
       )
     "
   >
-    <NuxtLink to="/" class="font-display text-[28px] leading-none text-moss">
-      Sorbo<span class="text-honey">.</span>
+    <NuxtLink to="/" class="inline-flex items-center gap-sm" aria-label="Sorbo · Inicio">
+      <img src="/sorbo.svg" alt="" aria-hidden="true" class="block size-[36px] shrink-0">
+      <span class="font-display text-[28px] leading-none text-moss">
+        Sorbo<span class="text-honey">.</span>
+      </span>
     </NuxtLink>
 
     <nav class="flex-1 flex flex-col gap-lg overflow-y-auto" aria-label="Navegación principal">

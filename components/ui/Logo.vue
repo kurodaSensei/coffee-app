@@ -9,21 +9,22 @@ const props = withDefaults(
   defineProps<{
     variant?: Variant
     size?: Size
-    /** Tone applied to the wordmark / mark surface. */
-    tone?: 'jungle' | 'paper' | 'olive'
+    /** Tone applied to the wordmark text (mark always uses the brand SVG). */
+    tone?: 'moss' | 'paper' | 'olive'
     class?: string
   }>(),
   {
     variant: 'mark',
     size: 'md',
-    tone: 'jungle',
+    tone: 'moss',
   },
 )
 
-const markSizeClass: Record<Size, string> = {
-  sm: 'size-[36px] rounded-card-sm text-[20px]',
-  md: 'size-[48px] rounded-cta text-[26px]',
-  lg: 'size-[64px] rounded-card-lg text-[34px]',
+// Mark sizes (the SVG keeps its baked-in olive bg, paper "S", honey ".")
+const markSizePx: Record<Size, number> = {
+  sm: 36,
+  md: 48,
+  lg: 64,
 }
 
 const wordmarkSizeClass: Record<Size, string> = {
@@ -32,35 +33,28 @@ const wordmarkSizeClass: Record<Size, string> = {
   lg: 'text-[56px]',
 }
 
-const markToneClass: Record<'jungle' | 'paper' | 'olive', string> = {
-  jungle: 'bg-jungle text-paper',
-  paper: 'bg-paper text-jungle border border-moss/10',
-  olive: 'bg-olive text-paper',
-}
-
 const wordmarkColor = computed(() => {
   if (props.tone === 'paper') return 'text-paper'
   if (props.tone === 'olive') return 'text-olive'
   return 'text-moss'
 })
+
+const markPx = computed(() => markSizePx[props.size])
 </script>
 
 <template>
   <div :class="cn('inline-flex items-center gap-sm', $props.class)" aria-label="Sorbo">
-    <!-- Mark -->
-    <div
+    <!-- Mark — brand SVG (olive square + paper "S" + honey dot) -->
+    <img
       v-if="variant === 'mark' || variant === 'lockup'"
-      :class="
-        cn(
-          'inline-flex items-center justify-center font-display leading-none',
-          markSizeClass[size],
-          markToneClass[tone],
-        )
-      "
+      src="/sorbo.svg"
+      :width="markPx"
+      :height="markPx"
+      alt=""
       aria-hidden="true"
+      class="block shrink-0"
+      :style="{ width: `${markPx}px`, height: `${markPx}px` }"
     >
-      <span>S</span><span class="text-honey">.</span>
-    </div>
 
     <!-- Wordmark -->
     <div
