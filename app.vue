@@ -32,9 +32,11 @@ const showSplash = computed(() => authLoading.value || splashHeld.value)
   </Transition>
 
   <Toaster
-    position="top-center"
+    position="bottom-center"
     rich-colors
     close-button
+    :offset="120"
+    :mobile-offset="{ bottom: '110px' }"
     :toast-options="{
       style: {
         fontFamily: 'Geist, ui-sans-serif, system-ui, sans-serif',
