@@ -4,9 +4,9 @@ import { ref } from 'vue'
 definePageMeta({ layout: false, auth: false })
 
 useHead({
-  title: 'Sorbo — Un diario para cada sorbo',
+  title: 'Sorbo · Un diario para cada sorbo',
   meta: [
-    { name: 'description', content: 'Un diario íntimo para cada café que pasa por tu taza. Registra, cata y recuerda.' },
+    { name: 'description', content: 'Un diario para cada sorbo. Tu memoria de taza, en una sola colección. Cataloga cafés, registra catas y guarda recetas.' },
   ],
 })
 
@@ -14,7 +14,7 @@ const email = ref('')
 const submitting = ref(false)
 const subscribed = ref(false)
 
-function onSubscribe() {
+function onSubmit() {
   if (!email.value.trim() || submitting.value) return
   submitting.value = true
   // TODO: wire to a Firestore "waitlist" collection or external service
@@ -24,403 +24,1380 @@ function onSubscribe() {
   }, 600)
 }
 
-function scrollTo(id: string) {
+function smoothScroll(id: string) {
   const el = document.getElementById(id)
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 </script>
 
 <template>
-  <div class="min-h-svh bg-paper text-moss font-sans antialiased">
-    <!-- ━━━━━━━━━━━━ HERO ━━━━━━━━━━━━ -->
-    <section class="relative overflow-hidden bg-moss text-paper">
-      <!-- Decorative radial glows -->
-      <div
-        aria-hidden="true"
-        class="pointer-events-none absolute -left-1/4 -top-1/4 h-[600px] w-[800px] rounded-full opacity-40 blur-3xl"
-        style="background: radial-gradient(closest-side, rgba(85,107,58,0.45), transparent 70%);"
-      />
-      <div
-        aria-hidden="true"
-        class="pointer-events-none absolute -right-1/4 top-1/2 h-[500px] w-[700px] rounded-full opacity-30 blur-3xl"
-        style="background: radial-gradient(closest-side, rgba(229,184,75,0.18), transparent 70%);"
-      />
+  <div class="landing">
+    <!-- ============ NAV ============ -->
+    <nav class="nav">
+      <NuxtLink to="/" class="brand" aria-label="Sorbo · Inicio">
+        <img src="/sorbo.svg" alt="" aria-hidden="true" class="mark-svg">
+        <div class="name">
+          Sorbo<span class="dot">.</span>
+        </div>
+      </NuxtLink>
+      <div class="links">
+        <a href="#features" @click.prevent="smoothScroll('features')">Features</a>
+        <a href="#como" @click.prevent="smoothScroll('como')">Cómo funciona</a>
+        <a href="#por-que" @click.prevent="smoothScroll('por-que')">Por qué Sorbo</a>
+        <a href="#waitlist" class="nav-cta" @click.prevent="smoothScroll('waitlist')">Waitlist</a>
+      </div>
+    </nav>
 
-      <!-- Top nav -->
-      <header class="relative mx-auto max-w-[1280px] px-md sm:px-lg lg:px-2xl pt-md lg:pt-lg flex items-center justify-between gap-md">
-        <NuxtLink to="/" class="inline-flex items-center gap-xs" aria-label="Sorbo">
-          <img src="/sorbo.svg" alt="" aria-hidden="true" class="block size-[32px] shrink-0">
-          <span class="font-display text-[22px] leading-none text-paper">
-            Sorbo<span class="text-honey">.</span>
-          </span>
-        </NuxtLink>
-
-        <nav class="hidden md:flex items-center gap-lg" aria-label="Navegación">
-          <button type="button" class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-paper/70 hover:text-paper transition-colors" @click="scrollTo('manifiesto')">
-            Manifiesto
-          </button>
-          <button type="button" class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-paper/70 hover:text-paper transition-colors" @click="scrollTo('producto')">
-            Producto
-          </button>
-          <button type="button" class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-paper/70 hover:text-paper transition-colors" @click="scrollTo('filosofia')">
-            Filosofía
-          </button>
-        </nav>
-
-        <NuxtLink
-          to="/register"
-          class="inline-flex items-center justify-center h-[36px] px-md rounded-pill bg-honey text-jungle font-sans text-[13px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
-        >
-          Crea tu diario
-        </NuxtLink>
-      </header>
-
-      <!-- Hero content -->
-      <div class="relative mx-auto max-w-[1280px] px-md sm:px-lg lg:px-2xl pt-2xl lg:pt-[120px] pb-2xl lg:pb-[160px] grid lg:grid-cols-[1.2fr_1fr] gap-2xl items-center">
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="hero-inner">
         <div>
-          <UiEyebrow class="text-paper/60">— Por KurodaCafe</UiEyebrow>
-
-          <h1 class="mt-md font-display tracking-[-0.02em] leading-[0.95] text-paper text-[56px] sm:text-[72px] lg:text-[88px] xl:text-[104px]">
+          <div class="hero-eyebrow">
+            <span class="dot-live" aria-hidden="true" />
+            <span class="label">Beta privada · 2026</span>
+          </div>
+          <h1>
             Un diario<br>
             para cada<br>
-            <span class="italic text-honey">sorbo</span>
+            <em>sorbo</em><span class="dot">.</span>
           </h1>
-
-          <p class="mt-lg font-display italic text-[16px] lg:text-[18px] text-paper/70 max-w-[440px] leading-relaxed">
-            Un cuaderno íntimo de catas, recetas y descubrimientos. Sin algoritmo, sin feed, sin métricas vacías.
+          <p class="subtitle">
+            Tu memoria de taza, en una sola colección. Cataloga cafés, registra catas y guarda recetas — sin convertirlo en una hoja de cálculo.
           </p>
 
-          <div class="mt-xl flex flex-wrap items-center gap-sm">
-            <NuxtLink
-              to="/register"
-              class="inline-flex items-center justify-center h-[46px] px-lg rounded-cta bg-olive text-paper font-sans text-[14px] font-medium hover:bg-olive-dark transition-colors"
-            >
-              Crea tu diario
-            </NuxtLink>
-            <NuxtLink
-              to="/login"
-              class="inline-flex items-center justify-center h-[46px] px-lg rounded-cta border border-paper/20 text-paper font-sans text-[14px] font-medium hover:bg-paper/5 transition-colors"
-            >
-              Iniciar sesión
-            </NuxtLink>
+          <div class="hero-cta">
+            <a href="#waitlist" class="btn-primary" @click.prevent="smoothScroll('waitlist')">
+              Únete a la waitlist →
+            </a>
+            <a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener" class="btn-ghost-light">
+              Sígueme en Instagram
+            </a>
           </div>
 
-          <!-- Stats row -->
-          <div class="mt-2xl grid grid-cols-3 gap-md max-w-[400px]">
-            <div class="flex flex-col gap-xxs">
-              <span class="font-display text-[28px] leading-none text-paper">∞</span>
-              <UiEyebrow class="text-paper/60">Cafés</UiEyebrow>
+          <div class="hero-meta">
+            <div class="hero-meta-item">
+              <div class="num"><em>3</em>+</div>
+              <div class="lbl">métodos de extracción</div>
             </div>
-            <div class="flex flex-col gap-xxs">
-              <span class="font-mono text-[20px] leading-none text-honey">SCA</span>
-              <UiEyebrow class="text-paper/60">Estándar</UiEyebrow>
+            <div class="hero-meta-item">
+              <div class="num"><em>SCA</em></div>
+              <div class="lbl">scoring estándar</div>
             </div>
-            <div class="flex flex-col gap-xxs">
-              <span class="font-display text-[28px] leading-none text-paper">0%</span>
-              <UiEyebrow class="text-paper/60">Espía</UiEyebrow>
+            <div class="hero-meta-item">
+              <div class="num"><em>0</em>$</div>
+              <div class="lbl">en beta privada</div>
             </div>
           </div>
         </div>
 
-        <!-- Phone mockup (mini coffees list) -->
-        <div class="relative justify-self-center lg:justify-self-end">
-          <div class="relative w-[280px] sm:w-[320px] aspect-[9/19.5] rounded-[44px] bg-paper border-[10px] border-jungle shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)] overflow-hidden">
-            <!-- Status bar -->
-            <div class="px-md pt-sm pb-xs flex items-center justify-between">
-              <span class="font-mono text-[11px] font-bold text-moss">9:41</span>
-              <span class="font-mono text-[10px] text-moss">●●●● · WiFi</span>
+        <!-- iPhone mockup -->
+        <div class="device" aria-hidden="true">
+          <div class="screen">
+            <div class="notch" />
+            <div class="statusbar">
+              <span>9:41</span><span>●●●● · 100%</span>
             </div>
 
-            <!-- Mini app shell -->
-            <div class="px-md pt-sm">
-              <div class="flex items-center justify-between">
-                <span class="font-mono text-[9px] font-medium uppercase tracking-eyebrow text-moss-soft">— Cafés · 3</span>
-                <span class="size-[20px] rounded-pill bg-olive flex items-center justify-center text-paper font-sans text-[10px] font-medium">S</span>
+            <div class="app-header">
+              <div class="app-eyebrow">— Cafés · 4</div>
+              <div class="avatar">S</div>
+            </div>
+
+            <div class="content">
+              <div class="title-l">
+                Mi <em>colección</em>
               </div>
 
-              <h3 class="mt-md font-display text-[28px] leading-[1.05] tracking-[-0.02em] text-moss">
-                Mi <span class="italic text-olive">colección</span>
-              </h3>
+              <div class="seg-toggle">
+                <div class="seg-on">míos · 4</div>
+                <div class="seg-off">compart · 2</div>
+              </div>
 
-              <!-- Mini cards -->
-              <div class="mt-md flex flex-col gap-xs">
-                <div class="relative overflow-hidden rounded-card-lg bg-surface p-sm">
-                  <span aria-hidden="true" class="pointer-events-none absolute -right-6 -top-6 h-[60px] w-[60px] rounded-full bg-honey opacity-70" />
-                  <div class="relative">
-                    <span class="font-mono text-[8px] font-medium uppercase tracking-eyebrow text-moss-soft">— Natural · Tarqui</span>
-                    <div class="mt-xxs font-display text-[18px] leading-none text-moss">Rock</div>
-                    <div class="mt-xxs flex gap-xxs">
-                      <span class="rounded-pill bg-surface-2 px-[6px] py-[1px] font-mono text-[7px] uppercase tracking-eyebrow text-moss">Cereza</span>
-                      <span class="rounded-pill bg-surface-2 px-[6px] py-[1px] font-mono text-[7px] uppercase tracking-eyebrow text-moss">Panela</span>
-                    </div>
-                    <div class="mt-xs flex items-end justify-between">
-                      <div class="flex flex-col">
-                        <span class="font-mono text-[7px] uppercase tracking-eyebrow text-moss-soft">Score SCA</span>
-                        <span class="font-display text-[18px] leading-none text-moss">86.5</span>
-                      </div>
-                      <span class="font-mono text-[8px] text-moss-soft">$60K · 250g</span>
-                    </div>
+              <!-- Mood card 1 -->
+              <div class="mood-card">
+                <div class="mood-blob" />
+                <div class="mood-content">
+                  <div class="mood-eyebrow">— Natural · Tarqui</div>
+                  <div class="mood-name">Rock</div>
+                  <div class="mood-roaster">de Libertario</div>
+                  <div class="mood-notes">
+                    <span class="mood-chip">Cereza</span>
+                    <span class="mood-chip">Panela</span>
+                    <span class="mood-chip">+2</span>
                   </div>
-                </div>
-
-                <div class="relative overflow-hidden rounded-card-lg bg-surface p-sm">
-                  <span aria-hidden="true" class="pointer-events-none absolute -right-6 -top-6 h-[60px] w-[60px] rounded-full bg-olive-light opacity-60" />
-                  <div class="relative">
-                    <span class="font-mono text-[8px] font-medium uppercase tracking-eyebrow text-moss-soft">— Lavado · Yirgacheffe</span>
-                    <div class="mt-xxs font-display text-[18px] leading-none text-moss">Aramo</div>
+                  <div class="mood-footer">
+                    <div>
+                      <div class="mood-eyebrow">— SCA</div>
+                      <div class="mood-score">86.5</div>
+                    </div>
+                    <div class="mood-meta">$60K · 250g</div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- ━━━━━━━━━━━━ QUOTE ━━━━━━━━━━━━ -->
-    <section id="manifiesto" class="bg-paper py-2xl lg:py-[120px]">
-      <div class="mx-auto max-w-[800px] px-md sm:px-lg text-center">
-        <p class="font-display tracking-[-0.01em] leading-[1.15] text-moss text-[28px] sm:text-[36px] lg:text-[44px]">
-          "Cada sorbo es un pequeño viaje. <span class="italic text-olive">Sorbo</span> es donde lo <span class="italic text-olive">recuerdas</span>."
-        </p>
-      </div>
-    </section>
-
-    <!-- ━━━━━━━━━━━━ FEATURES ━━━━━━━━━━━━ -->
-    <section id="producto" class="bg-paper py-2xl lg:py-[120px] border-t border-moss/10">
-      <div class="mx-auto max-w-[1280px] px-md sm:px-lg lg:px-2xl">
-        <h2 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[56px] lg:text-[72px] max-w-[800px]">
-          Todo lo que necesitas,<br>
-          nada de <span class="italic text-olive">relleno</span>
-        </h2>
-
-        <div class="mt-2xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-sm lg:gap-md">
-          <!-- Card 01 -->
-          <div class="rounded-card-lg bg-surface p-md lg:p-lg flex flex-col gap-md min-h-[220px]">
-            <UiEyebrow>01</UiEyebrow>
-            <div class="mt-auto">
-              <h3 class="font-display text-[22px] leading-none text-moss">Tu colección</h3>
-              <p class="mt-xs font-display italic text-[14px] text-moss-soft leading-relaxed">
-                Cada café con nombre, origen, proceso y la historia detrás.
-              </p>
-            </div>
-          </div>
-
-          <!-- Card 02 (destacada) -->
-          <div class="rounded-card-lg bg-moss text-paper p-md lg:p-lg flex flex-col gap-md min-h-[220px]">
-            <UiEyebrow class="text-paper/60">02</UiEyebrow>
-            <div class="mt-auto">
-              <h3 class="font-display text-[22px] leading-none text-paper">
-                Catas con <span class="italic text-honey">memoria</span>
-              </h3>
-              <p class="mt-xs font-display italic text-[14px] text-paper/70 leading-relaxed">
-                Aroma, acidez, dulzura, cuerpo, retrogusto. Cada taza, su propio recuerdo.
-              </p>
-            </div>
-          </div>
-
-          <!-- Card 03 (olive) -->
-          <div class="rounded-card-lg bg-olive text-paper p-md lg:p-lg flex flex-col gap-md min-h-[220px]">
-            <UiEyebrow class="text-paper/70">03</UiEyebrow>
-            <div class="mt-auto">
-              <h3 class="font-display text-[22px] leading-none text-paper">
-                <span class="italic">Recetas</span>
-              </h3>
-              <p class="mt-xs font-display italic text-[14px] text-paper/80 leading-relaxed">
-                Tu V60 perfecto, tu prensa francesa Hoffmann, con timer integrado.
-              </p>
-            </div>
-          </div>
-
-          <!-- Card 04 -->
-          <div class="rounded-card-lg bg-surface p-md lg:p-lg flex flex-col gap-md min-h-[220px]">
-            <UiEyebrow>04</UiEyebrow>
-            <div class="mt-auto">
-              <h3 class="font-display text-[22px] leading-none text-moss">
-                Wishlist <span class="italic text-olive">activa</span>
-              </h3>
-              <p class="mt-xs font-display italic text-[14px] text-moss-soft leading-relaxed">
-                El próximo café favorito empieza siendo un deseo en tu lista.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ━━━━━━━━━━━━ 3 STEPS ━━━━━━━━━━━━ -->
-    <section class="bg-paper py-2xl lg:py-[120px] border-t border-moss/10">
-      <div class="mx-auto max-w-[1280px] px-md sm:px-lg lg:px-2xl">
-        <h2 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[56px] lg:text-[64px] max-w-[800px]">
-          De la taza al diario,<br>
-          en <span class="italic text-olive">tres pasos</span>
-        </h2>
-
-        <div class="mt-2xl grid grid-cols-1 md:grid-cols-3 gap-md">
-          <!-- Step 1 -->
-          <div class="rounded-card-lg bg-surface p-md lg:p-lg flex flex-col gap-md">
-            <UiEyebrow>Paso 01</UiEyebrow>
-            <h3 class="font-display text-[24px] leading-none text-moss">
-              Registra el <span class="italic text-olive">café</span>
-            </h3>
-            <div class="mt-md rounded-card-sm bg-paper p-sm border border-moss/10">
-              <UiEyebrow>Natural · Tarqui</UiEyebrow>
-              <div class="mt-xxs font-display text-[18px] text-moss leading-none">Rock natural</div>
-            </div>
-          </div>
-
-          <!-- Step 2 -->
-          <div class="rounded-card-lg bg-surface p-md lg:p-lg flex flex-col gap-md">
-            <UiEyebrow>Paso 02</UiEyebrow>
-            <h3 class="font-display text-[24px] leading-none text-moss">
-              Puntúa la <span class="italic text-olive">taza</span>
-            </h3>
-            <div class="mt-md rounded-card-lg bg-moss p-sm">
-              <UiEyebrow class="text-paper">Puntuación general</UiEyebrow>
-              <div class="mt-xxs flex items-baseline gap-xxs">
-                <span class="font-display text-[36px] leading-none text-paper">8.7</span>
-                <span class="font-mono text-[10px] text-paper">/10</span>
+              <!-- Mood card 2 -->
+              <div class="mood-card">
+                <div class="mood-blob olive" />
+                <div class="mood-content">
+                  <div class="mood-eyebrow">— Lavado · Yirgacheffe</div>
+                  <div class="mood-name small">Aramo</div>
+                  <div class="mood-roaster">de Café Devoción</div>
+                </div>
               </div>
-              <div class="mt-xs h-[4px] rounded-pill bg-moss-soft overflow-hidden">
-                <span class="block h-full bg-honey" style="width: 87%" />
+            </div>
+
+            <div class="tabbar">
+              <div class="tab">inicio</div>
+              <div class="tab active">cafés</div>
+              <div class="tab">catas</div>
+              <div class="tab">recetas</div>
+              <div class="tab">+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MANIFIESTO ============ -->
+    <section class="manifiesto">
+      <div class="manifiesto-inner">
+        <blockquote>
+          "Cada sorbo es un<br>pequeño viaje. <span class="accent">Sorbo</span><br>
+          es donde los <span class="accent">recuerdas</span>"
+        </blockquote>
+        <div class="author">
+          <div class="line" aria-hidden="true" />
+          <div class="label">Manifiesto · KurodaCafe</div>
+          <div class="line" aria-hidden="true" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FEATURES ============ -->
+    <section id="features" class="features">
+      <div class="features-inner">
+        <div class="section-head">
+          <div class="eyebrow">— Features</div>
+          <h2>
+            Todo lo que necesitas,<br>nada de <em>relleno</em>
+          </h2>
+          <p>Sorbo es para quien toma café como ritual, no como combustible. Cuatro herramientas, un solo diario.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="num">01</div>
+            <h3>Tu <em>colección</em></h3>
+            <p>Registra cada café que pase por tu taza — origen, variedad, proceso, score SCA. Sin formularios eternos.</p>
+          </div>
+          <div class="feature-card dark">
+            <div class="num">02</div>
+            <h3>Catas con <em>memoria</em></h3>
+            <p>Aroma, acidez, dulzura, cuerpo. Notas en taza. Una frase para recordar — todo guiado en 3 pasos.</p>
+          </div>
+          <div class="feature-card olive">
+            <div class="num">03</div>
+            <h3>Recetas <em>cronometradas</em></h3>
+            <p>V60, Aeropress, French Press. Pasos con timestamps y timer integrado para ejecutar exacto.</p>
+          </div>
+          <div class="feature-card">
+            <div class="num">04</div>
+            <h3>Wishlist <em>activa</em></h3>
+            <p>Los cafés que vas a perseguir. Prioriza, anota por qué te llamó la atención, y márcalos cuando los consigas.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CÓMO FUNCIONA ============ -->
+    <section id="como" class="how">
+      <div class="how-inner">
+        <div class="section-head">
+          <div class="eyebrow">— Cómo funciona</div>
+          <h2>De la taza al diario,<br>en <em>tres pasos</em></h2>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">— 01 / Agrega</div>
+            <h3>Registra el <em>café</em></h3>
+            <p>Nombre, tostador, origen. Solo lo esencial — los detalles son opcionales.</p>
+            <div class="visual">
+              <div class="v-add">
+                <div class="lbl">— Nombre</div>
+                <div class="val">Rock natural</div>
+                <div class="sep" />
+                <div class="lbl">— Tostador</div>
+                <div class="val olive">Libertario</div>
               </div>
             </div>
           </div>
 
-          <!-- Step 3 -->
-          <div class="rounded-card-lg bg-surface p-md lg:p-lg flex flex-col gap-md">
-            <UiEyebrow>Paso 03</UiEyebrow>
-            <h3 class="font-display text-[24px] leading-none text-moss">
-              Tu <span class="italic text-olive">memoria</span>
-            </h3>
-            <div class="mt-md rounded-card-sm bg-paper p-sm border border-moss/10">
-              <UiEyebrow>Tu nota</UiEyebrow>
-              <p class="mt-xxs font-display italic text-[13px] text-moss leading-snug">
-                "Dulce como postre, con un final a panela y un toque de cacao oscuro."
-              </p>
+          <div class="step">
+            <div class="step-num">— 02 / Cata</div>
+            <h3>Puntúa la <em>taza</em></h3>
+            <p>Atributos guiados, score automático y una nota que recordarás.</p>
+            <div class="visual">
+              <div class="v-cata">
+                <div class="lbl">— Puntuación general</div>
+                <div class="score">8.7<sub>/10</sub></div>
+                <div class="bar"><div /></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">— 03 / Recuerda</div>
+            <h3>Tu <em>memoria</em></h3>
+            <p>Cada café se vuelve una mood card visual. Tu colección crece, sin perderse.</p>
+            <div class="visual">
+              <div class="v-mem">
+                <div class="blob" />
+                <div class="lbl">— Honey · Caicedonia</div>
+                <div class="name">Sereno</div>
+                <div class="quote">"Cuerpo redondo, dulce."</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ━━━━━━━━━━━━ ANTI-PITCH ━━━━━━━━━━━━ -->
-    <section id="filosofia" class="bg-moss text-paper py-2xl lg:py-[120px]">
-      <div class="mx-auto max-w-[1280px] px-md sm:px-lg lg:px-2xl">
-        <h2 class="font-display tracking-[-0.02em] leading-[1.05] text-paper text-[36px] sm:text-[48px] lg:text-[64px] max-w-[900px]">
-          No es un Excel,<br>
-          ni una red social,<br>
-          ni un cuaderno <span class="italic text-honey">perdido</span>
+    <!-- ============ POR QUÉ SORBO ============ -->
+    <section id="por-que" class="why">
+      <div class="why-inner">
+        <div class="eyebrow paper">— Por qué Sorbo</div>
+        <h2>
+          No es un Excel,<br>ni una red social,<br>ni un cuaderno <em>perdido</em>
         </h2>
 
-        <div class="mt-2xl grid grid-cols-1 md:grid-cols-3 gap-lg">
-          <div class="flex flex-col gap-sm">
-            <h3 class="font-display text-[22px] leading-none text-paper">
-              Editorial, no <span class="italic text-honey">aplicación</span>
-            </h3>
-            <p class="font-display italic text-[14px] text-paper/70 leading-relaxed">
-              Cada cata se siente como una página de un libro, no como un formulario.
-            </p>
+        <div class="why-grid">
+          <div class="why-item">
+            <div class="icon">"</div>
+            <h3>Editorial, no <em>técnico</em></h3>
+            <p>Cada café tiene un nombre propio, una historia. Sorbo lo trata como tal — con tipografía serif, frases cortas y mood cards que se sienten más cerca de una revista que de una hoja de datos.</p>
           </div>
-
-          <div class="flex flex-col gap-sm">
-            <h3 class="font-display text-[22px] leading-none text-paper">
-              Privado por <span class="italic text-honey">defecto</span>
-            </h3>
-            <p class="font-display italic text-[14px] text-paper/70 leading-relaxed">
-              Tu diario es tuyo. Compartes solo cuando tú decides, con quien tú decides.
-            </p>
+          <div class="why-item">
+            <div class="icon">·</div>
+            <h3>Privado por <em>defecto</em></h3>
+            <p>Es tu diario. Compartes solo cuando quieres y con quien quieres. Nada de feeds públicos ni gamificación forzada.</p>
           </div>
-
-          <div class="flex flex-col gap-sm">
-            <h3 class="font-display text-[22px] leading-none text-paper">
-              Hecho por un <span class="italic text-honey">cafetero</span>
-            </h3>
-            <p class="font-display italic text-[14px] text-paper/70 leading-relaxed">
-              Por gente que persigue geishas y naturales colombianos. No por VCs.
-            </p>
+          <div class="why-item">
+            <div class="icon">↺</div>
+            <h3>Hecho por un <em>cafetero</em></h3>
+            <p>Sorbo nace de KurodaCafe — de tomar demasiados naturales colombianos y querer recordarlos todos. Cada decisión de UX viene de ese ritual diario.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ━━━━━━━━━━━━ EMAIL CTA ━━━━━━━━━━━━ -->
-    <section class="bg-paper py-2xl lg:py-[120px] border-t border-moss/10">
-      <div class="mx-auto max-w-[640px] px-md sm:px-lg text-center">
-        <UiEyebrow>— Beta privada</UiEyebrow>
-        <h2 class="mt-md font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[56px] lg:text-[64px]">
-          Sé de los primeros<br>
-          en <span class="italic text-olive">sorber</span>
-        </h2>
-        <p class="mt-md font-display italic text-[14px] lg:text-[16px] text-moss-soft">
-          Te avisamos cuando abramos el diario al público.
-        </p>
+    <!-- ============ WAITLIST ============ -->
+    <section id="waitlist" class="waitlist">
+      <div class="waitlist-inner">
+        <div class="eyebrow">— Beta privada · cupos limitados</div>
+        <h2>Sé de los <em>primeros</em><br>en sorber</h2>
+        <p>Te avisamos en cuanto se abra el acceso. Sin spam — solo cuando estemos listos.</p>
 
-        <form
-          v-if="!subscribed"
-          class="mt-xl flex flex-col sm:flex-row items-stretch gap-xs max-w-[480px] mx-auto"
-          @submit.prevent="onSubscribe"
-        >
+        <form class="waitlist-form" novalidate @submit.prevent="onSubmit">
           <input
             v-model="email"
             type="email"
-            inputmode="email"
+            placeholder="tucorreo@ejemplo.com"
             autocomplete="email"
-            placeholder="tu-correo@ejemplo.com"
+            inputmode="email"
             required
-            class="flex-1 rounded-input bg-surface-2 border border-moss/10 px-md h-[46px] font-display italic text-[16px] text-moss placeholder:text-moss-ghost outline-none focus:border-moss transition-colors"
+            :disabled="subscribed"
           >
-          <button
-            type="submit"
-            :disabled="submitting || !email.trim()"
-            class="inline-flex items-center justify-center h-[46px] px-lg rounded-cta bg-moss text-paper font-sans text-[14px] font-medium hover:bg-jungle transition-colors disabled:opacity-50 disabled:pointer-events-none"
-          >
-            {{ submitting ? 'Enviando…' : 'Notifícame' }}
+          <button type="submit" :disabled="submitting || subscribed" :class="{ done: subscribed }">
+            <template v-if="subscribed">✓ Estás dentro</template>
+            <template v-else-if="submitting">Enviando…</template>
+            <template v-else>Únete →</template>
           </button>
         </form>
-        <p
-          v-else
-          class="mt-xl font-display italic text-[16px] text-olive"
-          role="status"
-        >
-          ✓ Listo. Te avisamos pronto.
-        </p>
+
+        <div class="meta">
+          <span>Sin tarjeta</span>
+          <span>Cancela cuando quieras</span>
+          <span>iOS · Android · Web</span>
+        </div>
+
+        <div class="login-link">
+          <span>¿Ya tienes cuenta?</span>
+          <NuxtLink to="/login">Inicia sesión</NuxtLink>
+        </div>
       </div>
     </section>
 
-    <!-- ━━━━━━━━━━━━ FOOTER ━━━━━━━━━━━━ -->
-    <footer class="bg-moss text-paper py-2xl">
-      <div class="mx-auto max-w-[1280px] px-md sm:px-lg lg:px-2xl flex flex-col gap-xl">
-        <div class="flex flex-wrap items-end justify-between gap-md">
-          <div class="flex items-center gap-sm">
-            <img src="/sorbo.svg" alt="" aria-hidden="true" class="block size-[40px]">
-            <div class="flex flex-col gap-xxs">
-              <span class="font-display text-[24px] leading-none text-paper">
-                Sorbo<span class="text-honey">.</span>
-              </span>
-              <UiEyebrow class="text-paper/60">— Por KurodaCafe</UiEyebrow>
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-top">
+          <div class="footer-brand">
+            <div class="logo">
+              <img src="/sorbo.svg" alt="" aria-hidden="true" class="mark-svg-lg">
+              <div class="name">Sorbo<span class="dot">.</span></div>
             </div>
+            <p class="tag">"Un diario para cada sorbo. Hecho desde Colombia, con demasiados naturales."</p>
           </div>
 
-          <div class="flex flex-wrap items-center gap-md">
-            <NuxtLink to="/login" class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-paper/70 hover:text-paper transition-colors">
-              Iniciar sesión
-            </NuxtLink>
-            <NuxtLink to="/register" class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-paper/70 hover:text-paper transition-colors">
-              Crear cuenta
-            </NuxtLink>
+          <div class="footer-col">
+            <h4>— Producto</h4>
+            <ul>
+              <li><a href="#features" @click.prevent="smoothScroll('features')">Features</a></li>
+              <li><a href="#como" @click.prevent="smoothScroll('como')">Cómo funciona</a></li>
+              <li><a href="#por-que" @click.prevent="smoothScroll('por-que')">Por qué Sorbo</a></li>
+              <li><a href="#waitlist" @click.prevent="smoothScroll('waitlist')">Waitlist</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>— Comunidad</h4>
+            <ul>
+              <li><a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener">Instagram</a></li>
+              <li><a href="#" @click.prevent>Newsletter</a></li>
+              <li><a href="#" @click.prevent>Blog</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>— Cuenta</h4>
+            <ul>
+              <li><NuxtLink to="/login">Iniciar sesión</NuxtLink></li>
+              <li><NuxtLink to="/register">Crear cuenta</NuxtLink></li>
+              <li><a href="mailto:hola@kurodacafe.com">Contacto</a></li>
+            </ul>
           </div>
         </div>
 
-        <div class="border-t border-paper/10 pt-md flex flex-wrap items-center justify-between gap-md">
-          <p class="font-mono text-[10px] uppercase tracking-eyebrow text-paper/45">
-            © {{ new Date().getFullYear() }} Sorbo · Hecho en Colombia
-          </p>
-          <p class="font-display italic text-[13px] text-paper/55">
-            "el primer sorbo del día."
-          </p>
+        <div class="footer-bottom">
+          <div class="copy">© {{ new Date().getFullYear() }} KURODACAFE · TODOS LOS DERECHOS RESERVADOS</div>
+          <div class="made">Hecho con <span class="heart">♥</span> y demasiada cafeína</div>
         </div>
       </div>
     </footer>
   </div>
 </template>
+
+<style scoped>
+/* All design tokens come from assets/css/main.css :root */
+.landing {
+  background: var(--paper);
+  color: var(--moss);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+.landing :deep(html) { scroll-behavior: smooth; }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--moss-soft);
+  font-weight: 500;
+}
+.eyebrow.paper { color: rgba(244, 242, 235, 0.55); }
+.eyebrow.honey { color: var(--honey); }
+
+/* ==================== NAV ==================== */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  padding: 18px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(20, 23, 18, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.nav .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.nav .brand .mark-svg {
+  width: 32px; height: 32px;
+  display: block;
+}
+.nav .brand .name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--paper);
+  line-height: 1;
+}
+.nav .brand .name .dot { color: var(--honey); }
+.nav .links {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+.nav .links a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(244, 242, 235, 0.6);
+  transition: color 0.2s;
+  cursor: pointer;
+}
+.nav .links a:hover { color: var(--paper); }
+.nav .nav-cta {
+  background: var(--honey);
+  color: var(--moss);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  transition: transform 0.2s;
+}
+.nav .nav-cta:hover { transform: translateY(-1px); color: var(--moss); }
+@media (max-width: 760px) {
+  .nav { padding: 14px 18px; }
+  .nav .links a:not(.nav-cta) { display: none; }
+}
+
+/* ==================== HERO ==================== */
+.hero {
+  background: var(--moss);
+  color: var(--paper);
+  min-height: 100vh;
+  padding: 140px 32px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -10%; left: -10%;
+  width: 60%; height: 60%;
+  background: radial-gradient(circle, rgba(85, 107, 58, 0.45) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -20%; right: -10%;
+  width: 50%; height: 60%;
+  background: radial-gradient(circle, rgba(229, 184, 75, 0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border: 1px solid rgba(244, 242, 235, 0.14);
+  border-radius: 999px;
+  margin-bottom: 32px;
+}
+.hero-eyebrow .dot-live {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--honey);
+  box-shadow: 0 0 0 0 rgba(229, 184, 75, 0.5);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(229, 184, 75, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(229, 184, 75, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 184, 75, 0); }
+}
+.hero-eyebrow .label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--paper);
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(56px, 8vw, 112px);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: var(--paper);
+  font-weight: 400;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--honey);
+}
+.hero h1 .dot { color: var(--honey); }
+.hero .subtitle {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(18px, 1.6vw, 22px);
+  color: rgba(244, 242, 235, 0.65);
+  margin-top: 28px;
+  max-width: 460px;
+  line-height: 1.4;
+}
+.hero-cta {
+  margin-top: 44px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  background: var(--honey);
+  color: var(--moss);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 16px 24px;
+  border-radius: 14px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 6px 20px rgba(229, 184, 75, 0.18);
+  cursor: pointer;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(229, 184, 75, 0.28);
+  color: var(--moss);
+}
+.btn-ghost-light {
+  background: transparent;
+  color: var(--paper);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 16px 24px;
+  border-radius: 14px;
+  border: 1px solid rgba(244, 242, 235, 0.14);
+  transition: background 0.2s;
+}
+.btn-ghost-light:hover {
+  background: rgba(244, 242, 235, 0.06);
+  color: var(--paper);
+}
+.hero-meta {
+  margin-top: 44px;
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.hero-meta-item .num {
+  font-family: var(--font-display);
+  font-size: 32px;
+  color: var(--paper);
+  line-height: 1;
+}
+.hero-meta-item .num em { color: var(--honey); font-style: italic; }
+.hero-meta-item .lbl {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 13px;
+  color: rgba(244, 242, 235, 0.55);
+  margin-top: 4px;
+}
+
+/* iPhone mockup */
+.device {
+  position: relative;
+  width: 340px;
+  height: 700px;
+  margin: 0 auto;
+  background: var(--jungle);
+  border-radius: 48px;
+  padding: 12px;
+  box-shadow:
+    0 0 0 2px rgba(244, 242, 235, 0.08),
+    0 40px 80px rgba(0, 0, 0, 0.5),
+    0 20px 40px rgba(0, 0, 0, 0.3);
+  transform: rotate(-3deg);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.device:hover { transform: rotate(0deg) translateY(-6px); }
+.device .screen {
+  background: var(--paper);
+  border-radius: 36px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.device .notch {
+  position: absolute;
+  top: 18px; left: 50%;
+  transform: translateX(-50%);
+  width: 100px; height: 26px;
+  background: var(--jungle);
+  border-radius: 999px;
+  z-index: 5;
+}
+.device .statusbar {
+  height: 50px;
+  padding: 18px 26px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--moss);
+}
+.device .app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 22px 16px;
+}
+.device .app-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--moss-soft);
+}
+.device .avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--moss);
+}
+.device .content { padding: 0 22px; }
+.device .title-l {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 0.95;
+  color: var(--moss);
+}
+.device .title-l em { font-style: italic; color: var(--olive); }
+.device .seg-toggle {
+  display: inline-flex;
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  margin-top: 14px;
+}
+.device .seg-toggle .seg-on {
+  background: var(--paper);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--moss);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.device .seg-toggle .seg-off {
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--moss-soft);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.device .mood-card {
+  position: relative;
+  border-radius: 18px;
+  padding: 18px 16px 16px;
+  background: linear-gradient(135deg, #E4E3D2, #EBE9DC);
+  overflow: hidden;
+  margin-top: 16px;
+}
+.device .mood-blob {
+  position: absolute;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: var(--honey);
+  opacity: 0.3;
+  top: -40px; right: -30px;
+  filter: blur(2px);
+}
+.device .mood-blob.olive { background: var(--olive-light); }
+.device .mood-content { position: relative; z-index: 1; }
+.device .mood-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--moss-soft);
+}
+.device .mood-name {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 0.95;
+  margin-top: 6px;
+  color: var(--moss);
+}
+.device .mood-name.small { font-size: 24px; }
+.device .mood-roaster {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--moss-soft);
+  margin-top: 3px;
+}
+.device .mood-notes {
+  display: flex;
+  gap: 5px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.device .mood-chip {
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--moss);
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+}
+.device .mood-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 14px;
+}
+.device .mood-score {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--olive);
+}
+.device .mood-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--moss-soft);
+}
+.device .tabbar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: var(--paper);
+  border-top: 1px solid rgba(47, 53, 40, 0.10);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 12px 14px;
+}
+.device .tab {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--moss-soft);
+}
+.device .tab.active {
+  font-family: var(--font-display);
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  color: var(--olive);
+}
+.device .tab.active::before { content: '● '; color: var(--olive); }
+
+@media (max-width: 980px) {
+  .hero-inner { grid-template-columns: 1fr; }
+  .device { transform: rotate(0deg) scale(0.9); margin-top: 40px; }
+}
+@media (max-width: 560px) {
+  .hero { padding: 120px 18px 60px; }
+  .device { width: 300px; height: 620px; }
+}
+
+/* ==================== MANIFIESTO ==================== */
+.manifiesto {
+  background: var(--paper);
+  padding: 140px 32px;
+  position: relative;
+}
+.manifiesto-inner {
+  max-width: 980px;
+  margin: 0 auto;
+  text-align: center;
+}
+.manifiesto blockquote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.15;
+  color: var(--moss);
+  letter-spacing: -0.01em;
+}
+.manifiesto blockquote .accent { color: var(--olive); }
+.manifiesto .author {
+  margin-top: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.manifiesto .author .line {
+  width: 32px; height: 1px;
+  background: rgba(47, 53, 40, 0.18);
+}
+.manifiesto .author .label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--moss-soft);
+}
+@media (max-width: 560px) {
+  .manifiesto { padding: 80px 24px; }
+}
+
+/* ==================== FEATURES ==================== */
+.features {
+  background: var(--surface-2);
+  padding: 120px 32px;
+}
+.features-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.section-head {
+  margin-bottom: 64px;
+  max-width: 720px;
+}
+.section-head h2 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  color: var(--moss);
+  margin-top: 16px;
+  font-weight: 400;
+}
+.section-head h2 em { color: var(--olive); font-style: italic; }
+.section-head p {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--moss-soft);
+  margin-top: 16px;
+  max-width: 580px;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.feature-card {
+  background: var(--paper);
+  border: 1px solid rgba(47, 53, 40, 0.10);
+  border-radius: 18px;
+  padding: 28px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 40px rgba(47, 53, 40, 0.08);
+}
+.feature-card.dark { background: var(--moss); color: var(--paper); border-color: transparent; }
+.feature-card.olive { background: var(--olive); color: var(--paper); border-color: transparent; }
+.feature-card .num {
+  font-family: var(--font-display);
+  font-size: 60px;
+  line-height: 1;
+  color: var(--olive);
+  opacity: 0.25;
+}
+.feature-card.dark .num { color: var(--honey); opacity: 0.35; }
+.feature-card.olive .num { color: var(--honey); opacity: 0.55; }
+.feature-card h3 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1;
+  margin-top: 24px;
+  font-weight: 400;
+}
+.feature-card h3 em { font-style: italic; color: var(--olive); }
+.feature-card.dark h3 em,
+.feature-card.olive h3 em { color: var(--honey); }
+.feature-card p {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--moss-soft);
+  margin-top: 12px;
+}
+.feature-card.dark p { color: rgba(244, 242, 235, 0.65); }
+.feature-card.olive p { color: rgba(244, 242, 235, 0.75); }
+@media (max-width: 980px) {
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .features { padding: 80px 18px; }
+  .features-grid { grid-template-columns: 1fr; }
+}
+
+/* ==================== HOW ==================== */
+.how {
+  background: var(--paper);
+  padding: 120px 32px;
+}
+.how-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid rgba(47, 53, 40, 0.18);
+  border-bottom: 1px solid rgba(47, 53, 40, 0.18);
+}
+.step {
+  padding: 48px 32px 56px;
+  border-right: 1px solid rgba(47, 53, 40, 0.10);
+  position: relative;
+}
+.step:last-child { border-right: 0; }
+.step .step-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--olive);
+}
+.step h3 {
+  font-family: var(--font-display);
+  font-size: 38px;
+  line-height: 1;
+  margin-top: 24px;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+.step h3 em { font-style: italic; color: var(--olive); }
+.step p {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--moss-soft);
+  margin-top: 14px;
+  line-height: 1.5;
+}
+.step .visual {
+  margin-top: 32px;
+  padding: 18px;
+  background: var(--surface-2);
+  border-radius: 14px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 880px) {
+  .steps { grid-template-columns: 1fr; }
+  .step { border-right: 0; border-bottom: 1px solid rgba(47, 53, 40, 0.10); }
+  .step:last-child { border-bottom: 0; }
+}
+@media (max-width: 560px) {
+  .how { padding: 80px 18px; }
+  .step { padding: 32px 18px 40px; }
+}
+
+.v-add {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid rgba(47, 53, 40, 0.10);
+  border-radius: 12px;
+  padding: 14px;
+}
+.v-add .lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--moss-soft);
+}
+.v-add .val {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--moss);
+  margin-top: 4px;
+}
+.v-add .val.olive { color: var(--olive); }
+.v-add .sep {
+  height: 1px;
+  background: rgba(47, 53, 40, 0.10);
+  margin: 14px 0;
+}
+
+.v-cata {
+  background: var(--moss);
+  color: var(--paper);
+  border-radius: 14px;
+  padding: 18px;
+  width: 100%;
+}
+.v-cata .lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(244, 242, 235, 0.5);
+}
+.v-cata .score {
+  font-family: var(--font-display);
+  font-size: 48px;
+  line-height: 1;
+  color: var(--honey);
+  margin-top: 4px;
+}
+.v-cata .score sub {
+  font-size: 16px;
+  color: rgba(244, 242, 235, 0.4);
+  font-style: italic;
+  vertical-align: baseline;
+}
+.v-cata .bar {
+  height: 3px;
+  background: rgba(229, 184, 75, 0.18);
+  border-radius: 3px;
+  margin-top: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.v-cata .bar div {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 87%;
+  background: var(--honey);
+  border-radius: 3px;
+}
+
+.v-mem {
+  width: 100%;
+  background: linear-gradient(135deg, #E4E3D2, #EBE9DC);
+  border-radius: 14px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.v-mem .blob {
+  position: absolute;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: var(--olive-light);
+  opacity: 0.35;
+  top: -30px; right: -20px;
+  filter: blur(2px);
+}
+.v-mem .lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--moss-soft);
+  position: relative;
+  z-index: 1;
+}
+.v-mem .name {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--moss);
+  margin-top: 4px;
+  position: relative;
+  z-index: 1;
+}
+.v-mem .quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--moss-soft);
+  margin-top: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==================== POR QUÉ SORBO ==================== */
+.why {
+  background: var(--moss);
+  color: var(--paper);
+  padding: 120px 32px;
+  position: relative;
+  overflow: hidden;
+}
+.why::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: -10%;
+  transform: translateY(-50%);
+  width: 50%; height: 80%;
+  background: radial-gradient(ellipse, rgba(85, 107, 58, 0.4) 0%, transparent 70%);
+  pointer-events: none;
+}
+.why-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.why-inner h2 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  color: var(--paper);
+  max-width: 880px;
+  margin-top: 16px;
+  font-weight: 400;
+}
+.why-inner h2 em { color: var(--honey); font-style: italic; }
+.why-grid {
+  margin-top: 80px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid rgba(244, 242, 235, 0.14);
+}
+.why-item {
+  padding: 40px 32px 0 0;
+  border-right: 1px solid rgba(244, 242, 235, 0.14);
+}
+.why-item:last-child { border-right: 0; padding-right: 0; }
+.why-item .icon {
+  font-family: var(--font-display);
+  font-size: 56px;
+  line-height: 1;
+  color: var(--honey);
+}
+.why-item h3 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  margin-top: 24px;
+  color: var(--paper);
+  font-weight: 400;
+}
+.why-item h3 em { font-style: italic; color: var(--honey); }
+.why-item p {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(244, 242, 235, 0.65);
+  margin-top: 12px;
+}
+@media (max-width: 880px) {
+  .why-grid { grid-template-columns: 1fr; }
+  .why-item {
+    border-right: 0;
+    border-bottom: 1px solid rgba(244, 242, 235, 0.14);
+    padding: 32px 0;
+  }
+  .why-item:last-child { border-bottom: 0; }
+}
+@media (max-width: 560px) {
+  .why { padding: 80px 18px; }
+}
+
+/* ==================== WAITLIST ==================== */
+.waitlist {
+  background: var(--surface-2);
+  padding: 140px 32px;
+  position: relative;
+}
+.waitlist-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+.waitlist h2 {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 6vw, 80px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--moss);
+  margin-top: 18px;
+  font-weight: 400;
+}
+.waitlist h2 em { font-style: italic; color: var(--olive); }
+.waitlist p {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--moss-soft);
+  margin-top: 20px;
+}
+.waitlist-form {
+  margin: 48px auto 0;
+  display: flex;
+  gap: 8px;
+  max-width: 480px;
+  background: var(--paper);
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(47, 53, 40, 0.10);
+}
+.waitlist-form input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  padding: 12px 16px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--moss);
+}
+.waitlist-form input::placeholder {
+  color: var(--moss-ghost);
+  font-style: italic;
+  font-family: var(--font-display);
+}
+.waitlist-form button {
+  background: var(--moss);
+  color: var(--paper);
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 13px;
+  transition: background 0.2s;
+  border: 0;
+  cursor: pointer;
+}
+.waitlist-form button:hover { background: var(--jungle); }
+.waitlist-form button:disabled { cursor: default; }
+.waitlist-form button.done { background: var(--olive); }
+.waitlist .meta {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.waitlist .meta span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--moss-soft);
+}
+.waitlist .meta span::before { content: '· '; color: var(--olive); margin-right: 4px; }
+.waitlist .login-link {
+  margin-top: 32px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--moss-soft);
+}
+.waitlist .login-link a {
+  color: var(--olive);
+  font-style: normal;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  margin-left: 6px;
+}
+.waitlist .login-link a:hover { text-decoration: underline; }
+@media (max-width: 560px) {
+  .waitlist { padding: 80px 18px; }
+  .waitlist-form { flex-direction: column; }
+  .waitlist-form button { width: 100%; }
+}
+
+/* ==================== FOOTER ==================== */
+.footer {
+  background: var(--jungle);
+  color: var(--paper);
+  padding: 80px 32px 40px;
+}
+.footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 56px;
+  border-bottom: 1px solid rgba(244, 242, 235, 0.14);
+}
+.footer-brand .logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.footer-brand .mark-svg-lg {
+  width: 56px; height: 56px;
+  display: block;
+}
+.footer-brand .name {
+  font-family: var(--font-display);
+  font-size: 36px;
+  line-height: 1;
+}
+.footer-brand .name .dot { color: var(--honey); }
+.footer-brand .tag {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(244, 242, 235, 0.5);
+  margin-top: 18px;
+  max-width: 280px;
+  line-height: 1.4;
+}
+.footer-col h4 {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(244, 242, 235, 0.5);
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+.footer-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+}
+.footer-col a {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: rgba(244, 242, 235, 0.7);
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--honey); }
+.footer-bottom {
+  padding-top: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.footer-bottom .copy {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(244, 242, 235, 0.4);
+  letter-spacing: 0.12em;
+}
+.footer-bottom .made {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 13px;
+  color: rgba(244, 242, 235, 0.5);
+}
+.footer-bottom .made .heart { color: var(--terracotta); }
+@media (max-width: 880px) {
+  .footer-top { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .footer-top { grid-template-columns: 1fr; }
+}
+</style>
