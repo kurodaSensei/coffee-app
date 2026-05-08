@@ -1,13 +1,36 @@
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
 import { Toaster } from 'vue-sonner'
-// vue-sonner declares its CSS as a side-effect import; no explicit
-// stylesheet path is needed (and doesn't exist in the package exports).
+
+const { authLoading } = useAuth()
+
+// Hold the splash for at least MIN_SPLASH_MS so it never flashes.
+const MIN_SPLASH_MS = 700
+const splashHeld = ref(true)
+
+onMounted(() => {
+  setTimeout(() => {
+    splashHeld.value = false
+  }, MIN_SPLASH_MS)
+})
+
+const showSplash = computed(() => authLoading.value || splashHeld.value)
 </script>
 
 <template>
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
+
+  <Transition
+    enter-active-class="transition-opacity duration-300 ease-sorbo"
+    leave-active-class="transition-opacity duration-500 ease-sorbo"
+    enter-from-class="opacity-0"
+    leave-to-class="opacity-0"
+  >
+    <UiSplash v-if="showSplash" />
+  </Transition>
+
   <Toaster
     position="top-center"
     rich-colors
