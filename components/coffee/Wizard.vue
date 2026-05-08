@@ -471,16 +471,34 @@ const submitLabel = computed(() =>
             class="inline-flex items-center font-mono text-[10px] font-medium uppercase tracking-eyebrow text-olive hover:opacity-80 transition-opacity"
             @click="showSca = true"
           >
-            + SCA score (avanzado)
+            + Puntaje SCA (opcional)
           </button>
-          <UiInput
-            v-else
-            v-model.number="scaScore"
-            label="Puntaje SCA"
-            placeholder="86.5"
-            type="number"
-            inputmode="decimal"
-          />
+          <div v-else class="flex flex-col gap-xs pt-[14px] pb-[13px] border-b border-moss/10 transition-colors duration-150 ease-sorbo" :class="scaScore ? 'border-moss' : 'border-moss/10'">
+            <div class="flex items-baseline justify-between gap-md">
+              <label for="sca-score" class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-soft">
+                <span aria-hidden="true">— </span>Puntaje SCA
+                <span class="lowercase normal-case font-display italic text-moss-soft">opcional · 0-100</span>
+              </label>
+              <button
+                type="button"
+                class="font-mono text-[10px] uppercase tracking-eyebrow text-moss-ghost hover:text-moss transition-colors"
+                @click="showSca = false; scaScore = null"
+              >
+                Quitar
+              </button>
+            </div>
+            <input
+              id="sca-score"
+              v-model.number="scaScore"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              max="100"
+              step="0.1"
+              placeholder="86.5"
+              class="w-full bg-transparent border-0 p-0 leading-none text-moss outline-none font-display text-[18px] placeholder:text-moss-ghost placeholder:font-display placeholder:italic"
+            >
+          </div>
         </div>
       </section>
     </main>
