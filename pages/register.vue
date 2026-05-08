@@ -87,7 +87,7 @@ function mapAuthError(code?: string): string {
       <h1 class="mt-lg font-display text-[34px] leading-[34px] tracking-[-0.01em] text-moss">
         Un diario<br>
         para cada<br>
-        <span class="italic text-olive">sorbo</span>.
+        <span class="italic text-olive">sorbo</span>
       </h1>
 
       <p class="subtitle-italic mt-md">

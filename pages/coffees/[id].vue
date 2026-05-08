@@ -173,7 +173,7 @@ async function onDelete() {
         <UiEyebrow>{{ eyebrow }}</UiEyebrow>
 
         <h1 class="mt-md font-display tracking-[-0.02em] leading-[0.95] text-moss text-[64px] sm:text-[72px] lg:text-[96px]">
-          {{ coffee.name.endsWith('.') ? coffee.name : `${coffee.name}.` }}
+          {{ coffee.name.endsWith('.') ? coffee.name.slice(0, -1) : coffee.name }}
         </h1>
 
         <p v-if="tagline" class="mt-md font-display italic text-[14px] lg:text-[16px] text-moss-soft max-w-prose">

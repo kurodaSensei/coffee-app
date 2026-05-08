@@ -30,8 +30,7 @@ function readableGrind(g: unknown): string | null {
 const grindText = computed(() => readableGrind(props.recipe.grindSize))
 
 function cleanName(n: string): string {
-  const trimmed = (n || '').trim().replace(/\.+$/, '')
-  return `${trimmed}.`
+  return (n || '').trim().replace(/\.+$/, '')
 }
 
 const sortedSteps = computed(() => [...(props.recipe.steps || [])].sort((a, b) => a.timeSeconds - b.timeSeconds))
@@ -115,7 +114,7 @@ const isFinished = computed(
       <h2 class="font-display tracking-[-0.02em] leading-[1.0] text-moss text-[36px] sm:text-[44px] break-words">
         <template v-if="recipe.author">
           {{ getBrewMethodLabel(recipe.brewMethod) }}<br>
-          <span class="italic text-olive">{{ recipe.author }}</span><span>.</span>
+          <span class="italic text-olive">{{ recipe.author }}</span>
         </template>
         <template v-else>
           {{ cleanName(recipe.name) }}

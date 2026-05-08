@@ -213,7 +213,7 @@ async function deleteItem() {
     <div class="mt-lg flex items-end justify-between gap-md flex-wrap">
       <div>
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px] lg:text-[64px]">
-          Wishlist<span>.</span>
+          Wishlist
         </h1>
         <p class="subtitle-italic mt-xs">
           Los que vas a perseguir.
@@ -296,10 +296,10 @@ async function deleteItem() {
         <h2 class="font-display tracking-[-0.02em] leading-[0.95] text-moss text-[44px] sm:text-[56px] break-words">
           <template v-if="activeItem.coffeeName.includes(' ')">
             {{ activeItem.coffeeName.split(' ').slice(0, -1).join(' ') }}<br>
-            <span class="italic text-olive">{{ activeItem.coffeeName.split(' ').slice(-1)[0] }}</span><span>.</span>
+            <span class="italic text-olive">{{ activeItem.coffeeName.split(' ').slice(-1)[0] }}</span>
           </template>
           <template v-else>
-            <span class="italic text-olive">{{ activeItem.coffeeName }}</span><span>.</span>
+            <span class="italic text-olive">{{ activeItem.coffeeName }}</span>
           </template>
         </h2>
 
@@ -341,10 +341,10 @@ async function deleteItem() {
 
         <h2 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[34px] sm:text-[40px]">
           <template v-if="editingId">
-            Editar <span class="italic text-olive">deseo</span>.
+            Editar <span class="italic text-olive">deseo</span>
           </template>
           <template v-else>
-            Agrega un <span class="italic text-olive">café</span>.
+            Agrega un <span class="italic text-olive">café</span>
           </template>
         </h2>
 

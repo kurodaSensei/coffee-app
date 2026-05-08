@@ -57,7 +57,7 @@ function relativeDate(ts: any): string {
 
     <div>
       <h2 class="font-display tracking-[-0.02em] leading-[0.95] text-moss text-[56px] sm:text-[64px]">
-        {{ tasting.coffeeName.endsWith('.') ? tasting.coffeeName : `${tasting.coffeeName}.` }}
+        {{ tasting.coffeeName.endsWith('.') ? tasting.coffeeName.slice(0, -1) : tasting.coffeeName }}
       </h2>
       <p v-if="subtitle" class="subtitle-italic mt-xxs">
         {{ subtitle }}

@@ -66,7 +66,7 @@ function rowEyebrow(r: Recipe): string {
 function recipeName(r: Recipe): string {
   // If recipe name == "{Method} {Author}", split for visual emphasis.
   // Otherwise just display the name.
-  return r.name.endsWith('.') ? r.name : `${r.name}.`
+  return r.name.endsWith('.') ? r.name.slice(0, -1) : r.name
 }
 
 // Sheet detail
@@ -91,7 +91,7 @@ function openSheet(r: Recipe) {
     <div class="mt-lg flex items-end justify-between gap-md flex-wrap">
       <div>
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px] lg:text-[64px]">
-          Recetas<span>.</span>
+          Recetas
         </h1>
         <p class="subtitle-italic mt-xs">
           <template v-if="tab === 'shared'">Lo que tus amigos comparten.</template>
@@ -147,7 +147,7 @@ function openSheet(r: Recipe) {
         <h2 class="mt-sm font-display tracking-[-0.01em] leading-[0.95] text-[32px] sm:text-[36px]">
           <template v-if="featured.author">
             {{ getBrewMethodLabel(featured.brewMethod) }}<br>
-            <span class="italic text-honey">{{ featured.author }}</span><span>.</span>
+            <span class="italic text-honey">{{ featured.author }}</span>
           </template>
           <template v-else>
             {{ recipeName(featured) }}

@@ -283,7 +283,7 @@ function coffeeEyebrow(c: Coffee): string {
                   {{ coffeeEyebrow(c) }}
                 </UiEyebrow>
                 <div class="mt-xxs font-display text-[24px] leading-none truncate">
-                  {{ c.name.endsWith('.') ? c.name : `${c.name}.` }}
+                  {{ c.name.endsWith('.') ? c.name.slice(0, -1) : c.name }}
                 </div>
               </div>
               <span
@@ -420,7 +420,7 @@ function coffeeEyebrow(c: Coffee): string {
             </span>
           </div>
           <div class="mt-xs font-display text-[24px] leading-none text-paper">
-            {{ selectedCoffee.name.endsWith('.') ? selectedCoffee.name : `${selectedCoffee.name}.` }}
+            {{ selectedCoffee.name.endsWith('.') ? selectedCoffee.name.slice(0, -1) : selectedCoffee.name }}
           </div>
         </div>
       </section>

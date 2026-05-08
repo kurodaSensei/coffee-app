@@ -334,7 +334,7 @@ const nextHint = computed(() => stepTitles[(step.value + 1) as 1 | 2 | 3] || '')
       <!-- ━━━━━━━━━━━━ STEP 2 — PARÁMETROS ━━━━━━━━━━━━ -->
       <section v-if="step === 2">
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[34px] sm:text-[40px]">
-          Los <span class="italic text-olive">números</span>.
+          Los <span class="italic text-olive">números</span>
         </h1>
 
         <div class="mt-xl grid grid-cols-2 gap-sm">
@@ -426,7 +426,7 @@ const nextHint = computed(() => stepTitles[(step.value + 1) as 1 | 2 | 3] || '')
       <!-- ━━━━━━━━━━━━ STEP 3 — CRONOLOGÍA ━━━━━━━━━━━━ -->
       <section v-if="step === 3">
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[34px] sm:text-[40px]">
-          Los <span class="italic text-olive">pasos</span>.
+          Los <span class="italic text-olive">pasos</span>
         </h1>
         <p class="subtitle-italic mt-sm">
           Tiempos y lo que haces en cada hito.

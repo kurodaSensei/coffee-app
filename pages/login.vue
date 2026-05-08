@@ -84,7 +84,7 @@ function mapAuthError(code?: string): string {
 
       <h1 class="mt-md font-display text-[46px] leading-[42px] tracking-[-0.01em] text-moss">
         Bienvenido<br>
-        de <span class="italic text-olive">vuelta</span>.
+        de <span class="italic text-olive">vuelta</span>
       </h1>
 
       <p class="subtitle-italic mt-md">Continúa donde dejaste el sorbo.</p>

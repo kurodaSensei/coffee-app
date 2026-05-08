@@ -42,7 +42,7 @@ const isEmpty = computed(() => items.value.length === 0)
 
     <div class="mt-lg flex items-end justify-between gap-md flex-wrap">
       <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px] lg:text-[64px]">
-        Mi <span class="italic text-olive">colección</span>.
+        Mi <span class="italic text-olive">colección</span>
       </h1>
 
       <div class="flex items-center gap-md">

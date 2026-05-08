@@ -44,14 +44,14 @@ const eyebrow = computed(() => {
 
 const name = computed(() => {
   const n = props.coffee.name?.trim() || 'Sin nombre'
-  return n.endsWith('.') ? n : `${n}.`
+  return n.endsWith('.') ? n.slice(0, -1) : n
 })
 
 const subtitle = computed(() => {
   const r = props.coffee.roasterName?.trim()
   if (!r) return undefined
   const clean = r.endsWith('.') ? r.slice(0, -1) : r
-  return `de ${clean}.`
+  return `de ${clean}`
 })
 
 function formatPrice(p?: number): string {

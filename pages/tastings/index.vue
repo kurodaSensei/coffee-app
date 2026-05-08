@@ -93,7 +93,7 @@ const activeCoffee = computed<Coffee | null>(() => {
     <div class="mt-lg flex items-end justify-between gap-md flex-wrap">
       <div>
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px] lg:text-[64px]">
-          Catas<span>.</span>
+          Catas
         </h1>
         <p class="subtitle-italic mt-xs">
           <template v-if="tab === 'shared'">Lo que han catado tus amigos.</template>
@@ -144,7 +144,7 @@ const activeCoffee = computed<Coffee | null>(() => {
             <div class="min-w-0 flex flex-col gap-xs">
               <UiEyebrow>{{ rowEyebrow(t) }}</UiEyebrow>
               <div class="font-display text-[28px] leading-none tracking-[-0.01em] truncate">
-                {{ t.coffeeName.endsWith('.') ? t.coffeeName : `${t.coffeeName}.` }}
+                {{ t.coffeeName.endsWith('.') ? t.coffeeName.slice(0, -1) : t.coffeeName }}
               </div>
               <p v-if="t.personalNotes" class="font-display italic text-[13px] text-moss-soft line-clamp-1">
                 "{{ t.personalNotes }}"

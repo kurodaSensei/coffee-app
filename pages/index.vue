@@ -129,7 +129,7 @@ const stats = computed(() => {
              text-[40px] sm:text-[48px] lg:text-[80px] xl:text-[96px]"
     >
       {{ greeting }},<br>
-      <span class="italic text-olive">{{ userName || 'Samuel' }}</span><span>.</span>
+      <span class="italic text-olive">{{ userName || 'Samuel' }}</span>
     </h1>
 
     <p

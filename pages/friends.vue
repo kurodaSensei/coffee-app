@@ -64,7 +64,7 @@ async function onRemove(id: string) {
     </header>
 
     <h1 class="mt-md font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px]">
-      Amigos<span>.</span>
+      Amigos
     </h1>
     <p class="subtitle-italic mt-xs">
       Comparte tu memoria de taza.

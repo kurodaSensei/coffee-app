@@ -156,7 +156,7 @@ async function deleteRoaster() {
     </header>
 
     <h1 class="mt-md font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px]">
-      Tostadores<span>.</span>
+      Tostadores
     </h1>
     <p class="subtitle-italic mt-xs">
       De dónde viene tu taza.
