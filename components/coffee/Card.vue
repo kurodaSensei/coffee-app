@@ -77,7 +77,7 @@ const moreNotes = computed(() =>
 
 <template>
   <UiMoodCard
-    :to="`/coffees/${coffee.id}`"
+    :to="`/app/coffees/${coffee.id}`"
     :eyebrow="eyebrow"
     :name="name"
     :subtitle="subtitle"

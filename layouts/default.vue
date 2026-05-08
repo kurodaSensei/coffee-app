@@ -19,30 +19,30 @@ const sidebarSections = [
   {
     title: 'Diario',
     items: [
-      { key: 'home', label: 'Inicio', to: '/' },
-      { key: 'coffees', label: 'Cafés', to: '/coffees' },
-      { key: 'tastings', label: 'Catas', to: '/tastings' },
-      { key: 'recipes', label: 'Recetas', to: '/recipes' },
-      { key: 'wishlist', label: 'Wishlist', to: '/wishlist' },
+      { key: 'home', label: 'Inicio', to: '/app' },
+      { key: 'coffees', label: 'Cafés', to: '/app/coffees' },
+      { key: 'tastings', label: 'Catas', to: '/app/tastings' },
+      { key: 'recipes', label: 'Recetas', to: '/app/recipes' },
+      { key: 'wishlist', label: 'Wishlist', to: '/app/wishlist' },
     ],
   },
   {
     title: 'Catálogo',
     items: [
-      { key: 'roasters', label: 'Tostadores', to: '/roasters' },
-      { key: 'varieties', label: 'Variedades', to: '/varieties' },
-      { key: 'methods', label: 'Métodos', to: '/methods' },
-      { key: 'processes', label: 'Procesos', to: '/processes' },
+      { key: 'roasters', label: 'Tostadores', to: '/app/roasters' },
+      { key: 'varieties', label: 'Variedades', to: '/app/varieties' },
+      { key: 'methods', label: 'Métodos', to: '/app/methods' },
+      { key: 'processes', label: 'Procesos', to: '/app/processes' },
     ],
   },
 ]
 
 const mobileTabs = [
-  { key: 'home', label: 'Inicio', to: '/' },
-  { key: 'coffees', label: 'Cafés', to: '/coffees' },
-  { key: 'tastings', label: 'Catas', to: '/tastings' },
-  { key: 'recipes', label: 'Recetas', to: '/recipes' },
-  { key: 'wishlist', label: 'Wishlist', to: '/wishlist' },
+  { key: 'home', label: 'Inicio', to: '/app' },
+  { key: 'coffees', label: 'Cafés', to: '/app/coffees' },
+  { key: 'tastings', label: 'Catas', to: '/app/tastings' },
+  { key: 'recipes', label: 'Recetas', to: '/app/recipes' },
+  { key: 'wishlist', label: 'Wishlist', to: '/app/wishlist' },
 ]
 </script>
 

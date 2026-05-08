@@ -16,7 +16,7 @@ const loadingGoogle = ref(false)
 
 const redirectTo = computed(() => {
   const r = route.query.redirect
-  return typeof r === 'string' && r.startsWith('/') ? r : '/'
+  return typeof r === 'string' && r.startsWith('/') ? r : '/app'
 })
 
 watchEffect(() => {

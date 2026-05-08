@@ -36,7 +36,7 @@ const deleting = ref(false)
 
 async function onEdit() {
   if (!tasting.value) return
-  router.push(`/tastings/${tasting.value.id}/edit`)
+  router.push(`/app/tastings/${tasting.value.id}/edit`)
 }
 
 async function onDelete() {
@@ -48,7 +48,7 @@ async function onDelete() {
   deleting.value = true
   try {
     await tastingsStore.remove(tasting.value.id)
-    router.replace('/tastings')
+    router.replace('/app/tastings')
   }
   catch {
     // toast already surfaced
@@ -106,7 +106,7 @@ async function toggleFavorite() {
         <p class="font-display italic text-moss-soft text-center">
           No encontramos esta cata.
         </p>
-        <UiButton variant="dark" :block="false" to="/tastings">
+        <UiButton variant="dark" :block="false" to="/app/tastings">
           Volver a mis catas
         </UiButton>
       </div>

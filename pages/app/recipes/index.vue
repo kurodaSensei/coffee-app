@@ -83,7 +83,7 @@ function openSheet(r: Recipe) {
   <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Recetas · {{ mineCount }}</UiEyebrow>
-      <NuxtLink to="/settings" class="lg:hidden inline-flex">
+      <NuxtLink to="/app/settings" class="lg:hidden inline-flex">
         <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
       </NuxtLink>
     </header>
@@ -104,7 +104,7 @@ function openSheet(r: Recipe) {
         <UiButton
           variant="primary"
           :block="false"
-          to="/recipes/new"
+          to="/app/recipes/new"
           size="sm"
           class="hidden lg:inline-flex"
         >
@@ -125,7 +125,7 @@ function openSheet(r: Recipe) {
           </template>
         </p>
       </div>
-      <UiButton v-if="tab === 'mine'" variant="dark" :block="false" to="/recipes/new">
+      <UiButton v-if="tab === 'mine'" variant="dark" :block="false" to="/app/recipes/new">
         + Nueva receta
       </UiButton>
     </div>
@@ -201,7 +201,7 @@ function openSheet(r: Recipe) {
 
       <!-- + Nueva receta dashed pill (mobile) -->
       <NuxtLink
-        to="/recipes/new"
+        to="/app/recipes/new"
         class="lg:hidden rounded-cta border border-dashed border-moss/30 bg-surface/50 px-md py-md text-center font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-soft hover:bg-surface transition-colors"
       >
         + Nueva receta
@@ -216,7 +216,7 @@ function openSheet(r: Recipe) {
       <div v-if="activeRecipe" class="mt-lg">
         <UiButton
           variant="primary"
-          :to="`/recipes/${activeRecipe.id}`"
+          :to="`/app/recipes/${activeRecipe.id}`"
           @click="sheetOpen = false"
         >
           Ver completa

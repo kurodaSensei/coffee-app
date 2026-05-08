@@ -116,8 +116,8 @@ function back() {
 }
 
 function close() {
-  if (props.mode === 'edit' && props.recipeId) router.push(`/recipes/${props.recipeId}`)
-  else router.push('/recipes')
+  if (props.mode === 'edit' && props.recipeId) router.push(`/app/recipes/${props.recipeId}`)
+  else router.push('/app/recipes')
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -202,11 +202,11 @@ async function submit() {
 
     if (props.mode === 'edit' && props.recipeId) {
       await recipesStore.update(props.recipeId, payload as Partial<Recipe>)
-      router.replace(`/recipes/${props.recipeId}`)
+      router.replace(`/app/recipes/${props.recipeId}`)
     }
     else {
       const id = await recipesStore.create(payload)
-      router.replace(`/recipes/${id}`)
+      router.replace(`/app/recipes/${id}`)
     }
   }
   catch {

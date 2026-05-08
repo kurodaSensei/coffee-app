@@ -205,7 +205,7 @@ async function deleteItem() {
   <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Wishlist · {{ items.length }}</UiEyebrow>
-      <NuxtLink to="/settings" class="lg:hidden inline-flex">
+      <NuxtLink to="/app/settings" class="lg:hidden inline-flex">
         <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
       </NuxtLink>
     </header>

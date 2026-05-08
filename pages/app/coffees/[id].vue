@@ -99,7 +99,7 @@ function formatPrice(p?: number): string {
 
 function onEdit() {
   if (!coffee.value) return
-  router.push(`/coffees/${coffee.value.id}/edit`)
+  router.push(`/app/coffees/${coffee.value.id}/edit`)
 }
 
 const deleting = ref(false)
@@ -113,7 +113,7 @@ async function onDelete() {
   deleting.value = true
   try {
     await coffeesStore.remove(coffee.value.id)
-    router.replace('/coffees')
+    router.replace('/app/coffees')
   }
   catch {
     // Toast surfaced by store
@@ -163,7 +163,7 @@ async function onDelete() {
         <p class="font-display italic text-moss-soft text-center">
           No encontramos este café en tu colección.
         </p>
-        <UiButton variant="dark" :block="false" to="/coffees">
+        <UiButton variant="dark" :block="false" to="/app/coffees">
           Volver a mi colección
         </UiButton>
       </div>
@@ -243,7 +243,7 @@ async function onDelete() {
     >
       <div class="mx-auto w-full max-w-[1200px]">
         <NuxtLink
-          :to="`/tastings/new?coffeeId=${coffee.id}`"
+          :to="`/app/tastings/new?coffeeId=${coffee.id}`"
           class="group flex items-center justify-between gap-md rounded-card-lg bg-jungle text-paper p-md sm:p-lg transition-transform duration-200 ease-sorbo hover:-translate-y-[2px]"
         >
           <div class="flex flex-col gap-xs min-w-0">

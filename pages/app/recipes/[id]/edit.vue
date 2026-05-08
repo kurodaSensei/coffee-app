@@ -1,27 +1,25 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { Tasting } from '~/types'
+import type { Recipe } from '~/types'
 
 definePageMeta({ layout: false })
 
 const route = useRoute()
 const router = useRouter()
-const tastingsStore = useTastingsStore()
+const recipesStore = useRecipesStore()
 
 const id = computed(() => route.params.id as string)
-const tasting = ref<Tasting | null>(null)
+const recipe = ref<Recipe | null>(null)
 const loading = ref(true)
 
 onMounted(async () => {
   try {
-    await tastingsStore.loadById(id.value)
-    tasting.value = tastingsStore.current as Tasting | null
-    if (!tasting.value) {
-      router.replace('/tastings')
-    }
+    await recipesStore.loadById(id.value)
+    recipe.value = recipesStore.current as Recipe | null
+    if (!recipe.value) router.replace('/app/recipes')
   }
   catch {
-    router.replace('/tastings')
+    router.replace('/app/recipes')
   }
   finally {
     loading.value = false
@@ -33,10 +31,10 @@ onMounted(async () => {
   <div v-if="loading" class="flex min-h-svh items-center justify-center bg-paper">
     <span class="size-6 animate-spin rounded-full border-2 border-moss/20 border-t-moss" />
   </div>
-  <TastingWizard
-    v-else-if="tasting"
+  <RecipeWizard
+    v-else-if="recipe"
     mode="edit"
-    :tasting-id="id"
-    :initial-tasting="tasting"
+    :recipe-id="id"
+    :initial-recipe="recipe"
   />
 </template>

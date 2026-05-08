@@ -17,11 +17,11 @@ onMounted(async () => {
     await coffeesStore.loadById(id.value)
     coffee.value = coffeesStore.current as Coffee | null
     if (!coffee.value) {
-      router.replace('/coffees')
+      router.replace('/app/coffees')
     }
   }
   catch {
-    router.replace('/coffees')
+    router.replace('/app/coffees')
   }
   finally {
     loading.value = false

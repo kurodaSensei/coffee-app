@@ -85,7 +85,7 @@ const activeCoffee = computed<Coffee | null>(() => {
   <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Catas · {{ mineCount }}</UiEyebrow>
-      <NuxtLink to="/settings" class="lg:hidden inline-flex">
+      <NuxtLink to="/app/settings" class="lg:hidden inline-flex">
         <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
       </NuxtLink>
     </header>
@@ -108,7 +108,7 @@ const activeCoffee = computed<Coffee | null>(() => {
         <UiButton
           variant="primary"
           :block="false"
-          to="/tastings/new"
+          to="/app/tastings/new"
           size="sm"
           class="hidden lg:inline-flex"
         >
@@ -129,7 +129,7 @@ const activeCoffee = computed<Coffee | null>(() => {
           </template>
         </p>
       </div>
-      <UiButton v-if="tab === 'mine'" variant="dark" :block="false" to="/tastings/new">
+      <UiButton v-if="tab === 'mine'" variant="dark" :block="false" to="/app/tastings/new">
         + Nueva cata
       </UiButton>
     </div>
@@ -168,7 +168,7 @@ const activeCoffee = computed<Coffee | null>(() => {
     <!-- Mobile FAB -->
     <NuxtLink
       v-if="!isEmpty"
-      to="/tastings/new"
+      to="/app/tastings/new"
       class="lg:hidden fixed bottom-[96px] right-md z-20 inline-flex size-[56px] items-center justify-center rounded-pill bg-olive text-paper shadow-[0_8px_24px_rgba(47,53,40,0.18)] transition-transform duration-150 ease-sorbo hover:-translate-y-[2px]"
       aria-label="Nueva cata"
     >
@@ -186,7 +186,7 @@ const activeCoffee = computed<Coffee | null>(() => {
         <UiButton
           variant="primary"
           :block="true"
-          :to="`/tastings/${activeTasting.id}`"
+          :to="`/app/tastings/${activeTasting.id}`"
           @click="sheetOpen = false"
         >
           Ver completa

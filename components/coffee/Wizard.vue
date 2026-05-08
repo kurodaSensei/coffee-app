@@ -135,10 +135,10 @@ function back() {
 
 function close() {
   if (props.mode === 'edit' && props.coffeeId) {
-    router.push(`/coffees/${props.coffeeId}`)
+    router.push(`/app/coffees/${props.coffeeId}`)
   }
   else {
-    router.push('/coffees')
+    router.push('/app/coffees')
   }
 }
 
@@ -189,11 +189,11 @@ async function submit() {
 
     if (props.mode === 'edit' && props.coffeeId) {
       await coffeesStore.update(props.coffeeId, payload as Partial<Coffee>)
-      router.replace(`/coffees/${props.coffeeId}`)
+      router.replace(`/app/coffees/${props.coffeeId}`)
     }
     else {
       const id = await coffeesStore.create(payload)
-      router.replace(`/coffees/${id}`)
+      router.replace(`/app/coffees/${id}`)
     }
   }
   catch {

@@ -78,7 +78,7 @@ async function onLogout() {
 
     <!-- User card -->
     <NuxtLink
-      to="/profile"
+      to="/app/profile"
       class="mt-lg flex items-center gap-md rounded-card-lg bg-surface-2 p-md transition-colors duration-150 ease-sorbo hover:bg-surface"
     >
       <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="lg" />
@@ -94,7 +94,7 @@ async function onLogout() {
       <UiEyebrow>Catálogos</UiEyebrow>
       <div class="mt-sm flex flex-col">
         <NuxtLink
-          to="/roasters"
+          to="/app/roasters"
           class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
         >
           <div class="flex flex-col gap-xxs">
@@ -105,7 +105,7 @@ async function onLogout() {
         </NuxtLink>
 
         <NuxtLink
-          to="/varieties"
+          to="/app/varieties"
           class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
         >
           <div class="flex flex-col gap-xxs">
@@ -116,7 +116,7 @@ async function onLogout() {
         </NuxtLink>
 
         <NuxtLink
-          to="/methods"
+          to="/app/methods"
           class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
         >
           <div class="flex flex-col gap-xxs">
@@ -127,7 +127,7 @@ async function onLogout() {
         </NuxtLink>
 
         <NuxtLink
-          to="/processes"
+          to="/app/processes"
           class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
         >
           <div class="flex flex-col gap-xxs">
@@ -144,7 +144,7 @@ async function onLogout() {
       <UiEyebrow>Social</UiEyebrow>
       <div class="mt-sm flex flex-col">
         <NuxtLink
-          to="/friends"
+          to="/app/friends"
           class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
         >
           <div class="flex flex-col gap-xxs">
@@ -166,7 +166,7 @@ async function onLogout() {
       <UiEyebrow>Cuenta</UiEyebrow>
       <div class="mt-sm flex flex-col">
         <NuxtLink
-          to="/profile"
+          to="/app/profile"
           class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
         >
           <span class="font-sans text-[16px] font-medium text-moss">Perfil</span>

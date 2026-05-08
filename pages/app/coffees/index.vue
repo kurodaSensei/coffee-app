@@ -35,7 +35,7 @@ const isEmpty = computed(() => items.value.length === 0)
   <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl lg:pb-2xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Cafés · {{ mineCount }}</UiEyebrow>
-      <NuxtLink to="/settings" class="lg:hidden inline-flex">
+      <NuxtLink to="/app/settings" class="lg:hidden inline-flex">
         <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
       </NuxtLink>
     </header>
@@ -56,7 +56,7 @@ const isEmpty = computed(() => items.value.length === 0)
         <UiButton
           variant="primary"
           :block="false"
-          to="/coffees/new"
+          to="/app/coffees/new"
           size="sm"
           class="hidden lg:inline-flex"
         >
@@ -81,7 +81,7 @@ const isEmpty = computed(() => items.value.length === 0)
         v-if="tab === 'mine'"
         variant="dark"
         :block="false"
-        to="/coffees/new"
+        to="/app/coffees/new"
         class="lg:hidden"
       >
         + Registra tu primer café
@@ -104,7 +104,7 @@ const isEmpty = computed(() => items.value.length === 0)
     <!-- Mobile FAB (only when list has items) -->
     <NuxtLink
       v-if="!isEmpty"
-      to="/coffees/new"
+      to="/app/coffees/new"
       class="lg:hidden fixed bottom-[96px] right-md z-20 inline-flex size-[56px] items-center justify-center rounded-pill bg-olive text-paper shadow-[0_8px_24px_rgba(47,53,40,0.18)] transition-transform duration-150 ease-sorbo hover:-translate-y-[2px] active:translate-y-0"
       aria-label="Nuevo café"
     >

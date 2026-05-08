@@ -131,10 +131,10 @@ function back() {
 
 function close() {
   if (props.mode === 'edit' && props.tastingId) {
-    router.push(`/tastings/${props.tastingId}`)
+    router.push(`/app/tastings/${props.tastingId}`)
   }
   else {
-    router.push('/tastings')
+    router.push('/app/tastings')
   }
 }
 
@@ -170,11 +170,11 @@ async function submit() {
 
     if (props.mode === 'edit' && props.tastingId) {
       await tastingsStore.update(props.tastingId, payload as Partial<Tasting>)
-      router.replace(`/tastings/${props.tastingId}`)
+      router.replace(`/app/tastings/${props.tastingId}`)
     }
     else {
       const id = await tastingsStore.create(payload)
-      router.replace(`/tastings/${id}`)
+      router.replace(`/app/tastings/${id}`)
     }
   }
   catch {
@@ -295,7 +295,7 @@ function coffeeEyebrow(c: Coffee): string {
           </button>
 
           <NuxtLink
-            to="/coffees/new"
+            to="/app/coffees/new"
             class="rounded-cta border border-dashed border-moss/30 bg-surface/50 px-md py-md text-center font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-soft hover:bg-surface transition-colors"
           >
             + Agregar café nuevo

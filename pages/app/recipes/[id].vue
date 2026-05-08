@@ -30,7 +30,7 @@ const deleting = ref(false)
 
 function onEdit() {
   if (!recipe.value) return
-  router.push(`/recipes/${recipe.value.id}/edit`)
+  router.push(`/app/recipes/${recipe.value.id}/edit`)
 }
 
 async function onDelete() {
@@ -40,7 +40,7 @@ async function onDelete() {
   deleting.value = true
   try {
     await recipesStore.remove(recipe.value.id)
-    router.replace('/recipes')
+    router.replace('/app/recipes')
   }
   finally {
     deleting.value = false
@@ -80,7 +80,7 @@ async function onDelete() {
         <p class="font-display italic text-moss-soft text-center">
           No encontramos esta receta.
         </p>
-        <UiButton variant="dark" :block="false" to="/recipes">
+        <UiButton variant="dark" :block="false" to="/app/recipes">
           Volver a mis recetas
         </UiButton>
       </div>

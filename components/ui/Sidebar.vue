@@ -36,7 +36,7 @@ function isActive(to: string): boolean {
       )
     "
   >
-    <NuxtLink to="/" class="inline-flex items-center gap-sm" aria-label="Sorbo · Inicio">
+    <NuxtLink to="/app" class="inline-flex items-center gap-sm" aria-label="Sorbo · Inicio">
       <img src="/sorbo.svg" alt="" aria-hidden="true" class="block size-[36px] shrink-0">
       <span class="font-display text-[28px] leading-none text-moss">
         Sorbo<span class="text-honey">.</span>
@@ -71,7 +71,7 @@ function isActive(to: string): boolean {
 
     <NuxtLink
       v-if="user"
-      to="/settings"
+      to="/app/settings"
       class="flex items-center gap-sm rounded-card-sm p-xs -m-xs hover:bg-surface-2/60 transition-colors duration-150 ease-sorbo"
     >
       <UiAvatar :name="user.name" :src="user.photoURL ?? undefined" size="sm" />
