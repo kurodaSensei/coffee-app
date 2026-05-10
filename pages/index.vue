@@ -118,8 +118,8 @@ function smoothScroll(id: string) {
                 <div class="mood-blob" />
                 <div class="mood-content">
                   <div class="mood-eyebrow">— Natural · Tarqui</div>
-                  <div class="mood-name">Rock</div>
-                  <div class="mood-roaster">de Libertario</div>
+                  <div class="mood-name">Special</div>
+                  <div class="mood-roaster">de KurodaCafe</div>
                   <div class="mood-notes">
                     <span class="mood-chip">Cereza</span>
                     <span class="mood-chip">Panela</span>
@@ -140,8 +140,8 @@ function smoothScroll(id: string) {
                 <div class="mood-blob olive" />
                 <div class="mood-content">
                   <div class="mood-eyebrow">— Lavado · Yirgacheffe</div>
-                  <div class="mood-name small">Aramo</div>
-                  <div class="mood-roaster">de Café Devoción</div>
+                  <div class="mood-name small">Gold</div>
+                  <div class="mood-roaster">de KurodaCafe</div>
                 </div>
               </div>
             </div>
@@ -225,10 +225,10 @@ function smoothScroll(id: string) {
             <div class="visual">
               <div class="v-add">
                 <div class="lbl">— Nombre</div>
-                <div class="val">Rock natural</div>
+                <div class="val">Gold natural</div>
                 <div class="sep" />
                 <div class="lbl">— Tostador</div>
-                <div class="val olive">Libertario</div>
+                <div class="val olive">KurodaCafe</div>
               </div>
             </div>
           </div>
@@ -323,7 +323,7 @@ function smoothScroll(id: string) {
 
         <div class="login-link">
           <span>¿Ya tienes cuenta?</span>
-          <NuxtLink to="/login">Inicia sesión</NuxtLink>
+          <NuxtLink to="/">Inicia sesión</NuxtLink>
         </div>
       </div>
     </section>
@@ -362,8 +362,8 @@ function smoothScroll(id: string) {
           <div class="footer-col">
             <h4>— Cuenta</h4>
             <ul>
-              <li><NuxtLink to="/login">Iniciar sesión</NuxtLink></li>
-              <li><NuxtLink to="/register">Crear cuenta</NuxtLink></li>
+              <li><NuxtLink to="/">Iniciar sesión</NuxtLink></li>
+              <li><NuxtLink to="/">Crear cuenta</NuxtLink></li>
               <li><a href="mailto:hola@kurodacafe.com">Contacto</a></li>
             </ul>
           </div>
