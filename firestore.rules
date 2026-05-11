@@ -63,6 +63,20 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Waitlist: anyone can create (public landing form), but nobody can read/update/delete.
+    // Doc id is the normalized email, so re-submitting the same email naturally fails
+    // the create rule (because the doc already exists) → client treats as duplicate.
+    match /waitlist/{email} {
+      allow create: if request.resource.data.keys().hasOnly(['email', 'source', 'createdAt'])
+        && request.resource.data.email is string
+        && request.resource.data.email == email
+        && request.resource.data.email.size() < 200
+        && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && request.resource.data.source is string
+        && request.resource.data.source.size() < 50;
+      allow read, update, delete: if false;
+    }
+
     // Friendships: both participants can read, either can write if they are participants
     match /friendships/{friendshipId} {
       allow read: if isFriendshipParticipant();

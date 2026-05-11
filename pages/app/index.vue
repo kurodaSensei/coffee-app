@@ -117,9 +117,12 @@ const stats = computed(() => {
         >
           <UiEyebrow>Buscar (⌘K)</UiEyebrow>
         </button>
-        <NuxtLink to="/app/settings" class="lg:hidden inline-flex">
-          <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
-        </NuxtLink>
+        <div class="lg:hidden inline-flex items-center gap-sm">
+          <UiNotificationBell size="sm" />
+          <NuxtLink to="/app/settings" class="inline-flex">
+            <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
+          </NuxtLink>
+        </div>
       </div>
     </header>
 

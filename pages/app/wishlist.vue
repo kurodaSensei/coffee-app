@@ -205,9 +205,12 @@ async function deleteItem() {
   <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Wishlist · {{ items.length }}</UiEyebrow>
-      <NuxtLink to="/app/settings" class="lg:hidden inline-flex">
-        <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
-      </NuxtLink>
+      <div class="lg:hidden inline-flex items-center gap-sm">
+        <UiNotificationBell size="sm" />
+        <NuxtLink to="/app/settings" class="inline-flex">
+          <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
+        </NuxtLink>
+      </div>
     </header>
 
     <div class="mt-lg flex items-end justify-between gap-md flex-wrap">
@@ -237,7 +240,7 @@ async function deleteItem() {
           "Tu próximo café favorito empieza siendo un deseo."
         </p>
       </div>
-      <UiButton variant="dark" :block="false" @click="openCreate">
+      <UiButton variant="dark" :block="false" class="lg:hidden" @click="openCreate">
         + Nuevo deseo
       </UiButton>
     </div>
@@ -271,8 +274,9 @@ async function deleteItem() {
       </li>
     </ul>
 
-    <!-- Mobile FAB -->
+    <!-- Mobile FAB (only when list has items) -->
     <button
+      v-if="!isEmpty"
       type="button"
       class="lg:hidden fixed bottom-[96px] right-md z-20 inline-flex size-[56px] items-center justify-center rounded-pill bg-olive text-paper shadow-[0_8px_24px_rgba(47,53,40,0.18)] transition-transform duration-150 ease-sorbo hover:-translate-y-[2px]"
       aria-label="Nuevo deseo"

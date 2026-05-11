@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 const { currentUser } = useAuth()
+const friendsStore = useFriendsStore()
+
+watch(
+  () => currentUser.value?.uid,
+  (uid) => {
+    if (uid) friendsStore.load().catch(() => {})
+    else friendsStore.reset()
+  },
+  { immediate: true },
+)
 
 const userName = computed(() => {
   const u = currentUser.value

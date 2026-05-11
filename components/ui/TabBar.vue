@@ -32,7 +32,7 @@ const route = useRoute()
 function isActive(item: TabItem): boolean {
   if (props.modelValue !== undefined) return props.modelValue === item.key
   if (!item.to) return false
-  if (item.to === '/') return route.path === '/'
+  if (item.to === '/' || item.to === '/app') return route.path === item.to
   return route.path === item.to || route.path.startsWith(`${item.to}/`)
 }
 

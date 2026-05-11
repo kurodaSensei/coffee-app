@@ -36,12 +36,15 @@ function isActive(to: string): boolean {
       )
     "
   >
-    <NuxtLink to="/app" class="inline-flex items-center gap-sm" aria-label="Sorbo · Inicio">
-      <img src="/sorbo.svg" alt="" aria-hidden="true" class="block size-[36px] shrink-0">
-      <span class="font-display text-[28px] leading-none text-moss">
-        Sorbo<span class="text-honey">.</span>
-      </span>
-    </NuxtLink>
+    <div class="flex items-center justify-between gap-sm">
+      <NuxtLink to="/app" class="inline-flex items-center gap-sm" aria-label="Sorbo · Inicio">
+        <img src="/sorbo.svg" alt="" aria-hidden="true" class="block size-[36px] shrink-0">
+        <span class="font-display text-[28px] leading-none text-moss">
+          Sorbo<span class="text-honey">.</span>
+        </span>
+      </NuxtLink>
+      <UiNotificationBell size="md" />
+    </div>
 
     <nav class="flex-1 flex flex-col gap-lg overflow-y-auto" aria-label="Navegación principal">
       <div v-for="section in sections" :key="section.title" class="flex flex-col gap-xs">

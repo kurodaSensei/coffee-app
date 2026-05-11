@@ -35,9 +35,12 @@ const isEmpty = computed(() => items.value.length === 0)
   <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl lg:pb-2xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Cafés · {{ mineCount }}</UiEyebrow>
-      <NuxtLink to="/app/settings" class="lg:hidden inline-flex">
-        <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
-      </NuxtLink>
+      <div class="lg:hidden inline-flex items-center gap-sm">
+        <UiNotificationBell size="sm" />
+        <NuxtLink to="/app/settings" class="inline-flex">
+          <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
+        </NuxtLink>
+      </div>
     </header>
 
     <div class="mt-lg flex items-end justify-between gap-md flex-wrap">

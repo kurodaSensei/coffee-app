@@ -13,15 +13,26 @@ useHead({
 const email = ref('')
 const submitting = ref(false)
 const subscribed = ref(false)
+const formError = ref<string | null>(null)
 
-function onSubmit() {
+const { subscribe } = useWaitlist()
+
+async function onSubmit() {
   if (!email.value.trim() || submitting.value) return
   submitting.value = true
-  // TODO: wire to a Firestore "waitlist" collection or external service
-  setTimeout(() => {
+  formError.value = null
+  const result = await subscribe(email.value, 'landing')
+  submitting.value = false
+
+  if (result.status === 'success' || result.status === 'duplicate') {
     subscribed.value = true
-    submitting.value = false
-  }, 600)
+  }
+  else if (result.status === 'invalid') {
+    formError.value = 'Ingresa un correo válido.'
+  }
+  else {
+    formError.value = 'No pudimos guardar tu correo. Inténtalo de nuevo.'
+  }
 }
 
 function smoothScroll(id: string) {
@@ -314,6 +325,8 @@ function smoothScroll(id: string) {
             <template v-else>Únete →</template>
           </button>
         </form>
+
+        <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
 
         <div class="meta">
           <span>Sin tarjeta</span>
@@ -1272,6 +1285,13 @@ function smoothScroll(id: string) {
 .waitlist-form button:hover { background: var(--jungle); }
 .waitlist-form button:disabled { cursor: default; }
 .waitlist-form button.done { background: var(--olive); }
+.waitlist .form-error {
+  margin-top: 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--terracotta);
+  text-align: center;
+}
 .waitlist .meta {
   margin-top: 24px;
   display: flex;
