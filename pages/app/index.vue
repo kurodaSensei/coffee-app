@@ -1,15 +1,48 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Coffee, Tasting } from '~/types'
 
 const { currentUser } = useAuth()
 const coffeesStore = useCoffeesStore()
 const tastingsStore = useTastingsStore()
+const settingsStore = useSettingsStore()
 
 onMounted(() => {
   coffeesStore.loadAll().catch(() => {})
   tastingsStore.loadAll().catch(() => {})
+  if (!settingsStore.prefs) settingsStore.load().catch(() => {})
 })
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Onboarding
+// ─────────────────────────────────────────────────────────────────────────────
+
+const welcomeOpen = ref(false)
+
+// Show the welcome sheet only once, the first time prefs loads with hasSeenWelcome=false.
+// Watch instead of computed because we want a one-shot trigger that survives prefs mutations later.
+watch(
+  () => settingsStore.prefs,
+  (prefs) => {
+    if (prefs && prefs.hasSeenWelcome === false) {
+      welcomeOpen.value = true
+    }
+  },
+  { immediate: true },
+)
+
+async function onWelcomeFinish() {
+  await settingsStore.markWelcomeSeen().catch(() => {})
+}
+
+const showOnboardingChecklist = computed(() => {
+  const prefs = settingsStore.prefs
+  return !!prefs && prefs.hasSeenWelcome === true && prefs.hideOnboardingChecklist !== true
+})
+
+async function dismissChecklist() {
+  await settingsStore.dismissOnboardingChecklist().catch(() => {})
+}
 
 const userName = computed(() => {
   const u = currentUser.value
@@ -148,6 +181,13 @@ const stats = computed(() => {
       Aún no has registrado ninguna cata. ¿Empezamos hoy?
     </p>
 
+    <!-- Onboarding checklist (first-run guide) -->
+    <UiOnboardingChecklist
+      v-if="showOnboardingChecklist"
+      class="mt-xl"
+      @dismiss="dismissChecklist"
+    />
+
     <!-- Hero + quick actions -->
     <section class="mt-xl grid grid-cols-2 lg:grid-cols-3 gap-sm lg:gap-md">
       <UiHeroCard
@@ -199,5 +239,12 @@ const stats = computed(() => {
         </div>
       </div>
     </section>
+
+    <!-- ━━━━━━━━━━ WELCOME (first run) ━━━━━━━━━━ -->
+    <UiOnboardingWelcome
+      v-model="welcomeOpen"
+      :user-name="userName"
+      @finish="onWelcomeFinish"
+    />
   </div>
 </template>

@@ -176,6 +176,10 @@ export interface UserPreferences {
   disabledVarieties: string[]
   disabledProcesses: string[]
   disabledBrewMethods: string[]
+  /** True once the user has seen and dismissed the welcome bottom sheet. */
+  hasSeenWelcome?: boolean
+  /** True once the user has explicitly hidden the onboarding checklist (or completed all steps). */
+  hideOnboardingChecklist?: boolean
   createdAt?: Timestamp
   updatedAt?: Timestamp
 }

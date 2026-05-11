@@ -9,6 +9,8 @@ const DEFAULT_PREFS: Omit<UserPreferences, 'id' | 'userId' | 'createdAt' | 'upda
   disabledVarieties: [],
   disabledProcesses: [],
   disabledBrewMethods: [],
+  hasSeenWelcome: false,
+  hideOnboardingChecklist: false,
 }
 
 export const useSettingsStore = defineStore('settings', () => {
@@ -52,9 +54,25 @@ export const useSettingsStore = defineStore('settings', () => {
       disabledVarieties: prefs.value.disabledVarieties,
       disabledProcesses: prefs.value.disabledProcesses,
       disabledBrewMethods: prefs.value.disabledBrewMethods,
+      hasSeenWelcome: prefs.value.hasSeenWelcome ?? false,
+      hideOnboardingChecklist: prefs.value.hideOnboardingChecklist ?? false,
       updatedAt: Timestamp.now(),
       createdAt: prefs.value.createdAt || Timestamp.now(),
     }, { merge: true })
+  }
+
+  async function markWelcomeSeen() {
+    if (!prefs.value) return
+    if (prefs.value.hasSeenWelcome) return
+    prefs.value.hasSeenWelcome = true
+    await save()
+  }
+
+  async function dismissOnboardingChecklist() {
+    if (!prefs.value) return
+    if (prefs.value.hideOnboardingChecklist) return
+    prefs.value.hideOnboardingChecklist = true
+    await save()
   }
 
   async function addVariety(name: string) {
@@ -152,5 +170,7 @@ export const useSettingsStore = defineStore('settings', () => {
     addBrewMethod,
     removeCustomBrewMethod,
     toggleDefaultBrewMethod,
+    markWelcomeSeen,
+    dismissOnboardingChecklist,
   }
 })

@@ -51,8 +51,8 @@ async function save() {
   try {
     const newName = name.value.trim()
     const newBio = bio.value.trim()
-    if (newName !== (currentUser.value.displayName || '')) {
-      await updateProfile(currentUser.value, { displayName: newName })
+    if (newName !== (currentUser.value.displayName || '') && $auth.currentUser) {
+      await updateProfile($auth.currentUser, { displayName: newName })
     }
     await upsertProfile({
       id: currentUser.value.uid,
