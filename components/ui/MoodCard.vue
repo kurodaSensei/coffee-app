@@ -42,6 +42,11 @@ const tag = computed(() => {
 
 const interactive = computed(() => !!(props.to || props.href))
 
+const hasScore = computed(() => {
+  const s = props.score
+  return s != null && s !== '' && !(typeof s === 'number' && Number.isNaN(s))
+})
+
 // Use `opacity-N` instead of `bg-color/N` because Tailwind opacity modifiers
 // don't reliably resolve when the underlying color is a CSS variable.
 const blobToneClass: Record<'honey' | 'olive-light' | 'surface-2' | 'peach' | 'none', string> = {
@@ -94,10 +99,10 @@ const blobToneClass: Record<'honey' | 'olive-light' | 'surface-2' | 'peach' | 'n
       </div>
 
       <div
-        v-if="score !== undefined || meta || $slots.footer"
+        v-if="hasScore || meta || $slots.footer"
         class="mt-xs flex items-end justify-between gap-md"
       >
-        <div v-if="score !== undefined" class="flex flex-col gap-xxs">
+        <div v-if="hasScore" class="flex flex-col gap-xxs">
           <UiEyebrow>{{ scoreLabel }}</UiEyebrow>
           <span :class="cn('font-display leading-none text-moss', compact ? 'text-[24px]' : 'text-[32px]')">
             {{ score }}
