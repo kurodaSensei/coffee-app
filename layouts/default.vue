@@ -43,6 +43,7 @@ const sidebarSections = [
       { key: 'varieties', label: 'Variedades', to: '/app/varieties' },
       { key: 'methods', label: 'Métodos', to: '/app/methods' },
       { key: 'processes', label: 'Procesos', to: '/app/processes' },
+      { key: 'notes', label: 'Notas', to: '/app/notes' },
     ],
   },
 ]

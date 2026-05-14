@@ -2,6 +2,7 @@ import {
   DEFAULT_PROCESS_OPTIONS,
   DEFAULT_BREW_METHOD_OPTIONS,
   DEFAULT_VARIETIES,
+  DEFAULT_FLAVOR_NOTES,
 } from '~/utils/constants'
 
 export const useCatalog = () => {
@@ -28,6 +29,13 @@ export const useCatalog = () => {
     return [...defaults, ...custom]
   })
 
+  const flavorNoteOptions = computed<string[]>(() => {
+    const disabled = settings.prefs?.disabledFlavorNotes ?? []
+    const custom = settings.prefs?.customFlavorNotes ?? []
+    const defaults = DEFAULT_FLAVOR_NOTES.filter(n => !disabled.includes(n))
+    return [...defaults, ...custom]
+  })
+
   function getProcessLabel(value: string): string {
     const opt = processOptions.value.find(p => p.value === value)
     if (opt) return opt.label
@@ -46,6 +54,7 @@ export const useCatalog = () => {
     varieties,
     processOptions,
     brewMethodOptions,
+    flavorNoteOptions,
     getProcessLabel,
     getBrewMethodLabel,
   }

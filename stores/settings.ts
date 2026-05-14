@@ -6,9 +6,11 @@ const DEFAULT_PREFS: Omit<UserPreferences, 'id' | 'userId' | 'createdAt' | 'upda
   customVarieties: [],
   customProcesses: [],
   customBrewMethods: [],
+  customFlavorNotes: [],
   disabledVarieties: [],
   disabledProcesses: [],
   disabledBrewMethods: [],
+  disabledFlavorNotes: [],
   hasSeenWelcome: false,
   hideOnboardingChecklist: false,
 }
@@ -27,7 +29,14 @@ export const useSettingsStore = defineStore('settings', () => {
       const ref = doc($db, 'userPreferences', userId.value)
       const snap = await getDoc(ref)
       if (snap.exists()) {
-        prefs.value = { id: snap.id, ...snap.data() } as UserPreferences
+        // Merge con DEFAULT_PREFS para que campos nuevos (p.ej. flavor notes
+        // añadidos en versiones posteriores) no queden como undefined cuando
+        // se lean documentos antiguos.
+        prefs.value = {
+          id: snap.id,
+          ...DEFAULT_PREFS,
+          ...snap.data(),
+        } as UserPreferences
       } else {
         prefs.value = {
           id: userId.value,
@@ -51,9 +60,11 @@ export const useSettingsStore = defineStore('settings', () => {
       customVarieties: prefs.value.customVarieties,
       customProcesses: prefs.value.customProcesses,
       customBrewMethods: prefs.value.customBrewMethods,
+      customFlavorNotes: prefs.value.customFlavorNotes,
       disabledVarieties: prefs.value.disabledVarieties,
       disabledProcesses: prefs.value.disabledProcesses,
       disabledBrewMethods: prefs.value.disabledBrewMethods,
+      disabledFlavorNotes: prefs.value.disabledFlavorNotes,
       hasSeenWelcome: prefs.value.hasSeenWelcome ?? false,
       hideOnboardingChecklist: prefs.value.hideOnboardingChecklist ?? false,
       updatedAt: Timestamp.now(),
@@ -150,6 +161,31 @@ export const useSettingsStore = defineStore('settings', () => {
     await save()
   }
 
+  async function addFlavorNote(name: string) {
+    if (!prefs.value || !name.trim()) return
+    const v = name.trim()
+    if (!prefs.value.customFlavorNotes.includes(v)) {
+      prefs.value.customFlavorNotes.push(v)
+      await save()
+    }
+  }
+
+  async function removeCustomFlavorNote(name: string) {
+    if (!prefs.value) return
+    prefs.value.customFlavorNotes = prefs.value.customFlavorNotes.filter(v => v !== name)
+    await save()
+  }
+
+  async function toggleDefaultFlavorNote(name: string) {
+    if (!prefs.value) return
+    if (prefs.value.disabledFlavorNotes.includes(name)) {
+      prefs.value.disabledFlavorNotes = prefs.value.disabledFlavorNotes.filter(v => v !== name)
+    } else {
+      prefs.value.disabledFlavorNotes.push(name)
+    }
+    await save()
+  }
+
   function reset() {
     prefs.value = null
     loading.value = false
@@ -170,6 +206,9 @@ export const useSettingsStore = defineStore('settings', () => {
     addBrewMethod,
     removeCustomBrewMethod,
     toggleDefaultBrewMethod,
+    addFlavorNote,
+    removeCustomFlavorNote,
+    toggleDefaultFlavorNote,
     markWelcomeSeen,
     dismissOnboardingChecklist,
   }

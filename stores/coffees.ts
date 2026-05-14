@@ -9,7 +9,7 @@ interface CoffeeFilters {
 
 export const useCoffeesStore = defineStore('coffees', () => {
   const { fetchAll, fetchById, createCoffee, updateCoffee, deleteCoffee } = useCoffees()
-  const { getSharedWithMe } = useFirebase()
+  const { getSharedWithMe, updateSharing: updateSharingDoc } = useFirebase()
 
   const base = useFirestoreStoreState<Coffee, CoffeeInput, CoffeeFilters>({
     api: {
@@ -49,6 +49,24 @@ export const useCoffeesStore = defineStore('coffees', () => {
     filters.value = {}
   }
 
+  async function updateSharing(id: string, uids: string[]) {
+    const toast = useToast()
+    try {
+      await updateSharingDoc('coffees', id, uids)
+      if (base.current.value?.id === id) {
+        base.current.value = { ...base.current.value, sharedWith: uids } as Coffee
+      }
+      const idx = base.list.value.findIndex(c => c.id === id)
+      if (idx !== -1) {
+        base.list.value[idx] = { ...base.list.value[idx], sharedWith: uids } as Coffee
+      }
+      toast.success(uids.length === 0 ? 'Dejado de compartir' : 'Compartido')
+    } catch (e: any) {
+      toast.error('No se pudo actualizar quién ve el café', e)
+      throw e
+    }
+  }
+
   const originalReset = base.reset
   function reset() {
     filters.value = {}
@@ -60,6 +78,7 @@ export const useCoffeesStore = defineStore('coffees', () => {
     filters,
     loadAll,
     clearFilters,
+    updateSharing,
     reset,
   }
 })

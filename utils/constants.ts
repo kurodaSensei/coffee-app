@@ -29,6 +29,11 @@ export const DEFAULT_VARIETIES = [
   'Sudan Rume', 'Eugenioides', 'SL28', 'SL34', 'Maragogipe', 'Laurina',
 ]
 
+export const DEFAULT_FLAVOR_NOTES = [
+  'Cereza', 'Vainilla', 'Chocolate', 'Caramelo', 'Naranja', 'Panela',
+  'Jazmín', 'Floral', 'Cítrico', 'Nuez', 'Miel', 'Cacao',
+]
+
 // Kept for backwards compatibility (used only where catalog isn't available)
 export const PROCESS_OPTIONS = [
   { value: 'washed', label: 'Lavado' },

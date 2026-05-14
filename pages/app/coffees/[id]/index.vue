@@ -102,6 +102,17 @@ function onEdit() {
   router.push(`/app/coffees/${coffee.value.id}/edit`)
 }
 
+const shareOpen = ref(false)
+
+function onShare() {
+  if (!coffee.value) return
+  shareOpen.value = true
+}
+
+function onShareSaved(uids: string[]) {
+  if (coffee.value) coffee.value = { ...coffee.value, sharedWith: uids }
+}
+
 const deleting = ref(false)
 
 async function onDelete() {
@@ -141,6 +152,9 @@ async function onDelete() {
           {{ coffee?.roasterName || 'Café' }}
         </UiEyebrow>
         <UiActionMenu v-if="coffee" aria-label="Más acciones">
+          <UiActionMenuItem icon="lucide:share-2" @click="onShare">
+            Compartir
+          </UiActionMenuItem>
           <UiActionMenuItem icon="lucide:pencil" @click="onEdit">
             Editar
           </UiActionMenuItem>
@@ -267,5 +281,14 @@ async function onDelete() {
         </NuxtLink>
       </div>
     </div>
+
+    <CoffeeShareSheet
+      v-if="coffee"
+      v-model="shareOpen"
+      :coffee-id="coffee.id"
+      :coffee-name="coffee.name"
+      :initial-shared-with="coffee.sharedWith ?? []"
+      @saved="onShareSaved"
+    />
   </div>
 </template>

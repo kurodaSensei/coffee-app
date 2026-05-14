@@ -20,7 +20,7 @@ const props = withDefaults(
 
 const router = useRouter()
 const coffeesStore = useCoffeesStore()
-const { processOptions } = useCatalog()
+const { processOptions, flavorNoteOptions } = useCatalog()
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Wizard state
@@ -98,10 +98,6 @@ const ROAST_LEVELS: { value: RoastLevel; label: string }[] = [
   { value: 'light', label: 'Claro' },
   { value: 'medium', label: 'Medio' },
   { value: 'dark', label: 'Oscuro' },
-]
-const FLAVOR_OPTIONS = [
-  'Cereza', 'Vainilla', 'Chocolate', 'Caramelo', 'Naranja', 'Panela',
-  'Jazmín', 'Floral', 'Cítrico', 'Nuez', 'Miel', 'Cacao',
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -391,7 +387,7 @@ const submitLabel = computed(() =>
         <div class="mt-xl flex flex-col gap-lg">
           <div class="flex flex-wrap gap-xxs">
             <UiChip
-              v-for="opt in FLAVOR_OPTIONS"
+              v-for="opt in flavorNoteOptions"
               :key="opt"
               interactive
               :variant="flavorNotes.includes(opt) ? 'active' : 'default'"
@@ -400,13 +396,13 @@ const submitLabel = computed(() =>
               {{ opt }}
             </UiChip>
             <UiChip
-              v-for="custom in flavorNotes.filter(n => !FLAVOR_OPTIONS.includes(n))"
-              :key="custom"
+              v-for="adhoc in flavorNotes.filter(n => !flavorNoteOptions.includes(n))"
+              :key="adhoc"
               interactive
               variant="active"
-              @click="toggleFlavor(custom)"
+              @click="toggleFlavor(adhoc)"
             >
-              {{ custom }}
+              {{ adhoc }}
             </UiChip>
             <template v-if="!showCustomNoteInput">
               <UiChip

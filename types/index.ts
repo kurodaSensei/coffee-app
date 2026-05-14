@@ -173,9 +173,11 @@ export interface UserPreferences {
   customVarieties: string[]
   customProcesses: { value: string; label: string }[]
   customBrewMethods: { value: string; label: string }[]
+  customFlavorNotes: string[]
   disabledVarieties: string[]
   disabledProcesses: string[]
   disabledBrewMethods: string[]
+  disabledFlavorNotes: string[]
   /** True once the user has seen and dismissed the welcome bottom sheet. */
   hasSeenWelcome?: boolean
   /** True once the user has explicitly hidden the onboarding checklist (or completed all steps). */
