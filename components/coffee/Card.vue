@@ -1,12 +1,26 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Coffee, CoffeeProcess } from '~/types'
+import type { CoffeeViewMode } from '~/stores/coffeeView'
 
-const props = defineProps<{
-  coffee: Coffee
-  /** Compact density for desktop grid cells. */
-  compact?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    coffee: Coffee
+    /** Compact density for desktop grid cells (legacy prop). */
+    compact?: boolean
+    /**
+     * Modo de presentación:
+     *  - detailed: SCA + meta (precio · peso) + 3 notas (default)
+     *  - medium:   sin SCA, sin meta, 3 notas
+     *  - compact:  título + tostador + 2 notas (más denso)
+     */
+    mode?: CoffeeViewMode
+  }>(),
+  {
+    compact: false,
+    mode: 'detailed',
+  },
+)
 
 const processLabel: Record<CoffeeProcess, string> = {
   washed: 'Lavado',
@@ -61,7 +75,14 @@ function formatPrice(p?: number): string {
   return `$${p}`
 }
 
+const showScore = computed(() => props.mode === 'detailed')
+const showMeta = computed(() => props.mode === 'detailed')
+// `compact` mode usa el modo denso del MoodCard.
+const denseLayout = computed(() => props.compact || props.mode === 'compact')
+const notesLimit = computed(() => (props.mode === 'compact' ? 2 : 3))
+
 const meta = computed(() => {
+  if (!showMeta.value) return ''
   const parts: string[] = []
   const price = formatPrice(props.coffee.price)
   if (price) parts.push(price)
@@ -69,7 +90,9 @@ const meta = computed(() => {
   return parts.join(' · ')
 })
 
-const visibleNotes = computed(() => (props.coffee.flavorNotes || []).slice(0, props.compact ? 2 : 3))
+const score = computed(() => (showScore.value ? props.coffee.scaScore : undefined))
+
+const visibleNotes = computed(() => (props.coffee.flavorNotes || []).slice(0, notesLimit.value))
 const moreNotes = computed(() =>
   Math.max(0, (props.coffee.flavorNotes || []).length - visibleNotes.value.length),
 )
@@ -81,10 +104,10 @@ const moreNotes = computed(() =>
     :eyebrow="eyebrow"
     :name="name"
     :subtitle="subtitle"
-    :score="coffee.scaScore"
+    :score="score"
     :meta="meta"
     :blob-tone="blobTone"
-    :compact="compact"
+    :compact="denseLayout"
   >
     <template v-if="(coffee.flavorNotes || []).length > 0" #notes>
       <UiChip v-for="n in visibleNotes" :key="n" compact>
