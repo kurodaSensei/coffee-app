@@ -34,7 +34,6 @@ const showSplash = computed(() => authLoading.value || splashHeld.value)
   <Toaster
     position="bottom-center"
     rich-colors
-    close-button
     :offset="120"
     :mobile-offset="{ bottom: '110px' }"
     :toast-options="{

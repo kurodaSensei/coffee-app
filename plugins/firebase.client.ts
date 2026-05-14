@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
+import { initializeFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 import { getAuth } from 'firebase/auth'
 
@@ -16,7 +16,10 @@ export default defineNuxtPlugin(() => {
   }
 
   const app = initializeApp(firebaseConfig)
-  const db = getFirestore(app)
+  // ignoreUndefinedProperties: campos opcionales vacíos del formulario (SCA score,
+  // finca, productor, etc.) llegan como `undefined`. Sin esto Firestore rechaza
+  // el documento entero y el usuario lo lee como "el campo es obligatorio".
+  const db = initializeFirestore(app, { ignoreUndefinedProperties: true })
   const storage = getStorage(app)
   const auth = getAuth(app)
 

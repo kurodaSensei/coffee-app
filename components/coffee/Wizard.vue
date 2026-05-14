@@ -20,6 +20,7 @@ const props = withDefaults(
 
 const router = useRouter()
 const coffeesStore = useCoffeesStore()
+const { processOptions } = useCatalog()
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Wizard state
@@ -32,7 +33,9 @@ const totalSteps = 3
 const name = ref('')
 const roaster = ref<RoasterValue | null>(null)
 const variety = ref('')
-const process = ref<CoffeeProcess | ''>('')
+// Process puede ser un valor del enum CoffeeProcess o un id custom (`custom_xxx`)
+// proveniente del catálogo del usuario.
+const process = ref<string>('')
 const showMoreIdentity = ref(false)
 
 // Step 2 — ORIGEN
@@ -66,7 +69,7 @@ watch(
       ? { id: c.roasterId, name: c.roasterName }
       : null
     variety.value = c.variety || ''
-    process.value = (c.process as CoffeeProcess) || ''
+    process.value = c.process || ''
     if (c.variety || c.process) showMoreIdentity.value = true
 
     country.value = c.originCountry || ''
@@ -91,12 +94,6 @@ watch(
 // ─────────────────────────────────────────────────────────────────────────────
 
 const COUNTRIES = ['Colombia', 'Etiopía', 'Kenia', 'Brasil', 'Costa Rica', 'Guatemala']
-const PROCESSES: { value: CoffeeProcess; label: string }[] = [
-  { value: 'washed', label: 'Lavado' },
-  { value: 'natural', label: 'Natural' },
-  { value: 'honey', label: 'Honey' },
-  { value: 'anaerobic', label: 'Anaeróbico' },
-]
 const ROAST_LEVELS: { value: RoastLevel; label: string }[] = [
   { value: 'light', label: 'Claro' },
   { value: 'medium', label: 'Medio' },
@@ -302,7 +299,7 @@ const submitLabel = computed(() =>
             <UiEyebrow>Proceso</UiEyebrow>
             <div class="flex flex-wrap gap-xxs">
               <UiChip
-                v-for="p in PROCESSES"
+                v-for="p in processOptions"
                 :key="p.value"
                 interactive
                 :variant="process === p.value ? 'active' : 'default'"
@@ -358,7 +355,7 @@ const submitLabel = computed(() =>
               type="range"
               min="600"
               max="2400"
-              step="50"
+              step="10"
               class="mt-xs w-full accent-olive"
             >
             <div class="flex justify-between font-mono text-[10px] text-moss-ghost">
