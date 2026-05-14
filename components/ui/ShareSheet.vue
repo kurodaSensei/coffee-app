@@ -3,10 +3,14 @@ import { computed, onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{
   modelValue: boolean
-  /** Café que se está compartiendo (sólo para mostrar nombre + estado inicial). */
-  coffeeId: string
-  coffeeName?: string
+  /** Nombre del item (para mostrar en el subtítulo). */
+  entityName?: string
+  /** Texto del subtítulo, por defecto se construye con entityName. */
+  subtitle?: string
+  /** UIDs con los que ya está compartido el item. */
   initialSharedWith?: string[]
+  /** Función async que persiste el nuevo array de UIDs. */
+  onSave: (uids: string[]) => Promise<void>
 }>()
 
 const emit = defineEmits<{
@@ -15,7 +19,6 @@ const emit = defineEmits<{
 }>()
 
 const friendsStore = useFriendsStore()
-const coffeesStore = useCoffeesStore()
 
 onMounted(() => {
   if (friendsStore.list.length === 0) friendsStore.load().catch(() => {})
@@ -23,13 +26,10 @@ onMounted(() => {
 
 const selectedUids = ref<string[]>([])
 
-// Sincroniza la selección al abrir el sheet con el estado actual del café.
 watch(
   () => props.modelValue,
   (open) => {
-    if (open) {
-      selectedUids.value = [...(props.initialSharedWith ?? [])]
-    }
+    if (open) selectedUids.value = [...(props.initialSharedWith ?? [])]
   },
   { immediate: true },
 )
@@ -46,6 +46,12 @@ const friends = computed<FriendEntry[]>(() => {
     .filter((x): x is FriendEntry => x !== null)
 })
 
+const computedSubtitle = computed(() => {
+  if (props.subtitle) return props.subtitle
+  if (props.entityName) return `"${props.entityName}" será visible para quienes elijas.`
+  return 'Elige con quién compartir.'
+})
+
 function toggle(uid: string) {
   const idx = selectedUids.value.indexOf(uid)
   if (idx === -1) selectedUids.value.push(uid)
@@ -54,16 +60,16 @@ function toggle(uid: string) {
 
 const saving = ref(false)
 
-async function onSave() {
+async function save() {
   if (saving.value) return
   saving.value = true
   try {
-    await coffeesStore.updateSharing(props.coffeeId, selectedUids.value.slice())
+    await props.onSave(selectedUids.value.slice())
     emit('saved', selectedUids.value.slice())
     emit('update:modelValue', false)
   }
   catch {
-    // toast surfaced by store
+    // toast surfaced by caller
   }
   finally {
     saving.value = false
@@ -84,12 +90,12 @@ const hasChanges = computed(() => {
 <template>
   <UiBottomSheet
     :model-value="modelValue"
-    title="Compartir café"
+    title="Compartir"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <div class="flex flex-col gap-lg pt-xs">
-      <p v-if="coffeeName" class="subtitle-italic">
-        "{{ coffeeName }}" será visible para quienes elijas.
+      <p class="subtitle-italic">
+        {{ computedSubtitle }}
       </p>
 
       <div v-if="friends.length === 0" class="rounded-card bg-surface px-md py-lg text-center">
@@ -127,7 +133,7 @@ const hasChanges = computed(() => {
         variant="dark"
         :loading="saving"
         :disabled="!hasChanges"
-        @click="onSave"
+        @click="save"
       >
         {{ selectedUids.length === 0 ? 'Dejar de compartir' : `Compartir con ${selectedUids.length}` }}
       </UiButton>

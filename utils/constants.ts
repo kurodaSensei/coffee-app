@@ -34,6 +34,14 @@ export const DEFAULT_FLAVOR_NOTES = [
   'Jazmín', 'Floral', 'Cítrico', 'Nuez', 'Miel', 'Cacao',
 ]
 
+export const GRIND_SIZE_OPTIONS = [
+  { value: 'fine', label: 'Fina' },
+  { value: 'medium_fine', label: 'Media fina' },
+  { value: 'medium', label: 'Media' },
+  { value: 'medium_coarse', label: 'Media gruesa' },
+  { value: 'coarse', label: 'Gruesa' },
+] as const
+
 // Kept for backwards compatibility (used only where catalog isn't available)
 export const PROCESS_OPTIONS = [
   { value: 'washed', label: 'Lavado' },

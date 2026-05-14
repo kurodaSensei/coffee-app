@@ -26,6 +26,17 @@ onMounted(async () => {
   }
 })
 
+const shareOpen = ref(false)
+
+function onShare() {
+  if (!recipe.value) return
+  shareOpen.value = true
+}
+
+function onShareSaved(uids: string[]) {
+  if (recipe.value) recipe.value = { ...recipe.value, sharedWith: uids }
+}
+
 const deleting = ref(false)
 
 function onEdit() {
@@ -61,6 +72,9 @@ async function onDelete() {
       </button>
       <UiEyebrow>{{ recipe ? getBrewMethodLabel(recipe.brewMethod) : 'Receta' }}</UiEyebrow>
       <UiActionMenu v-if="recipe" aria-label="Más acciones">
+        <UiActionMenuItem icon="lucide:share-2" @click="onShare">
+          Compartir
+        </UiActionMenuItem>
         <UiActionMenuItem icon="lucide:pencil" @click="onEdit">
           Editar
         </UiActionMenuItem>
@@ -87,5 +101,14 @@ async function onDelete() {
 
       <RecipeDetail v-else-if="recipe" :recipe="recipe" />
     </div>
+
+    <UiShareSheet
+      v-if="recipe"
+      v-model="shareOpen"
+      :entity-name="recipe.name"
+      :initial-shared-with="recipe.sharedWith ?? []"
+      :on-save="(uids) => recipesStore.updateSharing(recipe!.id, uids)"
+      @saved="onShareSaved"
+    />
   </div>
 </template>

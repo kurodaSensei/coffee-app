@@ -32,6 +32,17 @@ onMounted(async () => {
   }
 })
 
+const shareOpen = ref(false)
+
+function onShare() {
+  if (!tasting.value) return
+  shareOpen.value = true
+}
+
+function onShareSaved(uids: string[]) {
+  if (tasting.value) tasting.value = { ...tasting.value, sharedWith: uids }
+}
+
 const deleting = ref(false)
 
 async function onEdit() {
@@ -87,6 +98,9 @@ async function toggleFavorite() {
         <UiActionMenuItem :icon="tasting.isFavorite ? 'lucide:heart-off' : 'lucide:heart'" @click="toggleFavorite">
           {{ tasting.isFavorite ? 'Quitar favorito' : 'Marcar favorito' }}
         </UiActionMenuItem>
+        <UiActionMenuItem icon="lucide:share-2" @click="onShare">
+          Compartir
+        </UiActionMenuItem>
         <UiActionMenuItem icon="lucide:pencil" @click="onEdit">
           Editar
         </UiActionMenuItem>
@@ -113,5 +127,15 @@ async function toggleFavorite() {
 
       <TastingDetail v-else-if="tasting" :tasting="tasting" :coffee="coffee" />
     </div>
+
+    <UiShareSheet
+      v-if="tasting"
+      v-model="shareOpen"
+      :entity-name="tasting.coffeeName"
+      subtitle="Tu cata será visible para quienes elijas."
+      :initial-shared-with="tasting.sharedWith ?? []"
+      :on-save="(uids) => tastingsStore.updateSharing(tasting!.id, uids)"
+      @saved="onShareSaved"
+    />
   </div>
 </template>

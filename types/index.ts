@@ -33,7 +33,12 @@ export type BrewMethod =
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'very_rare'
 
-export type GrindSize = 'fine' | 'medium' | 'coarse'
+export type GrindSize =
+  | 'fine'
+  | 'medium_fine'
+  | 'medium'
+  | 'medium_coarse'
+  | 'coarse'
 
 export interface RecipeStep {
   /** Time of this milestone since brew start, in seconds. */

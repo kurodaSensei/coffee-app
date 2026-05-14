@@ -128,8 +128,14 @@ function openSheet(r: Recipe) {
           </template>
         </p>
       </div>
-      <UiButton v-if="tab === 'mine'" variant="dark" :block="false" to="/app/recipes/new">
-        + Nueva receta
+      <UiButton
+        v-if="tab === 'mine'"
+        variant="dark"
+        :block="false"
+        to="/app/recipes/new"
+        class="lg:hidden"
+      >
+        + Registra tu primera receta
       </UiButton>
     </div>
 
@@ -202,16 +208,17 @@ function openSheet(r: Recipe) {
         </div>
       </button>
 
-      <!-- + Nueva receta dashed pill (mobile) -->
-      <NuxtLink
-        to="/app/recipes/new"
-        class="lg:hidden rounded-cta border border-dashed border-moss/30 bg-surface/50 px-md py-md text-center font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-soft hover:bg-surface transition-colors"
-      >
-        + Nueva receta
-      </NuxtLink>
     </div>
 
-    <!-- Mobile FAB (hidden because we have the dashed pill instead) -->
+    <!-- Mobile FAB (only when list has items) -->
+    <NuxtLink
+      v-if="!isEmpty"
+      to="/app/recipes/new"
+      class="lg:hidden fixed bottom-[96px] right-md z-20 inline-flex size-[56px] items-center justify-center rounded-pill bg-olive text-paper shadow-[0_8px_24px_rgba(47,53,40,0.18)] transition-transform duration-150 ease-sorbo hover:-translate-y-[2px] active:translate-y-0"
+      aria-label="Nueva receta"
+    >
+      <Icon name="lucide:plus" class="size-6" />
+    </NuxtLink>
 
     <!-- Detail sheet -->
     <UiBottomSheet v-model="sheetOpen">

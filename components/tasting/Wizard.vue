@@ -94,6 +94,14 @@ const selectedCoffee = computed<Coffee | null>(
   () => coffees.value.find(c => c.id === coffeeId.value) ?? null,
 )
 
+// CoffeePicker emite null cuando se limpia la selección; el coffeeId interno
+// del wizard es una string (vacía = sin selección) para mantener la validación
+// existente. Este computed hace de bridge.
+const pickerValue = computed<string | null>({
+  get: () => coffeeId.value || null,
+  set: (v) => { coffeeId.value = v ?? '' },
+})
+
 const activeMethods = computed(() => brewMethodOptions.value)
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -202,22 +210,6 @@ const stepEyebrow = computed(
 const submitLabel = computed(() =>
   props.mode === 'edit' ? '✓ Guardar cambios' : '✓ Guardar cata',
 )
-
-const processLabel: Record<string, string> = {
-  washed: 'LAVADO',
-  natural: 'NATURAL',
-  honey: 'HONEY',
-  anaerobic: 'ANAERÓBICO',
-  carbonic: 'CARBÓNICO',
-  experimental: 'EXPERIMENTAL',
-  other: 'OTRO',
-}
-
-function coffeeEyebrow(c: Coffee): string {
-  const proc = c.process ? processLabel[c.process] || c.process.toUpperCase() : ''
-  const roaster = c.roasterName?.toUpperCase() || ''
-  return [proc, roaster].filter(Boolean).join(' · ')
-}
 </script>
 
 <template>
@@ -264,50 +256,12 @@ function coffeeEyebrow(c: Coffee): string {
         </h1>
 
         <!-- Coffee picker -->
-        <div class="mt-xl flex flex-col gap-xs">
-          <button
-            v-for="c in coffees"
-            :key="c.id"
-            type="button"
-            class="group relative overflow-hidden rounded-cta px-md py-md text-left transition-colors duration-150 ease-sorbo"
-            :class="
-              coffeeId === c.id
-                ? 'bg-olive text-paper'
-                : 'bg-surface text-moss hover:bg-surface-2'
-            "
-            @click="coffeeId = c.id"
-          >
-            <div class="flex items-center justify-between gap-md">
-              <div class="min-w-0">
-                <UiEyebrow :class="coffeeId === c.id ? 'text-paper/70' : ''">
-                  {{ coffeeEyebrow(c) }}
-                </UiEyebrow>
-                <div class="mt-xxs font-display text-[24px] leading-none truncate">
-                  {{ c.name.endsWith('.') ? c.name.slice(0, -1) : c.name }}
-                </div>
-              </div>
-              <span
-                v-if="coffeeId === c.id"
-                aria-hidden="true"
-                class="inline-block size-[10px] rounded-pill bg-honey shrink-0"
-              />
-            </div>
-          </button>
-
-          <NuxtLink
-            to="/app/coffees/new"
-            class="rounded-cta border border-dashed border-moss/30 bg-surface/50 px-md py-md text-center font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-soft hover:bg-surface transition-colors"
-          >
-            + Agregar café nuevo
-          </NuxtLink>
-        </div>
-
-        <p
-          v-if="errors.coffee"
-          class="mt-sm font-mono text-[10px] font-medium uppercase tracking-eyebrow text-terracotta"
-        >
-          <span aria-hidden="true">— </span>{{ errors.coffee }}
-        </p>
+        <CoffeePicker
+          v-model="pickerValue"
+          label="Café"
+          class="mt-xl"
+          :error="errors.coffee"
+        />
 
         <!-- Brew method -->
         <div class="mt-xl flex flex-col gap-xs">

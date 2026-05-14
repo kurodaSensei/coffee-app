@@ -52,6 +52,9 @@ const blobTone = computed<'honey' | 'olive-light' | 'surface-2' | 'peach'>(() =>
 
 const eyebrow = computed(() => {
   const proc = props.coffee.process ? processLabel[props.coffee.process] : ''
+  // En modo compact se oculta la información geográfica (región) para mantener
+  // la card a una sola línea de eyebrow.
+  if (props.mode === 'compact') return proc
   const region = props.coffee.originRegion || ''
   return [proc, region].filter(Boolean).join(' · ')
 })

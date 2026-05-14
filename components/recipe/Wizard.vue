@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { BrewMethod, GrindSize, Recipe, RecipeInput, RecipeStep } from '~/types'
+import { GRIND_SIZE_OPTIONS } from '~/utils/constants'
 
 const props = withDefaults(
   defineProps<{
@@ -75,11 +76,7 @@ const ratio = computed(() => {
 
 const activeMethods = computed(() => brewMethodOptions.value)
 
-const GRIND_OPTIONS: { value: GrindSize; label: string }[] = [
-  { value: 'fine', label: 'Fina' },
-  { value: 'medium', label: 'Media' },
-  { value: 'coarse', label: 'Gruesa' },
-]
+const GRIND_OPTIONS = GRIND_SIZE_OPTIONS
 
 const sortedSteps = computed(() => [...steps.value].sort((a, b) => a.timeSeconds - b.timeSeconds))
 
@@ -408,17 +405,16 @@ const nextHint = computed(() => stepTitles[(step.value + 1) as 1 | 2 | 3] || '')
         <!-- MOLIENDA -->
         <div class="mt-xl">
           <UiEyebrow>Molienda</UiEyebrow>
-          <div class="mt-sm grid grid-cols-3 gap-xs">
-            <button
+          <div class="mt-sm flex flex-wrap gap-xxs">
+            <UiChip
               v-for="g in GRIND_OPTIONS"
               :key="g.value"
-              type="button"
-              class="rounded-card-sm py-sm font-sans text-[14px] transition-colors duration-150 ease-sorbo"
-              :class="grindSize === g.value ? 'bg-olive text-paper' : 'bg-surface-2 text-moss hover:bg-surface'"
-              @click="grindSize = grindSize === g.value ? '' : g.value"
+              interactive
+              :variant="grindSize === g.value ? 'active' : 'default'"
+              @click="grindSize = grindSize === g.value ? '' : (g.value as GrindSize)"
             >
               {{ g.label }}
-            </button>
+            </UiChip>
           </div>
         </div>
       </section>

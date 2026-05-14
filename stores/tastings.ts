@@ -9,7 +9,7 @@ interface TastingFilters {
 
 export const useTastingsStore = defineStore('tastings', () => {
   const { fetchAll, fetchRecent, fetchById, createTasting, updateTasting, deleteTasting } = useTastings()
-  const { getSharedWithMe } = useFirebase()
+  const { getSharedWithMe, updateSharing: updateSharingDoc } = useFirebase()
 
   const base = useFirestoreStoreState<Tasting, TastingInput, TastingFilters>({
     api: {
@@ -47,6 +47,24 @@ export const useTastingsStore = defineStore('tastings', () => {
     }
   }
 
+  async function updateSharing(id: string, uids: string[]) {
+    const toast = useToast()
+    try {
+      await updateSharingDoc('tastings', id, uids)
+      if (base.current.value?.id === id) {
+        base.current.value = { ...base.current.value, sharedWith: uids } as Tasting
+      }
+      const idx = base.list.value.findIndex(t => t.id === id)
+      if (idx !== -1) {
+        base.list.value[idx] = { ...base.list.value[idx], sharedWith: uids } as Tasting
+      }
+      toast.success(uids.length === 0 ? 'Dejado de compartir' : 'Compartido')
+    } catch (e: any) {
+      toast.error('No se pudo actualizar quién ve la cata', e)
+      throw e
+    }
+  }
+
   const originalReset = base.reset
   function reset() {
     recent.value = []
@@ -57,6 +75,7 @@ export const useTastingsStore = defineStore('tastings', () => {
     ...base,
     recent,
     loadRecent,
+    updateSharing,
     reset,
   }
 })

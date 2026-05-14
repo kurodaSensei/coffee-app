@@ -282,12 +282,12 @@ async function onDelete() {
       </div>
     </div>
 
-    <CoffeeShareSheet
+    <UiShareSheet
       v-if="coffee"
       v-model="shareOpen"
-      :coffee-id="coffee.id"
-      :coffee-name="coffee.name"
+      :entity-name="coffee.name"
       :initial-shared-with="coffee.sharedWith ?? []"
+      :on-save="(uids) => coffeesStore.updateSharing(coffee!.id, uids)"
       @saved="onShareSaved"
     />
   </div>

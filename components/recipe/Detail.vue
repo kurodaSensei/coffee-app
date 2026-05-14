@@ -12,7 +12,9 @@ const methodLabel = computed(() => getBrewMethodLabel(props.recipe.brewMethod).t
 
 const grindLabel: Record<string, string> = {
   fine: 'Fina',
+  medium_fine: 'Media fina',
   medium: 'Media',
+  medium_coarse: 'Media gruesa',
   coarse: 'Gruesa',
 }
 

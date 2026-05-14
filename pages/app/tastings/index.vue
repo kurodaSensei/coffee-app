@@ -132,8 +132,14 @@ const activeCoffee = computed<Coffee | null>(() => {
           </template>
         </p>
       </div>
-      <UiButton v-if="tab === 'mine'" variant="dark" :block="false" to="/app/tastings/new">
-        + Nueva cata
+      <UiButton
+        v-if="tab === 'mine'"
+        variant="dark"
+        :block="false"
+        to="/app/tastings/new"
+        class="lg:hidden"
+      >
+        + Registra tu primera cata
       </UiButton>
     </div>
 
