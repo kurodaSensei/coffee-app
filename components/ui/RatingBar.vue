@@ -102,7 +102,10 @@ function onKeydown(e: KeyboardEvent) {
     :class="cn('rounded-card-lg bg-moss p-md flex flex-col gap-sm', $props.class)"
   >
     <div class="flex items-center justify-between gap-md">
-      <UiEyebrow class="text-paper">{{ label }}</UiEyebrow>
+      <div class="flex items-center gap-xs">
+        <UiEyebrow class="text-paper">{{ label }}</UiEyebrow>
+        <slot name="info" />
+      </div>
       <slot name="trailing" />
     </div>
 
@@ -148,7 +151,10 @@ function onKeydown(e: KeyboardEvent) {
     v-else
     :class="cn('flex items-center gap-md py-sm', $props.class)"
   >
-    <span class="font-sans text-[14px] text-moss shrink-0 w-[88px] truncate">{{ label }}</span>
+    <div class="flex items-center gap-xxs shrink-0 w-[100px]">
+      <span class="font-sans text-[14px] text-moss truncate">{{ label }}</span>
+      <slot name="info" />
+    </div>
 
     <div
       ref="trackRef"

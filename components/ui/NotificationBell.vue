@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { onClickOutside, useElementBounding, useWindowSize } from '@vueuse/core'
 import { cn } from '~/lib/utils'
 import type { Friendship } from '~/types'
 
@@ -27,6 +28,8 @@ const hasAny = computed(() => count.value > 0)
 
 const open = ref(false)
 const containerRef = ref<HTMLElement | null>(null)
+const buttonRef = ref<HTMLElement | null>(null)
+const dropdownRef = ref<HTMLElement | null>(null)
 const busyId = ref<string | null>(null)
 
 function toggle() {
@@ -37,23 +40,45 @@ function close() {
   open.value = false
 }
 
-function onDocClick(e: MouseEvent) {
-  if (!open.value) return
-  const el = containerRef.value
-  if (el && !el.contains(e.target as Node)) close()
-}
+onClickOutside(dropdownRef, () => close(), { ignore: [containerRef] })
 
 function onKey(e: KeyboardEvent) {
   if (e.key === 'Escape') close()
 }
 
 onMounted(() => {
-  document.addEventListener('click', onDocClick)
   document.addEventListener('keydown', onKey)
 })
 onUnmounted(() => {
-  document.removeEventListener('click', onDocClick)
   document.removeEventListener('keydown', onKey)
+})
+
+// Posicionamos el dropdown vía Teleport + position:fixed para que no se corte
+// cuando el botón está cerca del borde izquierdo (sidebar desktop) o derecho
+// (avatar mobile). Decidimos alinear left o right según en qué mitad del
+// viewport esté el botón.
+const { x: btnX, y: btnY, width: btnW, height: btnH } = useElementBounding(buttonRef)
+const { width: vw } = useWindowSize()
+
+const dropdownStyle = computed(() => {
+  const btnRight = btnX.value + btnW.value
+  const top = btnY.value + btnH.value + 8
+  const margin = 12
+  // Si el botón está más cerca del borde derecho, alineamos el dropdown a la
+  // derecha del botón; si está más a la izquierda, alineamos a la izquierda.
+  const alignRight = btnRight > vw.value / 2
+  if (alignRight) {
+    return {
+      position: 'fixed' as const,
+      top: `${top}px`,
+      right: `${Math.max(margin, vw.value - btnRight)}px`,
+    }
+  }
+  return {
+    position: 'fixed' as const,
+    top: `${top}px`,
+    left: `${Math.max(margin, btnX.value)}px`,
+  }
 })
 
 function otherUser(f: Friendship) {
@@ -104,6 +129,7 @@ async function reject(f: Friendship) {
 <template>
   <div ref="containerRef" :class="cn('relative inline-flex', $props.class)">
     <button
+      ref="buttonRef"
       type="button"
       :aria-label="hasAny ? `Notificaciones (${count})` : 'Notificaciones'"
       :aria-expanded="open"
@@ -125,13 +151,17 @@ async function reject(f: Friendship) {
       </span>
     </button>
 
-    <!-- Dropdown -->
-    <div
-      v-if="open"
-      role="dialog"
-      aria-label="Solicitudes de amistad"
-      class="absolute right-0 top-[calc(100%+8px)] z-40 w-[320px] max-w-[calc(100vw-32px)] origin-top-right rounded-card-lg bg-paper border border-moss/10 shadow-[0_12px_32px_rgba(47,53,40,0.12)] p-md"
-    >
+    <!-- Dropdown — teleportado al body con position fixed para evitar que se
+         corte cuando el botón está cerca del borde del viewport. -->
+    <Teleport to="body">
+      <div
+        v-if="open"
+        ref="dropdownRef"
+        role="dialog"
+        aria-label="Solicitudes de amistad"
+        :style="dropdownStyle"
+        class="z-40 w-[320px] max-w-[calc(100vw-24px)] rounded-card-lg bg-paper border border-moss/10 shadow-[0_12px_32px_rgba(47,53,40,0.12)] p-md"
+      >
       <div class="flex items-center justify-between gap-md pb-sm">
         <UiEyebrow>Solicitudes</UiEyebrow>
         <NuxtLink
@@ -194,6 +224,7 @@ async function reject(f: Friendship) {
           </div>
         </li>
       </ul>
-    </div>
+      </div>
+    </Teleport>
   </div>
 </template>

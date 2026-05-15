@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import type { BrewMethod, Coffee, Tasting, TastingInput } from '~/types'
+import { TASTING_ATTRIBUTE_INFO } from '~/utils/constants'
 
 const props = withDefaults(
   defineProps<{
@@ -297,7 +298,11 @@ const submitLabel = computed(() =>
           variant="hero"
           label="Puntuación general"
           class="mt-xl"
-        />
+        >
+          <template #info>
+            <UiInfoTrigger :info="TASTING_ATTRIBUTE_INFO.overall" />
+          </template>
+        </UiRatingBar>
         <p
           v-if="errors.overall"
           class="mt-xs font-mono text-[10px] font-medium uppercase tracking-eyebrow text-terracotta"
@@ -306,11 +311,31 @@ const submitLabel = computed(() =>
         </p>
 
         <div class="mt-lg flex flex-col">
-          <UiRatingBar v-model="ratingAroma" label="Aroma" class="border-b border-moss/10" />
-          <UiRatingBar v-model="ratingAcidity" label="Acidez" class="border-b border-moss/10" />
-          <UiRatingBar v-model="ratingSweetness" label="Dulzura" class="border-b border-moss/10" />
-          <UiRatingBar v-model="ratingBody" label="Cuerpo" class="border-b border-moss/10" />
-          <UiRatingBar v-model="ratingAftertaste" label="Retrogusto" />
+          <UiRatingBar v-model="ratingAroma" label="Aroma" class="border-b border-moss/10">
+            <template #info>
+              <UiInfoTrigger :info="TASTING_ATTRIBUTE_INFO.aroma" />
+            </template>
+          </UiRatingBar>
+          <UiRatingBar v-model="ratingAcidity" label="Acidez" class="border-b border-moss/10">
+            <template #info>
+              <UiInfoTrigger :info="TASTING_ATTRIBUTE_INFO.acidity" />
+            </template>
+          </UiRatingBar>
+          <UiRatingBar v-model="ratingSweetness" label="Dulzura" class="border-b border-moss/10">
+            <template #info>
+              <UiInfoTrigger :info="TASTING_ATTRIBUTE_INFO.sweetness" />
+            </template>
+          </UiRatingBar>
+          <UiRatingBar v-model="ratingBody" label="Cuerpo" class="border-b border-moss/10">
+            <template #info>
+              <UiInfoTrigger :info="TASTING_ATTRIBUTE_INFO.body" />
+            </template>
+          </UiRatingBar>
+          <UiRatingBar v-model="ratingAftertaste" label="Retrogusto">
+            <template #info>
+              <UiInfoTrigger :info="TASTING_ATTRIBUTE_INFO.aftertaste" />
+            </template>
+          </UiRatingBar>
         </div>
 
         <p class="mt-md font-display italic text-[13px] text-moss-soft">

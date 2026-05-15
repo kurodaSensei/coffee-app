@@ -35,6 +35,7 @@ const showSplash = computed(() => authLoading.value || splashHeld.value)
   <UiPwaIosInstructions v-model="iosSheetOpen" />
   <UiPwaAndroidInstructions v-model="androidSheetOpen" />
   <UiConfirm />
+  <UiInfoSheet />
 
   <Toaster
     position="bottom-center"
