@@ -44,9 +44,16 @@ function onEdit() {
   router.push(`/app/recipes/${recipe.value.id}/edit`)
 }
 
+const { confirm } = useConfirm()
+
 async function onDelete() {
   if (!recipe.value || deleting.value) return
-  const ok = window.confirm(`¿Eliminar la receta "${recipe.value.name}"? Esta acción no se puede deshacer.`)
+  const ok = await confirm({
+    title: `Eliminar "${recipe.value.name}"`,
+    message: 'Esta acción no se puede deshacer.',
+    confirmLabel: 'Eliminar',
+    destructive: true,
+  })
   if (!ok) return
   deleting.value = true
   try {

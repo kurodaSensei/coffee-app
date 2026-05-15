@@ -35,15 +35,28 @@ function getOther(f: any) {
   return friendsStore.getOtherUser(f)
 }
 
+const { confirm } = useConfirm()
+
 async function onAccept(id: string) {
   await friendsStore.accept(id)
 }
 async function onReject(id: string) {
-  if (!window.confirm('¿Rechazar esta solicitud?')) return
+  const ok = await confirm({
+    title: 'Rechazar solicitud',
+    confirmLabel: 'Rechazar',
+    destructive: true,
+  })
+  if (!ok) return
   await friendsStore.reject(id)
 }
 async function onRemove(id: string) {
-  if (!window.confirm('¿Eliminar este amigo? Dejarán de ver tus cafés y catas compartidas.')) return
+  const ok = await confirm({
+    title: 'Eliminar amigo',
+    message: 'Dejarán de ver tus cafés y catas compartidas.',
+    confirmLabel: 'Eliminar',
+    destructive: true,
+  })
+  if (!ok) return
   await friendsStore.remove(id)
 }
 </script>

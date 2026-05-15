@@ -50,8 +50,15 @@ const procesosActiveCount = computed(() => {
 
 const friendsAcceptedCount = computed(() => friendsStore.accepted.length)
 
+const { confirm } = useConfirm()
+
 async function onLogout() {
-  const ok = window.confirm('¿Cerrar sesión?')
+  const ok = await confirm({
+    title: 'Cerrar sesión',
+    message: 'Tu sesión actual se cerrará en este dispositivo.',
+    confirmLabel: 'Cerrar sesión',
+    destructive: true,
+  })
   if (!ok) return
   await logout()
 }

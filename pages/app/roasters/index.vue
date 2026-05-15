@@ -5,6 +5,7 @@ import type { Roaster, RoasterInput } from '~/types'
 const router = useRouter()
 const roastersStore = useRoastersStore()
 const coffeesStore = useCoffeesStore()
+const { confirm } = useConfirm()
 
 onMounted(() => {
   roastersStore.loadAll().catch(() => {})
@@ -121,7 +122,12 @@ async function save() {
 
 async function deleteRoaster() {
   if (!editingId.value) return
-  const ok = window.confirm('¿Eliminar este tostador? Los cafés asociados conservarán su nombre actual.')
+  const ok = await confirm({
+    title: 'Eliminar tostador',
+    message: 'Los cafés asociados conservarán su nombre actual.',
+    confirmLabel: 'Eliminar',
+    destructive: true,
+  })
   if (!ok) return
   try {
     await roastersStore.remove(editingId.value)

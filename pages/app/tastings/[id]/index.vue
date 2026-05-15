@@ -50,11 +50,16 @@ async function onEdit() {
   router.push(`/app/tastings/${tasting.value.id}/edit`)
 }
 
+const { confirm } = useConfirm()
+
 async function onDelete() {
   if (!tasting.value || deleting.value) return
-  const ok = window.confirm(
-    `¿Eliminar esta cata de "${tasting.value.coffeeName}"? Esta acción no se puede deshacer.`,
-  )
+  const ok = await confirm({
+    title: 'Eliminar cata',
+    message: `Esta cata de "${tasting.value.coffeeName}" se borrará. No se puede deshacer.`,
+    confirmLabel: 'Eliminar',
+    destructive: true,
+  })
   if (!ok) return
   deleting.value = true
   try {

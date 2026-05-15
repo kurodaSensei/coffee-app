@@ -4,6 +4,7 @@ import type { WishlistInput, WishlistItem } from '~/types'
 
 const { currentUser } = useAuth()
 const wishlistStore = useWishlistStore()
+const { confirm } = useConfirm()
 
 onMounted(() => {
   wishlistStore.loadAll().catch(() => {})
@@ -189,7 +190,12 @@ async function submit() {
 
 async function deleteItem() {
   if (!editingId.value) return
-  const ok = window.confirm('¿Eliminar este café de tu wishlist?')
+  const ok = await confirm({
+    title: 'Eliminar de wishlist',
+    message: 'Quitarás este café de tu lista de pendientes.',
+    confirmLabel: 'Eliminar',
+    destructive: true,
+  })
   if (!ok) return
   try {
     await wishlistStore.remove(editingId.value)

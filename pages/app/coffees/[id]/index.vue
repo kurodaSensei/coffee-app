@@ -131,12 +131,16 @@ function onShareSaved(uids: string[]) {
 }
 
 const deleting = ref(false)
+const { confirm } = useConfirm()
 
 async function onDelete() {
   if (!coffee.value || deleting.value) return
-  const ok = window.confirm(
-    `¿Eliminar "${coffee.value.name}"? Esta acción no se puede deshacer.`,
-  )
+  const ok = await confirm({
+    title: `Eliminar "${coffee.value.name}"`,
+    message: 'Esta acción no se puede deshacer.',
+    confirmLabel: 'Eliminar',
+    destructive: true,
+  })
   if (!ok) return
   deleting.value = true
   try {
