@@ -33,6 +33,13 @@ export type BrewMethod =
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'very_rare'
 
+export type PurchaseChannel =
+  | 'website'
+  | 'instagram'
+  | 'whatsapp'
+  | 'shop'
+  | 'other'
+
 export type GrindSize =
   | 'fine'
   | 'medium_fine'
@@ -82,6 +89,10 @@ export interface Coffee {
   weight?: number
   flavorNotes: string[]
   photoUrl?: string
+  /** Canal por el que se compró el café (web, Instagram, WhatsApp, tienda, otro). */
+  purchaseChannel?: PurchaseChannel
+  /** Referencia del canal: URL, @handle, nombre de tienda o detalle libre. */
+  purchaseReference?: string
   sharedWith?: string[]
   createdAt: Timestamp
   updatedAt: Timestamp

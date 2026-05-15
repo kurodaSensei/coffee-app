@@ -47,6 +47,23 @@ const roastLabel: Record<RoastLevel, string> = {
   dark: 'Oscuro',
 }
 
+const purchaseChannelLabel: Record<string, string> = {
+  website: 'Web',
+  instagram: 'Instagram',
+  whatsapp: 'WhatsApp',
+  shop: 'Tienda',
+  other: 'Otro',
+}
+
+const purchaseInfo = computed(() => {
+  const c = coffee.value
+  if (!c) return ''
+  const channel = c.purchaseChannel ? purchaseChannelLabel[c.purchaseChannel] || '' : ''
+  const ref = c.purchaseReference || ''
+  if (channel && ref) return `${channel} · ${ref}`
+  return channel || ref
+})
+
 const eyebrow = computed(() => {
   if (!coffee.value) return ''
   const parts = [
@@ -245,6 +262,9 @@ async function onDelete() {
           </UiSpecRow>
           <UiSpecRow v-if="coffee.weight" label="Peso" bare>
             {{ coffee.weight }} g
+          </UiSpecRow>
+          <UiSpecRow v-if="purchaseInfo" label="Comprado en">
+            {{ purchaseInfo }}
           </UiSpecRow>
         </section>
       </template>

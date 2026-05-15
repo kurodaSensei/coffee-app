@@ -34,6 +34,22 @@ export const DEFAULT_FLAVOR_NOTES = [
   'Jazmín', 'Floral', 'Cítrico', 'Nuez', 'Miel', 'Cacao',
 ]
 
+export const PURCHASE_CHANNEL_OPTIONS = [
+  { value: 'website', label: 'Web' },
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+  { value: 'shop', label: 'Tienda' },
+  { value: 'other', label: 'Otro' },
+] as const
+
+export const PURCHASE_REFERENCE_PLACEHOLDER: Record<string, string> = {
+  website: 'https://librario.co',
+  instagram: '@cafedelpueblo',
+  whatsapp: '+57 300 123 4567',
+  shop: 'Nombre de la tienda',
+  other: 'Detalle',
+}
+
 export const GRIND_SIZE_OPTIONS = [
   { value: 'fine', label: 'Fina' },
   { value: 'medium_fine', label: 'Media fina' },

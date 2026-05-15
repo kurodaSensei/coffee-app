@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import type { Coffee, CoffeeInput, CoffeeProcess, RoastLevel } from '~/types'
+import type { Coffee, CoffeeInput, CoffeeProcess, PurchaseChannel, RoastLevel, Roaster } from '~/types'
 import type { RoasterValue } from '~/components/roaster/Picker.vue'
+import { PURCHASE_CHANNEL_OPTIONS, PURCHASE_REFERENCE_PLACEHOLDER } from '~/utils/constants'
 
 const props = withDefaults(
   defineProps<{
@@ -20,6 +21,7 @@ const props = withDefaults(
 
 const router = useRouter()
 const coffeesStore = useCoffeesStore()
+const roastersStore = useRoastersStore()
 const { processOptions, flavorNoteOptions } = useCatalog()
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -55,6 +57,9 @@ const price = ref<number | null>(null)
 const weight = ref<number | null>(null)
 const scaScore = ref<number | null>(null)
 const showSca = ref(false)
+const purchaseChannel = ref<PurchaseChannel | ''>('')
+const purchaseReference = ref('')
+const showPurchase = ref(false)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Prefill from initialCoffee (edit mode)
@@ -85,6 +90,10 @@ watch(
     weight.value = c.weight ?? null
     scaScore.value = c.scaScore ?? null
     if (c.scaScore !== undefined) showSca.value = true
+
+    purchaseChannel.value = (c.purchaseChannel as PurchaseChannel) || ''
+    purchaseReference.value = c.purchaseReference || ''
+    if (c.purchaseChannel || c.purchaseReference) showPurchase.value = true
   },
   { immediate: true },
 )
@@ -99,6 +108,29 @@ const ROAST_LEVELS: { value: RoastLevel; label: string }[] = [
   { value: 'medium', label: 'Medio' },
   { value: 'dark', label: 'Oscuro' },
 ]
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Roaster hint para "Dónde lo compré"
+// ─────────────────────────────────────────────────────────────────────────────
+
+const selectedRoaster = computed<Roaster | null>(() => {
+  if (!roaster.value?.id) return null
+  return (roastersStore.list as Roaster[]).find(r => r.id === roaster.value!.id) ?? null
+})
+
+const roasterPurchaseHint = computed(() => {
+  const r = selectedRoaster.value
+  if (!r) return ''
+  const hints: string[] = []
+  if (r.instagram) hints.push(`Instagram ${r.instagram}`)
+  if (r.website) hints.push(`Web ${r.website}`)
+  if (hints.length === 0) return ''
+  return `Tu tostador tiene ${hints.join(' · ')}`
+})
+
+const referencePlaceholder = computed(() =>
+  PURCHASE_REFERENCE_PLACEHOLDER[purchaseChannel.value] || 'URL, @handle o nombre',
+)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Step navigation + validation
@@ -178,6 +210,8 @@ async function submit() {
       price: price.value ?? undefined,
       weight: weight.value ?? undefined,
       flavorNotes: flavorNotes.value.slice(),
+      purchaseChannel: (purchaseChannel.value || undefined) as PurchaseChannel | undefined,
+      purchaseReference: purchaseReference.value.trim() || undefined,
     } as CoffeeInput
 
     if (props.mode === 'edit' && props.coffeeId) {
@@ -491,6 +525,50 @@ const submitLabel = computed(() =>
               placeholder="86.5"
               class="w-full bg-transparent border-0 p-0 leading-none text-moss outline-none font-display text-[18px] placeholder:text-moss-ghost placeholder:font-display placeholder:italic"
             >
+          </div>
+
+          <!-- Dónde lo compré (opcional) -->
+          <button
+            v-if="!showPurchase"
+            type="button"
+            class="inline-flex items-center font-mono text-[10px] font-medium uppercase tracking-eyebrow text-olive hover:opacity-80 transition-opacity"
+            @click="showPurchase = true"
+          >
+            + Dónde lo compré (opcional)
+          </button>
+          <div v-else class="flex flex-col gap-md pt-[14px] border-t border-moss/10">
+            <div class="flex items-baseline justify-between gap-md">
+              <UiEyebrow>Dónde lo compré</UiEyebrow>
+              <button
+                type="button"
+                class="font-mono text-[10px] uppercase tracking-eyebrow text-moss-ghost hover:text-moss transition-colors"
+                @click="showPurchase = false; purchaseChannel = ''; purchaseReference = ''"
+              >
+                Quitar
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-xxs">
+              <UiChip
+                v-for="opt in PURCHASE_CHANNEL_OPTIONS"
+                :key="opt.value"
+                interactive
+                :variant="purchaseChannel === opt.value ? 'active' : 'default'"
+                @click="purchaseChannel = purchaseChannel === opt.value ? '' : opt.value"
+              >
+                {{ opt.label }}
+              </UiChip>
+            </div>
+            <UiInput
+              v-model="purchaseReference"
+              :placeholder="referencePlaceholder"
+              label="Referencia"
+            />
+            <p
+              v-if="roasterPurchaseHint"
+              class="font-display italic text-[13px] text-moss-soft leading-relaxed"
+            >
+              {{ roasterPurchaseHint }}
+            </p>
           </div>
         </div>
       </section>
