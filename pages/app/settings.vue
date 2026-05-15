@@ -48,6 +48,12 @@ const procesosActiveCount = computed(() => {
   return 7 - disabled.length + custom.filter(p => !disabled.includes(p.value)).length
 })
 
+const notasActiveCount = computed(() => {
+  const disabled = settings.prefs?.disabledFlavorNotes ?? []
+  const custom = settings.prefs?.customFlavorNotes ?? []
+  return 12 - disabled.length + custom.filter(n => !disabled.includes(n)).length
+})
+
 const friendsAcceptedCount = computed(() => friendsStore.accepted.length)
 
 const { confirm } = useConfirm()
@@ -68,6 +74,13 @@ const {
   isStandalone: pwaIsStandalone,
   install: pwaInstall,
 } = usePwaInstall()
+
+// Subtítulo amigos: prosa cuando aún no tiene a nadie, dato corto cuando sí.
+const friendsHint = computed(() =>
+  friendsAcceptedCount.value > 0
+    ? `${friendsAcceptedCount.value} ${friendsAcceptedCount.value === 1 ? 'amigo' : 'amigos'}`
+    : 'invita a tu primer amigo',
+)
 </script>
 
 <template>
@@ -95,132 +108,157 @@ const {
       class="mt-lg flex items-center gap-md rounded-card-lg bg-surface-2 p-md transition-colors duration-150 ease-sorbo hover:bg-surface"
     >
       <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="lg" />
-      <div class="flex flex-col gap-xxs flex-1 min-w-0">
-        <span class="font-sans text-[16px] font-medium text-moss truncate">{{ userName || 'Tu perfil' }}</span>
-        <UiEyebrow>{{ coffeesCount }} {{ coffeesCount === 1 ? 'café' : 'cafés' }} · {{ tastingsCount }} {{ tastingsCount === 1 ? 'cata' : 'catas' }}</UiEyebrow>
+      <div class="flex flex-col gap-[2px] flex-1 min-w-0">
+        <div class="flex items-center gap-xs">
+          <span class="font-sans text-[17px] font-medium text-moss truncate">{{ userName || 'Tu perfil' }}</span>
+          <span
+            v-if="pwaIsStandalone"
+            aria-label="App instalada"
+            class="inline-flex items-center gap-xxs rounded-pill bg-olive/10 text-olive px-xs py-[2px] font-mono text-[9px] font-medium uppercase tracking-eyebrow shrink-0"
+          >
+            <Icon name="lucide:check" class="size-[10px]" aria-hidden="true" /> app
+          </span>
+        </div>
+        <span class="font-sans text-[12px] text-moss-soft truncate">
+          {{ coffeesCount }} {{ coffeesCount === 1 ? 'café' : 'cafés' }} · {{ tastingsCount }} {{ tastingsCount === 1 ? 'cata' : 'catas' }}
+        </span>
       </div>
       <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost" />
     </NuxtLink>
 
     <!-- Catálogos -->
-    <section class="mt-xl">
+    <section class="mt-2xl">
       <UiEyebrow>Catálogos</UiEyebrow>
       <div class="mt-sm flex flex-col">
         <NuxtLink
           to="/app/roasters"
-          class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
+          class="group flex items-center gap-md py-md border-b border-moss/10 last:border-b-0 hover:bg-surface-2/40 transition-colors"
         >
-          <div class="flex flex-col gap-xxs">
-            <span class="font-sans text-[16px] font-medium text-moss">Tostadores / Marcas</span>
-            <UiEyebrow>{{ roastersCount }} {{ roastersCount === 1 ? 'activo' : 'activos' }}</UiEyebrow>
+          <Icon name="lucide:flame" class="size-[18px] text-moss-soft group-hover:text-moss transition-colors shrink-0" aria-hidden="true" />
+          <div class="flex flex-col gap-[2px] flex-1 min-w-0">
+            <span class="font-sans text-[17px] font-medium text-moss leading-tight">Tostadores</span>
+            <span class="font-sans text-[12px] text-moss-soft leading-tight">
+              {{ roastersCount }} {{ roastersCount === 1 ? 'activo' : 'activos' }}
+            </span>
           </div>
-          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost" />
+          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost shrink-0" />
         </NuxtLink>
 
         <NuxtLink
           to="/app/varieties"
-          class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
+          class="group flex items-center gap-md py-md border-b border-moss/10 last:border-b-0 hover:bg-surface-2/40 transition-colors"
         >
-          <div class="flex flex-col gap-xxs">
-            <span class="font-sans text-[16px] font-medium text-moss">Variedades</span>
-            <UiEyebrow>{{ variedadesActiveCount }} {{ variedadesActiveCount === 1 ? 'activa' : 'activas' }}</UiEyebrow>
+          <Icon name="lucide:sprout" class="size-[18px] text-moss-soft group-hover:text-moss transition-colors shrink-0" aria-hidden="true" />
+          <div class="flex flex-col gap-[2px] flex-1 min-w-0">
+            <span class="font-sans text-[17px] font-medium text-moss leading-tight">Variedades</span>
+            <span class="font-sans text-[12px] text-moss-soft leading-tight">
+              {{ variedadesActiveCount }} {{ variedadesActiveCount === 1 ? 'activa' : 'activas' }}
+            </span>
           </div>
-          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost" />
+          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost shrink-0" />
         </NuxtLink>
 
         <NuxtLink
           to="/app/methods"
-          class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
+          class="group flex items-center gap-md py-md border-b border-moss/10 last:border-b-0 hover:bg-surface-2/40 transition-colors"
         >
-          <div class="flex flex-col gap-xxs">
-            <span class="font-sans text-[16px] font-medium text-moss">Métodos</span>
-            <UiEyebrow>{{ metodosActiveCount }} {{ metodosActiveCount === 1 ? 'activo' : 'activos' }}</UiEyebrow>
+          <Icon name="lucide:filter" class="size-[18px] text-moss-soft group-hover:text-moss transition-colors shrink-0" aria-hidden="true" />
+          <div class="flex flex-col gap-[2px] flex-1 min-w-0">
+            <span class="font-sans text-[17px] font-medium text-moss leading-tight">Métodos</span>
+            <span class="font-sans text-[12px] text-moss-soft leading-tight">
+              {{ metodosActiveCount }} {{ metodosActiveCount === 1 ? 'activo' : 'activos' }}
+            </span>
           </div>
-          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost" />
+          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost shrink-0" />
         </NuxtLink>
 
         <NuxtLink
           to="/app/processes"
-          class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
+          class="group flex items-center gap-md py-md border-b border-moss/10 last:border-b-0 hover:bg-surface-2/40 transition-colors"
         >
-          <div class="flex flex-col gap-xxs">
-            <span class="font-sans text-[16px] font-medium text-moss">Procesos</span>
-            <UiEyebrow>{{ procesosActiveCount }} {{ procesosActiveCount === 1 ? 'activo' : 'activos' }}</UiEyebrow>
+          <Icon name="lucide:beaker" class="size-[18px] text-moss-soft group-hover:text-moss transition-colors shrink-0" aria-hidden="true" />
+          <div class="flex flex-col gap-[2px] flex-1 min-w-0">
+            <span class="font-sans text-[17px] font-medium text-moss leading-tight">Procesos</span>
+            <span class="font-sans text-[12px] text-moss-soft leading-tight">
+              {{ procesosActiveCount }} {{ procesosActiveCount === 1 ? 'activo' : 'activos' }}
+            </span>
           </div>
-          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost" />
+          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost shrink-0" />
+        </NuxtLink>
+
+        <NuxtLink
+          to="/app/notes"
+          class="group flex items-center gap-md py-md border-b border-moss/10 last:border-b-0 hover:bg-surface-2/40 transition-colors"
+        >
+          <Icon name="lucide:sparkles" class="size-[18px] text-moss-soft group-hover:text-moss transition-colors shrink-0" aria-hidden="true" />
+          <div class="flex flex-col gap-[2px] flex-1 min-w-0">
+            <span class="font-sans text-[17px] font-medium text-moss leading-tight">Notas</span>
+            <span class="font-sans text-[12px] text-moss-soft leading-tight">
+              {{ notasActiveCount }} {{ notasActiveCount === 1 ? 'activa' : 'activas' }}
+            </span>
+          </div>
+          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost shrink-0" />
         </NuxtLink>
       </div>
     </section>
 
     <!-- Social -->
-    <section class="mt-xl">
+    <section class="mt-2xl">
       <UiEyebrow>Social</UiEyebrow>
       <div class="mt-sm flex flex-col">
         <NuxtLink
           to="/app/friends"
-          class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
+          class="group flex items-center gap-md py-md border-b border-moss/10 last:border-b-0 hover:bg-surface-2/40 transition-colors"
         >
-          <div class="flex flex-col gap-xxs">
-            <span class="font-sans text-[16px] font-medium text-moss">Amigos</span>
-            <UiEyebrow>
-              <template v-if="friendsAcceptedCount > 0">
-                {{ friendsAcceptedCount }} {{ friendsAcceptedCount === 1 ? 'amigo' : 'amigos' }}
-              </template>
-              <template v-else>Invita a tu primer amigo</template>
-            </UiEyebrow>
+          <Icon name="lucide:users" class="size-[18px] text-moss-soft group-hover:text-moss transition-colors shrink-0" aria-hidden="true" />
+          <div class="flex flex-col gap-[2px] flex-1 min-w-0">
+            <span class="font-sans text-[17px] font-medium text-moss leading-tight">Amigos</span>
+            <span class="font-sans text-[12px] text-moss-soft leading-tight">
+              {{ friendsHint }}
+            </span>
           </div>
-          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost" />
+          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost shrink-0" />
         </NuxtLink>
       </div>
     </section>
 
-    <!-- App -->
-    <section v-if="pwaCanShow || pwaIsStandalone" class="mt-xl">
+    <!-- App — solo cuando NO está instalada. El estado "instalada" se
+         comunica con el chip pequeño en la card del usuario arriba. -->
+    <section v-if="pwaCanShow && !pwaIsStandalone" class="mt-2xl">
       <UiEyebrow>App</UiEyebrow>
       <div class="mt-sm flex flex-col">
-        <div
-          v-if="pwaIsStandalone"
-          class="flex items-center justify-between gap-md py-md border-b border-moss/10"
-        >
-          <div class="flex flex-col gap-xxs">
-            <span class="font-sans text-[16px] font-medium text-moss">Sorbo instalado</span>
-            <UiEyebrow>Estás usando la versión app</UiEyebrow>
-          </div>
-          <Icon name="lucide:check" class="size-5 text-olive" />
-        </div>
         <button
-          v-else
           type="button"
-          class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors text-left"
+          class="group flex items-center gap-md py-md border-b border-moss/10 last:border-b-0 hover:bg-surface-2/40 transition-colors text-left"
           @click="pwaInstall"
         >
-          <div class="flex flex-col gap-xxs">
-            <span class="font-sans text-[16px] font-medium text-moss">Instalar Sorbo</span>
-            <UiEyebrow>Como app en tu dispositivo</UiEyebrow>
+          <Icon name="lucide:download" class="size-[18px] text-moss-soft group-hover:text-moss transition-colors shrink-0" aria-hidden="true" />
+          <div class="flex flex-col gap-[2px] flex-1 min-w-0">
+            <span class="font-sans text-[17px] font-medium text-moss leading-tight">Instalar Sorbo</span>
+            <span class="font-sans text-[12px] text-moss-soft leading-tight">
+              como app en tu dispositivo
+            </span>
           </div>
-          <Icon name="lucide:download" class="size-5 text-moss-ghost" />
+          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost shrink-0" />
         </button>
       </div>
     </section>
 
-    <!-- Cuenta -->
-    <section class="mt-xl">
+    <!-- Cuenta — Perfil ya es la card del avatar arriba; aquí queda solo
+         cerrar sesión, que es lo único que un usuario espera al final. -->
+    <section class="mt-2xl">
       <UiEyebrow>Cuenta</UiEyebrow>
       <div class="mt-sm flex flex-col">
-        <NuxtLink
-          to="/app/profile"
-          class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors"
-        >
-          <span class="font-sans text-[16px] font-medium text-moss">Perfil</span>
-          <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost" />
-        </NuxtLink>
         <button
           type="button"
-          class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-terracotta/5 transition-colors text-left"
+          class="group flex items-center gap-md py-md border-b border-moss/10 last:border-b-0 hover:bg-terracotta/5 transition-colors text-left"
           @click="onLogout"
         >
-          <span class="font-sans text-[16px] font-medium text-terracotta">Cerrar sesión</span>
-          <Icon name="lucide:chevron-right" class="size-5 text-terracotta/60" />
+          <Icon name="lucide:log-out" class="size-[18px] text-terracotta/70 group-hover:text-terracotta transition-colors shrink-0" aria-hidden="true" />
+          <div class="flex flex-col gap-[2px] flex-1 min-w-0">
+            <span class="font-sans text-[17px] font-medium text-terracotta leading-tight">Cerrar sesión</span>
+          </div>
+          <Icon name="lucide:chevron-right" class="size-5 text-terracotta/50 shrink-0" />
         </button>
       </div>
     </section>
