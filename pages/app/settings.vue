@@ -55,6 +55,13 @@ async function onLogout() {
   if (!ok) return
   await logout()
 }
+
+const {
+  canShowFromSettings: pwaCanShow,
+  isStandalone: pwaIsStandalone,
+  isIOS: pwaIsIOS,
+  install: pwaInstall,
+} = usePwaInstall()
 </script>
 
 <template>
@@ -158,6 +165,35 @@ async function onLogout() {
           </div>
           <Icon name="lucide:chevron-right" class="size-5 text-moss-ghost" />
         </NuxtLink>
+      </div>
+    </section>
+
+    <!-- App -->
+    <section v-if="pwaCanShow || pwaIsStandalone" class="mt-xl">
+      <UiEyebrow>App</UiEyebrow>
+      <div class="mt-sm flex flex-col">
+        <div
+          v-if="pwaIsStandalone"
+          class="flex items-center justify-between gap-md py-md border-b border-moss/10"
+        >
+          <div class="flex flex-col gap-xxs">
+            <span class="font-sans text-[16px] font-medium text-moss">Sorbo instalado</span>
+            <UiEyebrow>Estás usando la versión app</UiEyebrow>
+          </div>
+          <Icon name="lucide:check" class="size-5 text-olive" />
+        </div>
+        <button
+          v-else
+          type="button"
+          class="flex items-center justify-between gap-md py-md border-b border-moss/10 hover:bg-surface-2/40 transition-colors text-left"
+          @click="pwaInstall"
+        >
+          <div class="flex flex-col gap-xxs">
+            <span class="font-sans text-[16px] font-medium text-moss">Instalar Sorbo</span>
+            <UiEyebrow>{{ pwaIsIOS ? 'Cómo añadirla a tu iPhone' : 'Como app en tu dispositivo' }}</UiEyebrow>
+          </div>
+          <Icon name="lucide:download" class="size-5 text-moss-ghost" />
+        </button>
       </div>
     </section>
 

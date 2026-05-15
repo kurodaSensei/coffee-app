@@ -181,6 +181,9 @@ const stats = computed(() => {
       Aún no has registrado ninguna cata. ¿Empezamos hoy?
     </p>
 
+    <!-- PWA install banner (Android/desktop nativo + iOS con instrucciones) -->
+    <UiPwaInstallBanner class="mt-xl" />
+
     <!-- Onboarding checklist (first-run guide) -->
     <UiOnboardingChecklist
       v-if="showOnboardingChecklist"
