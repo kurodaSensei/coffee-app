@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { Toaster } from 'vue-sonner'
 
 const { authLoading } = useAuth()
-const { iosSheetOpen } = usePwaInstall()
+const { iosSheetOpen, androidSheetOpen } = usePwaInstall()
 
 // Hold the splash for at least MIN_SPLASH_MS so it never flashes.
 const MIN_SPLASH_MS = 700
@@ -33,6 +33,7 @@ const showSplash = computed(() => authLoading.value || splashHeld.value)
   </Transition>
 
   <UiPwaIosInstructions v-model="iosSheetOpen" />
+  <UiPwaAndroidInstructions v-model="androidSheetOpen" />
 
   <Toaster
     position="bottom-center"

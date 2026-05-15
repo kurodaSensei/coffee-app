@@ -1,5 +1,11 @@
 <script setup lang="ts">
-const { canShowBanner, install, dismiss, isIOS } = usePwaInstall()
+const { canShowBanner, install, dismiss, isIOS, hasNativePrompt } = usePwaInstall()
+
+const ctaLabel = computed(() => {
+  if (hasNativePrompt.value) return 'Instalar app'
+  if (isIOS.value) return 'Cómo instalar'
+  return 'Cómo instalar'
+})
 </script>
 
 <template>
@@ -45,7 +51,7 @@ const { canShowBanner, install, dismiss, isIOS } = usePwaInstall()
           :block="false"
           @click="install"
         >
-          {{ isIOS ? 'Cómo instalar' : 'Instalar app' }}
+          {{ ctaLabel }}
         </UiButton>
         <button
           type="button"

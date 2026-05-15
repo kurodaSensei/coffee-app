@@ -2,10 +2,10 @@ import { useLocalStorage } from '@vueuse/core'
 
 const DISMISS_KEY = 'sorbo:pwa-install:dismissed'
 
-// Estado compartido a nivel de módulo — `iosSheetOpen` necesita ser singleton
-// para que abrir el sheet desde /app/settings sea visible (el bottom sheet
-// se monta una sola vez en app.vue para evitar duplicarlo por instancia).
+// Estado compartido a nivel de módulo — los sheets se montan una sola vez en
+// app.vue y cualquier instancia del composable controla el mismo ref.
 const iosSheetOpen = ref(false)
+const androidSheetOpen = ref(false)
 
 /**
  * Maneja el flujo de instalación de la PWA cubriendo dos rutas:
@@ -31,6 +31,11 @@ export const usePwaInstall = () => {
     return ua.includes('Macintosh') && 'ontouchend' in document
   })
 
+  const isAndroid = computed(() => {
+    if (typeof window === 'undefined') return false
+    return /Android/i.test(window.navigator.userAgent)
+  })
+
   const isStandalone = computed(() => {
     if (typeof window === 'undefined') return false
     // iOS Safari guarda el flag en navigator.standalone (no display-mode).
@@ -40,21 +45,18 @@ export const usePwaInstall = () => {
 
   const hasNativePrompt = computed(() => $pwa?.showInstallPrompt === true)
 
+  // Mostramos el banner siempre que no esté instalada ni descartada. Si
+  // `beforeinstallprompt` no se disparó (Chrome es inconsistente con esto)
+  // caemos a instrucciones manuales según plataforma, en lugar de ocultar
+  // el banner y perder la oportunidad.
   const canShowBanner = computed(() => {
     if (isStandalone.value) return false
     if (dismissed.value) return false
-    if (hasNativePrompt.value) return true
-    if (isIOS.value) return true
-    return false
+    return true
   })
 
-  /** Banner ofrecido sólo en settings (ignora dismissed). */
-  const canShowFromSettings = computed(() => {
-    if (isStandalone.value) return false
-    if (hasNativePrompt.value) return true
-    if (isIOS.value) return true
-    return false
-  })
+  /** Settings ignora el flag de dismissed. */
+  const canShowFromSettings = computed(() => !isStandalone.value)
 
   async function install() {
     if (hasNativePrompt.value && $pwa) {
@@ -64,7 +66,11 @@ export const usePwaInstall = () => {
     }
     if (isIOS.value) {
       iosSheetOpen.value = true
+      return
     }
+    // Android Chrome sin prompt nativo, o cualquier otro browser: mostramos
+    // instrucciones manuales genéricas (menú → Instalar app).
+    androidSheetOpen.value = true
   }
 
   function dismiss() {
@@ -80,9 +86,11 @@ export const usePwaInstall = () => {
     canShowFromSettings,
     hasNativePrompt,
     isIOS,
+    isAndroid,
     isStandalone,
     dismissed,
     iosSheetOpen,
+    androidSheetOpen,
     install,
     dismiss,
     reset,

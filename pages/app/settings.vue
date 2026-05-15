@@ -59,7 +59,6 @@ async function onLogout() {
 const {
   canShowFromSettings: pwaCanShow,
   isStandalone: pwaIsStandalone,
-  isIOS: pwaIsIOS,
   install: pwaInstall,
 } = usePwaInstall()
 </script>
@@ -190,7 +189,7 @@ const {
         >
           <div class="flex flex-col gap-xxs">
             <span class="font-sans text-[16px] font-medium text-moss">Instalar Sorbo</span>
-            <UiEyebrow>{{ pwaIsIOS ? 'Cómo añadirla a tu iPhone' : 'Como app en tu dispositivo' }}</UiEyebrow>
+            <UiEyebrow>Como app en tu dispositivo</UiEyebrow>
           </div>
           <Icon name="lucide:download" class="size-5 text-moss-ghost" />
         </button>
