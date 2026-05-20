@@ -87,7 +87,7 @@ function smoothScroll(id: string) {
 
           <div class="hero-meta">
             <div class="hero-meta-item">
-              <div class="num"><em>3</em>+</div>
+              <div class="num"><em>12</em></div>
               <div class="lbl">métodos de extracción</div>
             </div>
             <div class="hero-meta-item">
@@ -159,10 +159,10 @@ function smoothScroll(id: string) {
 
             <div class="tabbar">
               <div class="tab">inicio</div>
+              <div class="tab">explora</div>
               <div class="tab active">cafés</div>
               <div class="tab">catas</div>
               <div class="tab">recetas</div>
-              <div class="tab">+</div>
             </div>
           </div>
         </div>
@@ -192,7 +192,7 @@ function smoothScroll(id: string) {
           <h2>
             Todo lo que necesitas,<br>nada de <em>relleno</em>
           </h2>
-          <p>Sorbo es para quien toma café como ritual, no como combustible. Cuatro herramientas, un solo diario.</p>
+          <p>Sorbo es para quien toma café como ritual, no como combustible. Cuatro herramientas para tu diario — y una comunidad para descubrir más.</p>
         </div>
 
         <div class="features-grid">
@@ -215,6 +215,14 @@ function smoothScroll(id: string) {
             <div class="num">04</div>
             <h3>Wishlist <em>activa</em></h3>
             <p>Los cafés que vas a perseguir. Prioriza, anota por qué te llamó la atención, y márcalos cuando los consigas.</p>
+          </div>
+
+          <div class="feature-card wide dark">
+            <div class="num">05</div>
+            <div class="wide-text">
+              <h3>Explora la <em>comunidad</em></h3>
+              <p>Cafés, catas y recetas que otros cafeteros comparten — un feed para descubrir tu próximo origen favorito. Sin likes, sin seguidores, sin la prisa de una red social.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -291,7 +299,7 @@ function smoothScroll(id: string) {
           <div class="why-item">
             <div class="icon">·</div>
             <h3>Privado por <em>defecto</em></h3>
-            <p>Es tu diario. Compartes solo cuando quieres y con quien quieres. Nada de feeds públicos ni gamificación forzada.</p>
+            <p>Es tu diario antes que nada. Cada café nace privado — tú decides si lo compartes con amigos o lo llevas a Explora. Sin likes, sin seguidores, sin presión.</p>
           </div>
           <div class="why-item">
             <div class="icon">↺</div>
@@ -336,7 +344,7 @@ function smoothScroll(id: string) {
 
         <div class="login-link">
           <span>¿Ya tienes cuenta?</span>
-          <NuxtLink to="/">Inicia sesión</NuxtLink>
+          <NuxtLink to="/login">Inicia sesión</NuxtLink>
         </div>
       </div>
     </section>
@@ -367,16 +375,14 @@ function smoothScroll(id: string) {
             <h4>— Comunidad</h4>
             <ul>
               <li><a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener">Instagram</a></li>
-              <li><a href="#" @click.prevent>Newsletter</a></li>
-              <li><a href="#" @click.prevent>Blog</a></li>
             </ul>
           </div>
 
           <div class="footer-col">
             <h4>— Cuenta</h4>
             <ul>
-              <li><NuxtLink to="/">Iniciar sesión</NuxtLink></li>
-              <li><NuxtLink to="/">Crear cuenta</NuxtLink></li>
+              <li><NuxtLink to="/login">Iniciar sesión</NuxtLink></li>
+              <li><NuxtLink to="/register">Crear cuenta</NuxtLink></li>
               <li><a href="mailto:hola@kurodacafe.com">Contacto</a></li>
             </ul>
           </div>
@@ -949,12 +955,29 @@ function smoothScroll(id: string) {
 }
 .feature-card.dark p { color: rgba(244, 242, 235, 0.65); }
 .feature-card.olive p { color: rgba(244, 242, 235, 0.75); }
+
+/* Card 05 (Explora) — destacada a lo ancho de toda la fila */
+.feature-card.wide {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+.feature-card.wide .num { flex-shrink: 0; }
+.feature-card.wide .wide-text h3 { margin-top: 0; }
+.feature-card.wide .wide-text p { max-width: 620px; }
+
 @media (max-width: 980px) {
   .features-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 560px) {
   .features { padding: 80px 18px; }
   .features-grid { grid-template-columns: 1fr; }
+  .feature-card.wide {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }
 
 /* ==================== HOW ==================== */
