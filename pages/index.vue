@@ -1195,7 +1195,7 @@ function smoothScroll(id: string) {
 }
 .why-inner h2 em { color: var(--honey); font-style: italic; }
 .why-grid {
-  margin-top: 80px;
+  margin-top: 48px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
