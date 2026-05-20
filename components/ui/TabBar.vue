@@ -6,6 +6,8 @@ export interface TabItem {
   label: string
   /** Route for NuxtLink. When omitted the tab is treated as a plain button. */
   to?: string
+  /** Extra route prefixes that also mark this tab active (e.g. "Más" → Wishlist). */
+  match?: string[]
 }
 
 const props = withDefaults(
@@ -31,6 +33,9 @@ const route = useRoute()
 
 function isActive(item: TabItem): boolean {
   if (props.modelValue !== undefined) return props.modelValue === item.key
+  if (item.match?.some(p => route.path === p || route.path.startsWith(`${p}/`))) {
+    return true
+  }
   if (!item.to) return false
   if (item.to === '/' || item.to === '/app') return route.path === item.to
   return route.path === item.to || route.path.startsWith(`${item.to}/`)
