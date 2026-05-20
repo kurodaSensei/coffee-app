@@ -1202,9 +1202,12 @@ function smoothScroll(id: string) {
   border-top: 1px solid rgba(244, 242, 235, 0.14);
 }
 .why-item {
-  padding: 40px 32px 0 0;
+  padding: 40px 32px 0 32px;
   border-right: 1px solid rgba(244, 242, 235, 0.14);
 }
+/* La primera columna alinea con el H2; las demás llevan aire a la
+   izquierda para no pegarse a la línea divisoria. */
+.why-item:first-child { padding-left: 0; }
 .why-item:last-child { border-right: 0; padding-right: 0; }
 .why-item .icon {
   font-family: var(--font-display);
