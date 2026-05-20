@@ -26,6 +26,7 @@ async function onSubmit() {
 
   if (result.status === 'success' || result.status === 'duplicate') {
     subscribed.value = true
+    email.value = ''
   }
   else if (result.status === 'invalid') {
     formError.value = 'Ingresa un correo válido.'
@@ -342,10 +343,10 @@ function smoothScroll(id: string) {
           <span>iOS · Android · Web</span>
         </div>
 
-        <div class="login-link">
+        <!-- <div class="login-link">
           <span>¿Ya tienes cuenta?</span>
           <NuxtLink to="/login">Inicia sesión</NuxtLink>
-        </div>
+        </div> -->
       </div>
     </section>
 
@@ -381,8 +382,8 @@ function smoothScroll(id: string) {
           <div class="footer-col">
             <h4>— Cuenta</h4>
             <ul>
-              <li><NuxtLink to="/login">Iniciar sesión</NuxtLink></li>
-              <li><NuxtLink to="/register">Crear cuenta</NuxtLink></li>
+              <!-- <li><NuxtLink to="/login">Iniciar sesión</NuxtLink></li>
+              <li><NuxtLink to="/register">Crear cuenta</NuxtLink></li> -->
               <li><a href="mailto:hola@kurodacafe.com">Contacto</a></li>
             </ul>
           </div>
