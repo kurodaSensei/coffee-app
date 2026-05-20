@@ -14,6 +14,16 @@ service cloud.firestore {
         && request.auth.uid in resource.data.uids;
     }
 
+    // Lectura de un item compartible: dueño, incluido en sharedWith, o
+    // visibility == 'community' (visible para cualquier usuario autenticado).
+    function canReadShareable() {
+      return request.auth != null && (
+        resource.data.userId == request.auth.uid
+        || (resource.data.visibility == 'community')
+        || (request.auth.uid in resource.data.sharedWith)
+      );
+    }
+
     // User-owned collections
     match /roasters/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
@@ -21,27 +31,21 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
-    // Shareable collections: allow read if owner OR if included in sharedWith
+    // Shareable collections: lectura para dueño, sharedWith o comunidad.
     match /coffees/{docId} {
-      allow read: if request.auth != null
-        && (resource.data.userId == request.auth.uid
-            || request.auth.uid in resource.data.sharedWith);
+      allow read: if canReadShareable();
       allow create: if isAuthenticatedCreate();
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     match /tastings/{docId} {
-      allow read: if request.auth != null
-        && (resource.data.userId == request.auth.uid
-            || request.auth.uid in resource.data.sharedWith);
+      allow read: if canReadShareable();
       allow create: if isAuthenticatedCreate();
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     match /recipes/{docId} {
-      allow read: if request.auth != null
-        && (resource.data.userId == request.auth.uid
-            || request.auth.uid in resource.data.sharedWith);
+      allow read: if canReadShareable();
       allow create: if isAuthenticatedCreate();
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }

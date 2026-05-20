@@ -56,6 +56,15 @@ export interface RecipeStep {
 
 export type WishlistStatus = 'pending' | 'purchased' | 'unavailable'
 
+/**
+ * Nivel de visibilidad de un item compartible (café, cata, receta).
+ *  - private:   solo el dueño.
+ *  - friends:   el dueño + los UIDs en `sharedWith`.
+ *  - community: cualquier usuario autenticado (aparece en Explora).
+ * Documentos antiguos sin el campo se tratan como `private`.
+ */
+export type Visibility = 'private' | 'friends' | 'community'
+
 // Interfaces
 export interface Roaster {
   id: string
@@ -72,6 +81,8 @@ export interface Roaster {
 
 export interface Coffee {
   id: string
+  /** UID del dueño. Presente en los documentos de Firestore. */
+  userId?: string
   name: string
   roasterId?: string
   roasterName?: string
@@ -94,12 +105,19 @@ export interface Coffee {
   /** Referencia del canal: URL, @handle, nombre de tienda o detalle libre. */
   purchaseReference?: string
   sharedWith?: string[]
+  /** Nivel de visibilidad. Ausente = 'private' (documentos antiguos). */
+  visibility?: Visibility
+  /** Denormalizado al compartir a comunidad — evita un lookup por item en el feed. */
+  authorName?: string
+  authorPhotoURL?: string
   createdAt: Timestamp
   updatedAt: Timestamp
 }
 
 export interface Tasting {
   id: string
+  /** UID del dueño. Presente en los documentos de Firestore. */
+  userId?: string
   coffeeId: string
   coffeeName: string
   roasterName: string
@@ -124,12 +142,19 @@ export interface Tasting {
   isFavorite?: boolean
   photoUrl?: string
   sharedWith?: string[]
+  /** Nivel de visibilidad. Ausente = 'private' (documentos antiguos). */
+  visibility?: Visibility
+  /** Denormalizado al compartir a comunidad — evita un lookup por item en el feed. */
+  authorName?: string
+  authorPhotoURL?: string
   createdAt: Timestamp
   updatedAt: Timestamp
 }
 
 export interface Recipe {
   id: string
+  /** UID del dueño. Presente en los documentos de Firestore. */
+  userId?: string
   name: string
   brewMethod: BrewMethod
   dose: number
@@ -144,6 +169,11 @@ export interface Recipe {
   /** Ordered timeline of milestones during the brew. */
   steps?: RecipeStep[]
   sharedWith?: string[]
+  /** Nivel de visibilidad. Ausente = 'private' (documentos antiguos). */
+  visibility?: Visibility
+  /** Denormalizado al compartir a comunidad — evita un lookup por item en el feed. */
+  authorName?: string
+  authorPhotoURL?: string
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -212,8 +242,8 @@ export interface Variety {
 }
 
 // Form DTO types — fields required for creating or updating (no id/timestamps/userId)
-export type CoffeeInput = Omit<Coffee, 'id' | 'createdAt' | 'updatedAt'>
-export type TastingInput = Omit<Tasting, 'id' | 'createdAt' | 'updatedAt'>
-export type RecipeInput = Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>
+export type CoffeeInput = Omit<Coffee, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+export type TastingInput = Omit<Tasting, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+export type RecipeInput = Omit<Recipe, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
 export type RoasterInput = Omit<Roaster, 'id' | 'createdAt' | 'updatedAt'>
 export type WishlistInput = Omit<WishlistItem, 'id' | 'createdAt' | 'updatedAt'>

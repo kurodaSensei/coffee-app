@@ -1,5 +1,11 @@
 import { defineStore } from 'pinia'
-import type { Tasting, TastingInput, BrewMethod } from '~/types'
+import type { Tasting, TastingInput, BrewMethod, Visibility } from '~/types'
+
+const VISIBILITY_TOAST: Record<Visibility, string> = {
+  private: 'Ahora es privada',
+  friends: 'Compartida con amigos',
+  community: 'Compartida con la comunidad',
+}
 
 interface TastingFilters {
   coffeeId?: string
@@ -9,7 +15,7 @@ interface TastingFilters {
 
 export const useTastingsStore = defineStore('tastings', () => {
   const { fetchAll, fetchRecent, fetchById, createTasting, updateTasting, deleteTasting } = useTastings()
-  const { getSharedWithMe, updateSharing: updateSharingDoc } = useFirebase()
+  const { getSharedWithMe, updateVisibility: updateVisibilityDoc } = useFirebase()
 
   const base = useFirestoreStoreState<Tasting, TastingInput, TastingFilters>({
     api: {
@@ -47,20 +53,32 @@ export const useTastingsStore = defineStore('tastings', () => {
     }
   }
 
-  async function updateSharing(id: string, uids: string[]) {
+  async function updateVisibility(id: string, visibility: Visibility, sharedWith: string[] = []) {
     const toast = useToast()
+    const { currentUser } = useAuth()
     try {
-      await updateSharingDoc('tastings', id, uids)
+      await updateVisibilityDoc('tastings', id, {
+        visibility,
+        sharedWith,
+        authorName: currentUser.value?.displayName
+          || currentUser.value?.email?.split('@')[0]
+          || undefined,
+        authorPhotoURL: currentUser.value?.photoURL || undefined,
+      })
+      const patch = {
+        visibility,
+        sharedWith: visibility === 'friends' ? sharedWith : [],
+      }
       if (base.current.value?.id === id) {
-        base.current.value = { ...base.current.value, sharedWith: uids } as Tasting
+        base.current.value = { ...base.current.value, ...patch } as Tasting
       }
       const idx = base.list.value.findIndex(t => t.id === id)
       if (idx !== -1) {
-        base.list.value[idx] = { ...base.list.value[idx], sharedWith: uids } as Tasting
+        base.list.value[idx] = { ...base.list.value[idx], ...patch } as Tasting
       }
-      toast.success(uids.length === 0 ? 'Dejado de compartir' : 'Compartido')
+      toast.success(VISIBILITY_TOAST[visibility])
     } catch (e: any) {
-      toast.error('No se pudo actualizar quién ve la cata', e)
+      toast.error('No se pudo actualizar la visibilidad', e)
       throw e
     }
   }
@@ -75,7 +93,7 @@ export const useTastingsStore = defineStore('tastings', () => {
     ...base,
     recent,
     loadRecent,
-    updateSharing,
+    updateVisibility,
     reset,
   }
 })

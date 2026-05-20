@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { Coffee, Tasting } from '~/types'
+import type { Coffee, Tasting, Visibility } from '~/types'
 
 const route = useRoute()
 const router = useRouter()
+const { userId } = useAuth()
 const tastingsStore = useTastingsStore()
 const coffeesStore = useCoffeesStore()
 
@@ -12,6 +13,10 @@ const tasting = ref<Tasting | null>(null)
 const coffee = ref<Coffee | null>(null)
 const loading = ref(true)
 const notFound = ref(false)
+
+// Solo el dueño edita/elimina/comparte; una cata de comunidad ajena es de
+// solo lectura.
+const isOwner = computed(() => !!tasting.value && tasting.value.userId === userId.value)
 
 onMounted(async () => {
   try {
@@ -39,8 +44,8 @@ function onShare() {
   shareOpen.value = true
 }
 
-function onShareSaved(uids: string[]) {
-  if (tasting.value) tasting.value = { ...tasting.value, sharedWith: uids }
+function onShareSaved(visibility: Visibility, uids: string[]) {
+  if (tasting.value) tasting.value = { ...tasting.value, visibility, sharedWith: uids }
 }
 
 const deleting = ref(false)
@@ -99,7 +104,7 @@ async function toggleFavorite() {
         <Icon name="lucide:arrow-left" class="size-5" />
       </button>
       <UiEyebrow>Cata</UiEyebrow>
-      <UiActionMenu v-if="tasting" aria-label="Más acciones">
+      <UiActionMenu v-if="tasting && isOwner" aria-label="Más acciones">
         <UiActionMenuItem :icon="tasting.isFavorite ? 'lucide:heart-off' : 'lucide:heart'" @click="toggleFavorite">
           {{ tasting.isFavorite ? 'Quitar favorito' : 'Marcar favorito' }}
         </UiActionMenuItem>
@@ -136,10 +141,10 @@ async function toggleFavorite() {
     <UiShareSheet
       v-if="tasting"
       v-model="shareOpen"
-      :entity-name="tasting.coffeeName"
-      subtitle="Tu cata será visible para quienes elijas."
+      :entity-name="`cata de ${tasting.coffeeName}`"
+      :initial-visibility="tasting.visibility ?? 'private'"
       :initial-shared-with="tasting.sharedWith ?? []"
-      :on-save="(uids) => tastingsStore.updateSharing(tasting!.id, uids)"
+      :on-save="(visibility, uids) => tastingsStore.updateVisibility(tasting!.id, visibility, uids)"
       @saved="onShareSaved"
     />
   </div>

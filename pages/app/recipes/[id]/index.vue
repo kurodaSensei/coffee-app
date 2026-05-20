@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { Recipe } from '~/types'
+import type { Recipe, Visibility } from '~/types'
 
 const route = useRoute()
 const router = useRouter()
+const { userId } = useAuth()
 const recipesStore = useRecipesStore()
 const { getBrewMethodLabel } = useCatalog()
 
@@ -11,6 +12,10 @@ const id = computed(() => route.params.id as string)
 const recipe = ref<Recipe | null>(null)
 const loading = ref(true)
 const notFound = ref(false)
+
+// Solo el dueño edita/elimina/comparte; una receta de comunidad ajena es de
+// solo lectura.
+const isOwner = computed(() => !!recipe.value && recipe.value.userId === userId.value)
 
 onMounted(async () => {
   try {
@@ -33,8 +38,8 @@ function onShare() {
   shareOpen.value = true
 }
 
-function onShareSaved(uids: string[]) {
-  if (recipe.value) recipe.value = { ...recipe.value, sharedWith: uids }
+function onShareSaved(visibility: Visibility, uids: string[]) {
+  if (recipe.value) recipe.value = { ...recipe.value, visibility, sharedWith: uids }
 }
 
 const deleting = ref(false)
@@ -78,7 +83,7 @@ async function onDelete() {
         <Icon name="lucide:arrow-left" class="size-5" />
       </button>
       <UiEyebrow>{{ recipe ? getBrewMethodLabel(recipe.brewMethod) : 'Receta' }}</UiEyebrow>
-      <UiActionMenu v-if="recipe" aria-label="Más acciones">
+      <UiActionMenu v-if="recipe && isOwner" aria-label="Más acciones">
         <UiActionMenuItem icon="lucide:share-2" @click="onShare">
           Compartir
         </UiActionMenuItem>
@@ -113,8 +118,9 @@ async function onDelete() {
       v-if="recipe"
       v-model="shareOpen"
       :entity-name="recipe.name"
+      :initial-visibility="recipe.visibility ?? 'private'"
       :initial-shared-with="recipe.sharedWith ?? []"
-      :on-save="(uids) => recipesStore.updateSharing(recipe!.id, uids)"
+      :on-save="(visibility, uids) => recipesStore.updateVisibility(recipe!.id, visibility, uids)"
       @saved="onShareSaved"
     />
   </div>

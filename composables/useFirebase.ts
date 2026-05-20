@@ -14,6 +14,7 @@ import {
   type DocumentData,
   type QueryConstraint,
 } from 'firebase/firestore'
+import type { Visibility } from '~/types'
 
 export const useFirebase = () => {
   const { $db } = useNuxtApp()
@@ -38,10 +39,11 @@ export const useFirebase = () => {
     const docSnap = await getDoc(docRef)
     if (docSnap.exists()) {
       const data = docSnap.data()
-      // Owner OR shared-with can read
+      // Puede leer: dueño, incluido en sharedWith, o item de comunidad.
       const isOwner = data.userId === userId.value
       const isShared = Array.isArray(data.sharedWith) && data.sharedWith.includes(userId.value)
-      if (!isOwner && !isShared) return null
+      const isCommunity = data.visibility === 'community'
+      if (!isOwner && !isShared && !isCommunity) return null
       return { id: docSnap.id, ...data } as T
     }
     return null
@@ -65,10 +67,19 @@ export const useFirebase = () => {
     }
   }
 
-  const updateSharing = async (
+  interface VisibilityPayload {
+    visibility: Visibility
+    /** UIDs con los que se comparte cuando visibility === 'friends'. */
+    sharedWith: string[]
+    /** Nombre/avatar del autor, denormalizados al pasar a 'community'. */
+    authorName?: string
+    authorPhotoURL?: string
+  }
+
+  const updateVisibility = async (
     collectionName: string,
     id: string,
-    sharedWith: string[],
+    payload: VisibilityPayload,
   ): Promise<void> => {
     if (!userId.value) throw new Error('No authenticated user')
     const docRef = doc($db, collectionName, id)
@@ -76,7 +87,36 @@ export const useFirebase = () => {
     if (!docSnap.exists() || docSnap.data().userId !== userId.value) {
       throw new Error('Unauthorized')
     }
-    await updateDoc(docRef, { sharedWith, updatedAt: Timestamp.now() })
+    const data: DocumentData = {
+      visibility: payload.visibility,
+      // sharedWith solo tiene sentido en 'friends'; se limpia en otros casos.
+      sharedWith: payload.visibility === 'friends' ? payload.sharedWith : [],
+      updatedAt: Timestamp.now(),
+    }
+    if (payload.visibility === 'community') {
+      data.authorName = payload.authorName ?? null
+      data.authorPhotoURL = payload.authorPhotoURL ?? null
+    }
+    await updateDoc(docRef, data)
+  }
+
+  /**
+   * Trae items marcados como 'community' de una colección, más recientes
+   * primero. Requiere un índice compuesto (visibility ASC, createdAt DESC).
+   */
+  const getCommunityFeed = async <T>(
+    collectionName: string,
+    max = 40,
+  ): Promise<T[]> => {
+    if (!userId.value) return []
+    const q = query(
+      collection($db, collectionName),
+      where('visibility', '==', 'community'),
+      orderBy('createdAt', 'desc'),
+      limit(max),
+    )
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as T[]
   }
 
   const create = async <T extends DocumentData>(
@@ -124,7 +164,8 @@ export const useFirebase = () => {
     getAll,
     getById,
     getSharedWithMe,
-    updateSharing,
+    updateVisibility,
+    getCommunityFeed,
     create,
     update,
     remove,

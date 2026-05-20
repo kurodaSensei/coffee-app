@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { Coffee, CoffeeProcess, RoastLevel, Tasting } from '~/types'
+import type { Coffee, CoffeeProcess, RoastLevel, Tasting, Visibility } from '~/types'
 
 const route = useRoute()
 const router = useRouter()
+const { userId } = useAuth()
 const coffeesStore = useCoffeesStore()
 const tastingsStore = useTastingsStore()
 
@@ -11,6 +12,10 @@ const id = computed(() => route.params.id as string)
 const coffee = ref<Coffee | null>(null)
 const loading = ref(true)
 const notFound = ref(false)
+
+// Solo el dueño puede editar/eliminar/compartir. Un café de comunidad ajeno
+// es de solo lectura.
+const isOwner = computed(() => !!coffee.value && coffee.value.userId === userId.value)
 
 onMounted(async () => {
   try {
@@ -126,8 +131,8 @@ function onShare() {
   shareOpen.value = true
 }
 
-function onShareSaved(uids: string[]) {
-  if (coffee.value) coffee.value = { ...coffee.value, sharedWith: uids }
+function onShareSaved(visibility: Visibility, uids: string[]) {
+  if (coffee.value) coffee.value = { ...coffee.value, visibility, sharedWith: uids }
 }
 
 const deleting = ref(false)
@@ -172,7 +177,7 @@ async function onDelete() {
         <UiEyebrow class="truncate text-center flex-1">
           {{ coffee?.roasterName || 'Café' }}
         </UiEyebrow>
-        <UiActionMenu v-if="coffee" aria-label="Más acciones">
+        <UiActionMenu v-if="coffee && isOwner" aria-label="Más acciones">
           <UiActionMenuItem icon="lucide:share-2" @click="onShare">
             Compartir
           </UiActionMenuItem>
@@ -274,9 +279,10 @@ async function onDelete() {
       </template>
     </main>
 
-    <!-- Sticky CTA — sits above the mobile TabBar (~56px + safe-area), pinned to viewport bottom on desktop. -->
+    <!-- Sticky CTA — solo para el dueño; un café de comunidad ajeno es de
+         solo lectura. Sits above the mobile TabBar (~56px + safe-area). -->
     <div
-      v-if="coffee && !loading && !notFound"
+      v-if="coffee && !loading && !notFound && isOwner"
       class="fixed inset-x-0 z-20 px-md pt-sm pb-sm lg:px-xl xl:px-2xl bottom-[calc(56px+env(safe-area-inset-bottom))] lg:bottom-0 lg:pb-[calc(env(safe-area-inset-bottom)+12px)]"
     >
       <div class="mx-auto w-full max-w-[1200px]">
@@ -310,8 +316,9 @@ async function onDelete() {
       v-if="coffee"
       v-model="shareOpen"
       :entity-name="coffee.name"
+      :initial-visibility="coffee.visibility ?? 'private'"
       :initial-shared-with="coffee.sharedWith ?? []"
-      :on-save="(uids) => coffeesStore.updateSharing(coffee!.id, uids)"
+      :on-save="(visibility, uids) => coffeesStore.updateVisibility(coffee!.id, visibility, uids)"
       @saved="onShareSaved"
     />
   </div>

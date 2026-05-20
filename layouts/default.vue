@@ -30,6 +30,7 @@ const sidebarSections = [
     title: 'Diario',
     items: [
       { key: 'home', label: 'Inicio', to: '/app' },
+      { key: 'explore', label: 'Explora', to: '/app/explore' },
       { key: 'coffees', label: 'Cafés', to: '/app/coffees' },
       { key: 'tastings', label: 'Catas', to: '/app/tastings' },
       { key: 'recipes', label: 'Recetas', to: '/app/recipes' },
@@ -48,8 +49,11 @@ const sidebarSections = [
   },
 ]
 
+// 6 items aprietan el tab bar — pendiente decidir con el usuario si Wishlist
+// se mueve a otro punto de entrada en mobile. Por ahora todo accesible.
 const mobileTabs = [
   { key: 'home', label: 'Inicio', to: '/app' },
+  { key: 'explore', label: 'Explora', to: '/app/explore' },
   { key: 'coffees', label: 'Cafés', to: '/app/coffees' },
   { key: 'tastings', label: 'Catas', to: '/app/tastings' },
   { key: 'recipes', label: 'Recetas', to: '/app/recipes' },
