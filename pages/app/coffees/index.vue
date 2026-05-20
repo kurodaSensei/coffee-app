@@ -84,6 +84,13 @@ const filtersOpen = ref(false)
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Cafés · {{ mineCount }}</UiEyebrow>
       <div class="lg:hidden inline-flex items-center gap-sm">
+        <NuxtLink
+          to="/app/wishlist"
+          class="inline-flex items-center justify-center size-[32px] rounded-pill bg-surface-2 text-moss hover:bg-surface transition-colors"
+          aria-label="Wishlist"
+        >
+          <Icon name="lucide:bookmark" class="size-4" />
+        </NuxtLink>
         <UiNotificationBell size="sm" />
         <NuxtLink to="/app/settings" class="inline-flex">
           <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
