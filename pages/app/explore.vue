@@ -2,10 +2,22 @@
 import { computed, onMounted } from 'vue'
 
 const { currentUser } = useAuth()
-const { items, loading, error, loaded, load } = useCommunityFeed()
+const wishlistStore = useWishlistStore()
+const {
+  items,
+  filteredItems,
+  counts,
+  selectedKind,
+  loading,
+  error,
+  loaded,
+  load,
+} = useCommunityFeed()
 
 onMounted(() => {
   load()
+  // La wishlist se usa para marcar/evitar duplicados en las cards de café.
+  if (wishlistStore.list.length === 0) wishlistStore.loadAll().catch(() => {})
 })
 
 const userName = computed(() =>
@@ -13,6 +25,16 @@ const userName = computed(() =>
 )
 
 const isEmpty = computed(() => loaded.value && items.value.length === 0)
+const noResults = computed(
+  () => loaded.value && items.value.length > 0 && filteredItems.value.length === 0,
+)
+
+const kindFilters = computed(() => [
+  { key: 'all', label: 'Todos', count: counts.value.all },
+  { key: 'coffee', label: 'Cafés', count: counts.value.coffee },
+  { key: 'tasting', label: 'Catas', count: counts.value.tasting },
+  { key: 'recipe', label: 'Recetas', count: counts.value.recipe },
+])
 </script>
 
 <template>
@@ -34,6 +56,11 @@ const isEmpty = computed(() => loaded.value && items.value.length === 0)
       <p class="subtitle-italic mt-xs">
         Cafés, catas y recetas que otros sorbos comparten.
       </p>
+    </div>
+
+    <!-- Filtro por tipo (oculto mientras carga o si todo está vacío) -->
+    <div v-if="!loading && !isEmpty && !error" class="mt-lg overflow-x-auto -mx-md px-md lg:mx-0 lg:px-0">
+      <UiSegmented v-model="selectedKind" :items="kindFilters" />
     </div>
 
     <!-- Loading -->
@@ -65,13 +92,25 @@ const isEmpty = computed(() => loaded.value && items.value.length === 0)
       </UiButton>
     </div>
 
+    <!-- Sin resultados con el filtro activo -->
+    <div v-else-if="noResults" class="mt-2xl flex flex-col items-center gap-lg">
+      <div class="w-full max-w-[360px] rounded-card-lg bg-surface px-lg py-xl text-center">
+        <p class="font-display italic text-[15px] text-moss leading-relaxed">
+          Nada coincide con ese filtro todavía.
+        </p>
+      </div>
+      <UiButton variant="ghost" :block="false" @click="selectedKind = 'all'">
+        Ver todo
+      </UiButton>
+    </div>
+
     <!-- Feed -->
     <div
       v-else
       class="mt-lg flex flex-col gap-md lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-md"
     >
       <ExploreCard
-        v-for="item in items"
+        v-for="item in filteredItems"
         :key="`${item.kind}-${item.id}`"
         :item="item"
       />

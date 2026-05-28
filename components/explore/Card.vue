@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { FeedItem } from '~/composables/useCommunityFeed'
 import type { Coffee, Recipe, Tasting } from '~/types'
 
 const props = defineProps<{ item: FeedItem }>()
 
 const { getBrewMethodLabel } = useCatalog()
+const wishlistStore = useWishlistStore()
+const coffeesStore = useCoffeesStore()
+const recipesStore = useRecipesStore()
 
 const KIND_LABEL: Record<FeedItem['kind'], string> = {
   coffee: 'Café',
@@ -56,6 +59,37 @@ const PROCESS_LABEL: Record<string, string> = {
 const coffee = computed(() => props.item.kind === 'coffee' ? props.item.data as Coffee : null)
 const tasting = computed(() => props.item.kind === 'tasting' ? props.item.data as Tasting : null)
 const recipe = computed(() => props.item.kind === 'recipe' ? props.item.data as Recipe : null)
+
+// ── Acciones en la card ──────────────────────────────────────────────────────
+const inWishlist = computed(() => {
+  if (!coffee.value) return false
+  return !!wishlistStore.findMatchingItem(coffee.value)
+})
+
+const savingToWishlist = ref(false)
+async function onSaveToWishlist() {
+  if (!coffee.value || savingToWishlist.value) return
+  savingToWishlist.value = true
+  try {
+    await wishlistStore.addFromCoffee(coffee.value)
+  }
+  finally {
+    savingToWishlist.value = false
+  }
+}
+
+const duplicating = ref(false)
+async function onDuplicate() {
+  if (duplicating.value) return
+  duplicating.value = true
+  try {
+    if (coffee.value) await coffeesStore.duplicate(coffee.value)
+    else if (recipe.value) await recipesStore.duplicate(recipe.value)
+  }
+  finally {
+    duplicating.value = false
+  }
+}
 
 const coffeeEyebrow = computed(() => {
   const c = coffee.value
@@ -132,6 +166,40 @@ const coffeeEyebrow = computed(() => {
           </span>
         </div>
       </div>
+    </div>
+
+    <!-- Acciones de la card (no se propagan al NuxtLink) -->
+    <div
+      v-if="coffee || recipe"
+      class="mt-md flex items-center justify-end gap-xs"
+    >
+      <button
+        v-if="coffee"
+        type="button"
+        class="inline-flex items-center justify-center size-[32px] rounded-pill transition-colors duration-150 ease-sorbo disabled:opacity-50"
+        :class="inWishlist
+          ? 'bg-honey text-jungle'
+          : 'bg-surface-2 text-moss-soft hover:bg-surface hover:text-moss'"
+        :aria-label="inWishlist ? 'Ya en tu wishlist' : 'Guardar a wishlist'"
+        :disabled="savingToWishlist"
+        @click.stop.prevent="onSaveToWishlist"
+      >
+        <Icon
+          :name="inWishlist ? 'lucide:bookmark-check' : 'lucide:bookmark'"
+          class="size-4"
+          aria-hidden="true"
+        />
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center size-[32px] rounded-pill bg-surface-2 text-moss-soft hover:bg-surface hover:text-moss transition-colors duration-150 ease-sorbo disabled:opacity-50"
+        :aria-label="coffee ? 'Añadir a mi colección' : 'Añadir a mis recetas'"
+        :disabled="duplicating"
+        @click.stop.prevent="onDuplicate"
+      >
+        <Icon name="lucide:plus" class="size-4" aria-hidden="true" />
+      </button>
     </div>
   </NuxtLink>
 </template>

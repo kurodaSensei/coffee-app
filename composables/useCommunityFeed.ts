@@ -5,6 +5,8 @@ export type FeedItem =
   | { kind: 'tasting'; id: string; createdAtMs: number; data: Tasting }
   | { kind: 'recipe'; id: string; createdAtMs: number; data: Recipe }
 
+export type FeedKindFilter = 'all' | 'coffee' | 'tasting' | 'recipe'
+
 function tsMillis(ts: any): number {
   if (!ts) return 0
   if (typeof ts.toMillis === 'function') return ts.toMillis()
@@ -25,6 +27,23 @@ export const useCommunityFeed = () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
   const loaded = ref(false)
+
+  // Filtro por tipo. Persiste durante la sesión pero se reinicia al recargar
+  // — un filtro de Explora no merece guardarse en localStorage.
+  const selectedKind = ref<FeedKindFilter>('all')
+
+  const filteredItems = computed(() =>
+    selectedKind.value === 'all'
+      ? items.value
+      : items.value.filter(item => item.kind === selectedKind.value),
+  )
+
+  const counts = computed(() => ({
+    all: items.value.length,
+    coffee: items.value.filter(i => i.kind === 'coffee').length,
+    tasting: items.value.filter(i => i.kind === 'tasting').length,
+    recipe: items.value.filter(i => i.kind === 'recipe').length,
+  }))
 
   async function load() {
     loading.value = true
@@ -59,5 +78,14 @@ export const useCommunityFeed = () => {
     }
   }
 
-  return { items, loading, error, loaded, load }
+  return {
+    items,
+    filteredItems,
+    counts,
+    selectedKind,
+    loading,
+    error,
+    loaded,
+    load,
+  }
 }

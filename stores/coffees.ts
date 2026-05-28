@@ -85,6 +85,43 @@ export const useCoffeesStore = defineStore('coffees', () => {
     }
   }
 
+  /**
+   * Duplica un café de la comunidad a la colección del usuario actual.
+   * El nuevo doc nace privado, sin denormalización de autor ni sharedWith.
+   * Se omite photoUrl y roastDate (son del autor original, no del duplicado).
+   */
+  async function duplicate(source: Coffee): Promise<string | null> {
+    const toast = useToast()
+    try {
+      const payload: CoffeeInput = {
+        name: source.name,
+        roasterId: source.roasterId,
+        roasterName: source.roasterName,
+        variety: source.variety,
+        process: source.process,
+        originRegion: source.originRegion,
+        originCountry: source.originCountry,
+        originFarm: source.originFarm,
+        originProducer: source.originProducer,
+        altitude: source.altitude,
+        scaScore: source.scaScore,
+        roastLevel: source.roastLevel,
+        price: source.price,
+        weight: source.weight,
+        flavorNotes: [...(source.flavorNotes || [])],
+        purchaseChannel: source.purchaseChannel,
+        purchaseReference: source.purchaseReference,
+      } as CoffeeInput
+      const id = await createCoffee(payload)
+      await base.loadAll()
+      toast.success('Añadido a tu colección')
+      return id
+    } catch (e: any) {
+      toast.error('No se pudo añadir a tu colección', e)
+      return null
+    }
+  }
+
   const originalReset = base.reset
   function reset() {
     filters.value = {}
@@ -97,6 +134,7 @@ export const useCoffeesStore = defineStore('coffees', () => {
     loadAll,
     clearFilters,
     updateVisibility,
+    duplicate,
     reset,
   }
 })

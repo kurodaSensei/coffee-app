@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { WishlistItem, WishlistInput, WishlistStatus } from '~/types'
+import type { Coffee, WishlistItem, WishlistInput, WishlistStatus } from '~/types'
 
 export const useWishlistStore = defineStore('wishlist', () => {
   const { fetchAll, fetchById, createItem, updateItem, deleteItem } = useWishlist()
@@ -43,8 +43,49 @@ export const useWishlistStore = defineStore('wishlist', () => {
     }
   }
 
+  // Helpers para guardar desde Explora ─────────────────────────────────────
+
+  function normalize(s?: string): string {
+    return (s || '').trim().toLowerCase()
+  }
+
+  /** Busca un item ya guardado que coincida con el café (nombre + tostador). */
+  function findMatchingItem(coffee: Coffee): WishlistItem | null {
+    const name = normalize(coffee.name)
+    const roaster = normalize(coffee.roasterName)
+    return (base.list.value as WishlistItem[]).find(item =>
+      normalize(item.coffeeName) === name
+      && normalize(item.roasterName) === roaster,
+    ) ?? null
+  }
+
+  /**
+   * Añade un café de la comunidad a la wishlist. Si ya estaba (mismo nombre
+   * y tostador) avisa con un toast y no duplica.
+   */
+  async function addFromCoffee(coffee: Coffee): Promise<{ added: boolean }> {
+    const toast = useToast()
+    const existing = findMatchingItem(coffee)
+    if (existing) {
+      toast.info('Ya está en tu wishlist')
+      return { added: false }
+    }
+    const payload: WishlistInput = {
+      coffeeName: coffee.name,
+      roasterId: coffee.roasterId || undefined,
+      roasterName: coffee.roasterName || undefined,
+      variety: coffee.variety || undefined,
+      priority: 3,
+      status: 'pending',
+    }
+    await base.create(payload)
+    return { added: true }
+  }
+
   return {
     ...base,
     changeStatus,
+    findMatchingItem,
+    addFromCoffee,
   }
 })

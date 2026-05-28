@@ -62,8 +62,40 @@ export const useRecipesStore = defineStore('recipes', () => {
     }
   }
 
+  /**
+   * Duplica una receta de la comunidad a la colección del usuario actual.
+   * Nace privada. El campo `author` se conserva (es la autoría real de la
+   * receta, no el dueño del documento).
+   */
+  async function duplicate(source: Recipe): Promise<string | null> {
+    const toast = useToast()
+    try {
+      const payload: RecipeInput = {
+        name: source.name,
+        brewMethod: source.brewMethod,
+        dose: source.dose,
+        water: source.water,
+        ratio: source.ratio,
+        grindSize: source.grindSize,
+        waterTemp: source.waterTemp,
+        instructions: source.instructions,
+        bestFor: source.bestFor,
+        author: source.author,
+        steps: source.steps ? source.steps.map(s => ({ ...s })) : undefined,
+      } as RecipeInput
+      const id = await createRecipe(payload)
+      await base.loadAll()
+      toast.success('Añadida a tus recetas')
+      return id
+    } catch (e: any) {
+      toast.error('No se pudo añadir a tus recetas', e)
+      return null
+    }
+  }
+
   return {
     ...base,
     updateVisibility,
+    duplicate,
   }
 })
