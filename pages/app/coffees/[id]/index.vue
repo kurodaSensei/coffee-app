@@ -7,6 +7,7 @@ const router = useRouter()
 const { userId } = useAuth()
 const coffeesStore = useCoffeesStore()
 const tastingsStore = useTastingsStore()
+const wishlistStore = useWishlistStore()
 
 const id = computed(() => route.params.id as string)
 const coffee = ref<Coffee | null>(null)
@@ -25,6 +26,8 @@ onMounted(async () => {
       notFound.value = true
     }
     tastingsStore.loadAll().catch(() => {})
+    // La wishlist alimenta el estado del botón "A mi wishlist" para visitantes.
+    if (wishlistStore.list.length === 0) wishlistStore.loadAll().catch(() => {})
   }
   catch {
     notFound.value = true
@@ -135,6 +138,36 @@ function onShareSaved(visibility: Visibility, uids: string[]) {
   if (coffee.value) coffee.value = { ...coffee.value, visibility, sharedWith: uids }
 }
 
+// ── Acciones para visitantes (no-owners) ─────────────────────────────────────
+const inWishlist = computed(() =>
+  !!coffee.value && !!wishlistStore.findMatchingItem(coffee.value),
+)
+
+const savingToWishlist = ref(false)
+async function onSaveToWishlist() {
+  if (!coffee.value || savingToWishlist.value) return
+  savingToWishlist.value = true
+  try {
+    await wishlistStore.addFromCoffee(coffee.value)
+  }
+  finally {
+    savingToWishlist.value = false
+  }
+}
+
+const duplicating = ref(false)
+async function onDuplicate() {
+  if (!coffee.value || duplicating.value) return
+  duplicating.value = true
+  try {
+    const newId = await coffeesStore.duplicate(coffee.value)
+    if (newId) router.push(`/app/coffees/${newId}`)
+  }
+  finally {
+    duplicating.value = false
+  }
+}
+
 const deleting = ref(false)
 const { confirm } = useConfirm()
 
@@ -201,7 +234,7 @@ async function onDelete() {
       <!-- Not found -->
       <div v-else-if="notFound" class="flex flex-col items-center gap-lg py-2xl">
         <p class="font-display italic text-moss-soft text-center">
-          No encontramos este café en tu colección.
+          No encontramos este café.
         </p>
         <UiButton variant="dark" :block="false" to="/app/coffees">
           Volver a mi colección
@@ -309,6 +342,38 @@ async function onDelete() {
             <Icon name="lucide:plus" class="size-5" />
           </span>
         </NuxtLink>
+      </div>
+    </div>
+
+    <!-- Sticky CTA para visitantes (cafés de comunidad ajenos). Replica las
+         acciones disponibles desde Explora: guardar a wishlist + duplicar. -->
+    <div
+      v-if="coffee && !loading && !notFound && !isOwner"
+      class="fixed inset-x-0 z-20 px-md pt-sm pb-sm lg:px-xl xl:px-2xl bottom-[calc(56px+env(safe-area-inset-bottom))] lg:bottom-0 lg:pb-[calc(env(safe-area-inset-bottom)+12px)] bg-paper/95 backdrop-blur-md border-t border-moss/5"
+    >
+      <div class="mx-auto w-full max-w-[1200px] flex gap-xs">
+        <UiButton
+          variant="ghost"
+          :block="true"
+          :loading="savingToWishlist"
+          @click="onSaveToWishlist"
+        >
+          <Icon
+            :name="inWishlist ? 'lucide:bookmark-check' : 'lucide:bookmark'"
+            class="size-4"
+            aria-hidden="true"
+          />
+          {{ inWishlist ? 'En tu wishlist' : 'A mi wishlist' }}
+        </UiButton>
+        <UiButton
+          variant="dark"
+          :block="true"
+          :loading="duplicating"
+          @click="onDuplicate"
+        >
+          <Icon name="lucide:plus" class="size-4" aria-hidden="true" />
+          A mi colección
+        </UiButton>
       </div>
     </div>
 

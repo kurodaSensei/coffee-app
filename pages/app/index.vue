@@ -7,10 +7,19 @@ const coffeesStore = useCoffeesStore()
 const tastingsStore = useTastingsStore()
 const settingsStore = useSettingsStore()
 
-onMounted(() => {
+// `tastingsReady` evita el flash del empty state "Aún no has registrado..."
+// mientras las catas todavía están cargando.
+const tastingsReady = ref(false)
+
+onMounted(async () => {
   coffeesStore.loadAll().catch(() => {})
-  tastingsStore.loadAll().catch(() => {})
   if (!settingsStore.prefs) settingsStore.load().catch(() => {})
+  try {
+    await tastingsStore.loadAll()
+  }
+  finally {
+    tastingsReady.value = true
+  }
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -142,20 +151,11 @@ const stats = computed(() => {
         {{ today.dayName }} · {{ today.day }} {{ today.month }}<span class="hidden lg:inline"> · {{ today.year }}</span>
       </UiEyebrow>
 
-      <div class="flex items-center gap-md">
-        <button
-          type="button"
-          class="hidden lg:inline-flex items-center hover:opacity-80 transition-opacity"
-          aria-label="Buscar"
-        >
-          <UiEyebrow>Buscar (⌘K)</UiEyebrow>
-        </button>
-        <div class="lg:hidden inline-flex items-center gap-sm">
-          <UiNotificationBell size="sm" />
-          <NuxtLink to="/app/settings" class="inline-flex">
-            <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
-          </NuxtLink>
-        </div>
+      <div class="lg:hidden inline-flex items-center gap-sm">
+        <UiNotificationBell size="sm" />
+        <NuxtLink to="/app/settings" class="inline-flex">
+          <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
+        </NuxtLink>
       </div>
     </header>
 
@@ -165,7 +165,7 @@ const stats = computed(() => {
              text-[40px] sm:text-[48px] lg:text-[80px] xl:text-[96px]"
     >
       {{ greeting }},<br>
-      <span class="italic text-olive">{{ userName || 'Samuel' }}</span>
+      <span class="italic text-olive">{{ userName || 'cafetero' }}</span>
     </h1>
 
     <p
@@ -177,7 +177,10 @@ const stats = computed(() => {
       de {{ lastTastingLine.roasterName
       }}<template v-if="lastTastingLine.score !== null">, con {{ lastTastingLine.score }} puntos</template>.
     </p>
-    <p v-else class="mt-md font-display italic text-[14px] lg:text-[18px] text-moss-soft max-w-prose">
+    <p
+      v-else-if="tastingsReady"
+      class="mt-md font-display italic text-[14px] lg:text-[18px] text-moss-soft max-w-prose"
+    >
       Aún no has registrado ninguna cata. ¿Empezamos hoy?
     </p>
 
@@ -213,15 +216,19 @@ const stats = computed(() => {
       <!-- Mobile: row list -->
       <div class="lg:hidden mt-md flex flex-col">
         <div class="flex items-center justify-between border-b border-moss/10 py-md">
-          <span class="font-display italic text-[16px] text-moss">Cafés nuevos</span>
+          <span class="font-display italic text-[16px] text-moss-soft">
+            {{ stats.coffees === 1 ? 'café nuevo' : 'cafés nuevos' }}
+          </span>
           <span class="font-mono text-[15px] text-moss">{{ stats.coffees }}</span>
         </div>
         <div class="flex items-center justify-between border-b border-moss/10 py-md">
-          <span class="font-display italic text-[16px] text-moss">Catas</span>
+          <span class="font-display italic text-[16px] text-moss-soft">
+            {{ stats.tastings === 1 ? 'cata registrada' : 'catas registradas' }}
+          </span>
           <span class="font-mono text-[15px] text-moss">{{ stats.tastings }}</span>
         </div>
         <div class="flex items-center justify-between border-b border-moss/10 py-md">
-          <span class="font-display italic text-[16px] text-moss">Score promedio</span>
+          <span class="font-display italic text-[16px] text-moss-soft">score promedio</span>
           <span class="font-mono text-[15px] text-olive">{{ stats.avgScore !== null ? stats.avgScore : '—' }}</span>
         </div>
       </div>
