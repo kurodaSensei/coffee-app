@@ -3,11 +3,68 @@ import { ref } from 'vue'
 
 definePageMeta({ layout: false, auth: false })
 
+const SITE_URL = 'https://sorbo.app'
+const OG_IMAGE = `${SITE_URL}/og-image.svg`
+const DESCRIPTION = 'Tu diario para cada café de especialidad. Registra catas, guarda recetas, descubre lo que otros cafeteros toman. Sin Excel, sin red social, sin ruido.'
+
 useHead({
   title: 'Sorbo · Un diario para cada sorbo',
   meta: [
-    { name: 'description', content: 'Un diario para cada sorbo. Tu memoria de taza, en una sola colección. Cataloga cafés, registra catas y guarda recetas.' },
+    // SEO base
+    { name: 'description', content: DESCRIPTION },
+    { name: 'robots', content: 'index, follow' },
+    { name: 'theme-color', content: '#141712' },
+
+    // Open Graph (Facebook, LinkedIn, WhatsApp, Discord, Slack...)
+    { property: 'og:type', content: 'website' },
+    { property: 'og:url', content: `${SITE_URL}/` },
+    { property: 'og:title', content: 'Sorbo · Un diario para cada sorbo' },
+    { property: 'og:description', content: DESCRIPTION },
+    { property: 'og:image', content: OG_IMAGE },
+    { property: 'og:image:width', content: '1200' },
+    { property: 'og:image:height', content: '630' },
+    { property: 'og:image:alt', content: 'Sorbo · Un diario para cada sorbo de café' },
+    { property: 'og:site_name', content: 'Sorbo' },
+    { property: 'og:locale', content: 'es_ES' },
+
+    // Twitter / X
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Sorbo · Un diario para cada sorbo' },
+    { name: 'twitter:description', content: DESCRIPTION },
+    { name: 'twitter:image', content: OG_IMAGE },
+    { name: 'twitter:image:alt', content: 'Sorbo · Un diario para cada sorbo de café' },
   ],
+  link: [
+    { rel: 'canonical', href: `${SITE_URL}/` },
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        'name': 'Sorbo',
+        'description': DESCRIPTION,
+        'url': `${SITE_URL}/`,
+        'applicationCategory': 'LifestyleApplication',
+        'operatingSystem': 'Web',
+        'inLanguage': 'es',
+        'offers': {
+          '@type': 'Offer',
+          'price': '0',
+          'priceCurrency': 'USD',
+        },
+        'creator': {
+          '@type': 'Organization',
+          'name': 'KurodaCafe',
+          'url': 'https://instagram.com/kurodacafe',
+        },
+      }),
+    },
+  ],
+  htmlAttrs: {
+    lang: 'es',
+  },
 })
 
 const email = ref('')
