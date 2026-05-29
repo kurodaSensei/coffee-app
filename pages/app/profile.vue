@@ -89,7 +89,7 @@ async function save() {
     </header>
 
     <h1 class="mt-md font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px]">
-      Perfil
+      Tu <span class="italic text-olive">perfil</span>
     </h1>
 
     <!-- Avatar (large) -->

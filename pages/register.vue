@@ -143,14 +143,21 @@ function mapAuthError(code?: string): string {
         </UiButton>
       </form>
 
-      <button
-        type="button"
-        :disabled="loading || loadingGoogle"
-        class="mt-md w-full py-xs font-mono text-[10px] font-medium uppercase tracking-eyebrow text-olive transition-opacity duration-150 ease-sorbo hover:opacity-80 disabled:opacity-50 disabled:pointer-events-none"
+      <div class="my-md flex items-center gap-md">
+        <span aria-hidden="true" class="h-px flex-1 bg-moss/10" />
+        <UiEyebrow>o continúa con</UiEyebrow>
+        <span aria-hidden="true" class="h-px flex-1 bg-moss/10" />
+      </div>
+
+      <UiButton
+        variant="secondary"
+        :loading="loadingGoogle"
+        :disabled="loading"
         @click="onGoogle"
       >
-        Continuar con Google →
-      </button>
+        <span aria-hidden="true" class="font-mono text-[13px] font-bold leading-none">G</span>
+        Continuar con Google
+      </UiButton>
 
       <p class="mt-xl text-center font-display text-[13px] italic text-moss-soft">
         ¿Ya tienes cuenta?

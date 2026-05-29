@@ -4,8 +4,16 @@ import { computed, onMounted, ref } from 'vue'
 const router = useRouter()
 const friendsStore = useFriendsStore()
 
-onMounted(() => {
-  friendsStore.load().catch(() => {})
+// `ready` evita el flash del "Aún no tienes amigos" mientras carga.
+const ready = ref(false)
+
+onMounted(async () => {
+  try {
+    await friendsStore.load()
+  }
+  finally {
+    ready.value = true
+  }
 })
 
 const inviteEmail = ref('')
@@ -77,7 +85,7 @@ async function onRemove(id: string) {
     </header>
 
     <h1 class="mt-md font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px]">
-      Amigos
+      Tus <span class="italic text-olive">amigos</span>
     </h1>
     <p class="subtitle-italic mt-xs">
       Comparte tu memoria de taza.
@@ -167,7 +175,7 @@ async function onRemove(id: string) {
           </UiActionMenu>
         </li>
       </ul>
-      <p v-else class="mt-sm font-display italic text-[14px] text-moss-soft">
+      <p v-else-if="ready" class="mt-sm font-display italic text-[14px] text-moss-soft">
         Aún no tienes amigos. Invita a alguien con su correo.
       </p>
     </section>

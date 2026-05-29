@@ -7,9 +7,18 @@ const roastersStore = useRoastersStore()
 const coffeesStore = useCoffeesStore()
 const { confirm } = useConfirm()
 
-onMounted(() => {
-  roastersStore.loadAll().catch(() => {})
+// `ready` evita el flash del empty state ("Detrás de cada taza...")
+// mientras la lista aún carga.
+const ready = ref(false)
+
+onMounted(async () => {
   coffeesStore.loadAll().catch(() => {})
+  try {
+    await roastersStore.loadAll()
+  }
+  finally {
+    ready.value = true
+  }
 })
 
 const search = ref('')
@@ -162,7 +171,7 @@ async function deleteRoaster() {
     </header>
 
     <h1 class="mt-md font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px]">
-      Tostadores
+      Tus <span class="italic text-olive">tostadores</span>
     </h1>
     <p class="subtitle-italic mt-xs">
       De dónde viene tu taza.
@@ -181,8 +190,8 @@ async function deleteRoaster() {
       </div>
     </div>
 
-    <!-- Empty state -->
-    <div v-if="filtered.length === 0" class="mt-2xl flex flex-col items-center gap-lg">
+    <!-- Empty state — solo después de la primera carga (o si hay búsqueda activa). -->
+    <div v-if="filtered.length === 0 && (ready || search)" class="mt-2xl flex flex-col items-center gap-lg">
       <p class="font-display italic text-[15px] text-moss-soft text-center max-w-[280px]">
         <template v-if="search">No encontramos tostadores con ese nombre.</template>
         <template v-else>"Detrás de cada taza hay un tostador. Empecemos por el primero."</template>
