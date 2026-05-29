@@ -11,8 +11,9 @@ const route = useRoute()
 const name = ref('')
 const email = ref('')
 const password = ref('')
+const acceptedTerms = ref(false)
 
-const errors = ref<{ name?: string; email?: string; password?: string; general?: string }>({})
+const errors = ref<{ name?: string; email?: string; password?: string; terms?: string; general?: string }>({})
 const loading = ref(false)
 const loadingGoogle = ref(false)
 
@@ -34,6 +35,7 @@ function validate() {
   if (!password.value) errors.value.password = 'Contraseña requerida'
   else if (password.value.length < 8)
     errors.value.password = 'Mínimo 8 caracteres'
+  if (!acceptedTerms.value) errors.value.terms = 'Debes aceptar los términos para continuar'
   return Object.keys(errors.value).length === 0
 }
 
@@ -56,6 +58,10 @@ async function onSubmit(e: Event) {
 
 async function onGoogle() {
   errors.value = {}
+  if (!acceptedTerms.value) {
+    errors.value = { terms: 'Debes aceptar los términos para continuar' }
+    return
+  }
   loadingGoogle.value = true
   try {
     await loginWithGoogle()
@@ -129,6 +135,30 @@ function mapAuthError(code?: string): string {
           :error="errors.password"
           required
         />
+
+        <label class="mt-md flex items-start gap-sm cursor-pointer">
+          <input
+            v-model="acceptedTerms"
+            type="checkbox"
+            class="mt-[3px] size-[16px] accent-olive shrink-0 cursor-pointer"
+          >
+          <span class="font-sans text-[13px] text-moss-soft leading-relaxed">
+            He leído y acepto los
+            <NuxtLink to="/terms" target="_blank" class="text-olive font-medium hover:underline">
+              Términos de uso
+            </NuxtLink>
+            y la
+            <NuxtLink to="/privacy" target="_blank" class="text-olive font-medium hover:underline">
+              Política de Privacidad
+            </NuxtLink>.
+          </span>
+        </label>
+        <p
+          v-if="errors.terms"
+          class="mt-xxs font-mono text-[10px] font-medium uppercase tracking-eyebrow text-terracotta"
+        >
+          <span aria-hidden="true">— </span>{{ errors.terms }}
+        </p>
 
         <p
           v-if="errors.general"

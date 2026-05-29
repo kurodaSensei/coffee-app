@@ -405,6 +405,11 @@ function smoothScroll(id: string) {
           <span>iOS · Android · Web</span>
         </div>
 
+        <p class="waitlist-fineprint">
+          Al unirte aceptas nuestra
+          <NuxtLink to="/privacy">Política de Privacidad</NuxtLink>.
+        </p>
+
         <!-- <div class="login-link">
           <span>¿Ya tienes cuenta?</span>
           <NuxtLink to="/login">Inicia sesión</NuxtLink>
@@ -453,6 +458,11 @@ function smoothScroll(id: string) {
 
         <div class="footer-bottom">
           <div class="copy">© {{ new Date().getFullYear() }} KURODACAFE · TODOS LOS DERECHOS RESERVADOS</div>
+          <div class="footer-legal">
+            <NuxtLink to="/terms">Términos</NuxtLink>
+            <span aria-hidden="true">·</span>
+            <NuxtLink to="/privacy">Privacidad</NuxtLink>
+          </div>
           <div class="made">Hecho con <span class="heart">♥</span> y demasiada cafeína</div>
         </div>
       </div>
@@ -1411,6 +1421,19 @@ function smoothScroll(id: string) {
   margin-left: 6px;
 }
 .waitlist .login-link a:hover { text-decoration: underline; }
+.waitlist-fineprint {
+  margin-top: 18px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--moss-soft);
+}
+.waitlist-fineprint a {
+  color: var(--olive);
+  font-weight: 500;
+}
+.waitlist-fineprint a:hover { text-decoration: underline; }
 @media (max-width: 560px) {
   .waitlist { padding: 80px 18px; }
   .waitlist-form { flex-direction: column; }
@@ -1503,6 +1526,21 @@ function smoothScroll(id: string) {
   color: rgba(244, 242, 235, 0.5);
 }
 .footer-bottom .made .heart { color: var(--terracotta); }
+.footer-legal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(244, 242, 235, 0.5);
+}
+.footer-legal a {
+  color: rgba(244, 242, 235, 0.7);
+  transition: color 0.2s;
+}
+.footer-legal a:hover { color: var(--honey); }
 @media (max-width: 880px) {
   .footer-top { grid-template-columns: 1fr 1fr; }
 }
