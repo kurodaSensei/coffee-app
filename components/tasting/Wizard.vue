@@ -255,6 +255,9 @@ const submitLabel = computed(() =>
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[34px] sm:text-[40px]">
           ¿Qué <span class="italic text-olive">café</span><br>probaste?
         </h1>
+        <p class="subtitle-italic mt-sm">
+          Elige uno de tu colección o crea uno nuevo.
+        </p>
 
         <!-- Coffee picker -->
         <CoffeePicker
@@ -292,6 +295,9 @@ const submitLabel = computed(() =>
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[34px] sm:text-[40px]">
           ¿Cómo se <span class="italic text-olive">siente</span>?
         </h1>
+        <p class="subtitle-italic mt-sm">
+          Los atributos son opcionales — tap o arrastra para puntuar.
+        </p>
 
         <UiRatingBar
           v-model="ratingOverall"
@@ -337,10 +343,6 @@ const submitLabel = computed(() =>
             </template>
           </UiRatingBar>
         </div>
-
-        <p class="mt-md font-display italic text-[13px] text-moss-soft">
-          Los atributos son opcionales — tap o arrastra para puntuar.
-        </p>
       </section>
 
       <!-- ━━━━━━━━━━ STEP 3 — MEMORIA ━━━━━━━━━━ -->
@@ -348,6 +350,9 @@ const submitLabel = computed(() =>
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[34px] sm:text-[40px]">
           ¿Qué <span class="italic text-olive">recordarás</span><br>de esta taza?
         </h1>
+        <p class="subtitle-italic mt-sm">
+          Una frase basta. Lo que se te quedó.
+        </p>
 
         <!-- Note card -->
         <div class="mt-xl rounded-card-lg bg-surface-2 p-md">

@@ -47,6 +47,8 @@ const altitude = ref<number | null>(null)
 const farm = ref('')
 const producer = ref('')
 const showMoreOrigin = ref(false)
+const customCountry = ref('')
+const showCustomCountryInput = ref(false)
 
 // Step 3 — SABOR
 const flavorNotes = ref<string[]>([])
@@ -182,6 +184,13 @@ function commitCustomNote() {
   if (v && !flavorNotes.value.includes(v)) flavorNotes.value.push(v)
   customNote.value = ''
   showCustomNoteInput.value = false
+}
+
+function commitCustomCountry() {
+  const v = customCountry.value.trim()
+  if (v) country.value = v
+  customCountry.value = ''
+  showCustomCountryInput.value = false
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -347,6 +356,9 @@ const submitLabel = computed(() =>
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[34px] sm:text-[40px]">
           ¿De dónde<br><span class="italic text-olive">viene</span>?
         </h1>
+        <p class="subtitle-italic mt-sm">
+          País y región dan contexto al sabor.
+        </p>
 
         <div class="mt-xl flex flex-col gap-lg">
           <div class="flex flex-col gap-xs">
@@ -361,9 +373,36 @@ const submitLabel = computed(() =>
               >
                 {{ c }}
               </UiChip>
-              <UiChip variant="ghost" interactive @click="country = ''">
-                +
+              <!-- Si el país actual no está en la lista, lo mostramos como chip
+                   activo para que se vea seleccionado y se pueda desmarcar. -->
+              <UiChip
+                v-if="country && !COUNTRIES.includes(country)"
+                interactive
+                variant="active"
+                @click="country = ''"
+              >
+                {{ country }}
               </UiChip>
+              <template v-if="!showCustomCountryInput">
+                <UiChip
+                  variant="ghost"
+                  interactive
+                  @click="showCustomCountryInput = true"
+                >
+                  + otro
+                </UiChip>
+              </template>
+              <template v-else>
+                <input
+                  v-model="customCountry"
+                  type="text"
+                  placeholder="País"
+                  class="rounded-pill bg-surface-2 px-md h-[25px] font-mono text-[11px] uppercase tracking-eyebrow text-moss outline-none focus:bg-paper border border-moss/20"
+                  autofocus
+                  @keydown.enter.prevent="commitCustomCountry"
+                  @blur="commitCustomCountry"
+                >
+              </template>
             </div>
           </div>
 
@@ -582,8 +621,8 @@ const submitLabel = computed(() =>
           @click="next"
         >
           Siguiente →
-          <span v-if="step === 2" class="font-mono text-[10px] uppercase tracking-eyebrow opacity-70 ml-xs">
-            Sabor
+          <span class="font-mono text-[10px] uppercase tracking-eyebrow opacity-70 ml-xs">
+            {{ stepTitles[(step + 1) as 1 | 2 | 3] }}
           </span>
         </UiButton>
         <UiButton

@@ -276,6 +276,9 @@ const nextHint = computed(() => stepTitles[(step.value + 1) as 1 | 2 | 3] || '')
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[34px] sm:text-[40px]">
           ¿Cómo se llama<br>esta <span class="italic text-olive">receta</span>?
         </h1>
+        <p class="subtitle-italic mt-sm">
+          Nombre y método para empezar.
+        </p>
 
         <div class="mt-xl flex flex-col gap-xs">
           <UiInput
@@ -333,6 +336,9 @@ const nextHint = computed(() => stepTitles[(step.value + 1) as 1 | 2 | 3] || '')
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[34px] sm:text-[40px]">
           Los <span class="italic text-olive">números</span>
         </h1>
+        <p class="subtitle-italic mt-sm">
+          Dosis, agua, temperatura — lo medible.
+        </p>
 
         <div class="mt-xl grid grid-cols-2 gap-sm">
           <!-- DOSIS -->
