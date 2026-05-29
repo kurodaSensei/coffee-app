@@ -7,10 +7,19 @@ const tastingsStore = useTastingsStore()
 const coffeesStore = useCoffeesStore()
 const { getBrewMethodLabel } = useCatalog()
 
-onMounted(() => {
-  tastingsStore.loadAll().catch(() => {})
+// `ready` evita que el empty state y el subtitle de "0 sorbos" se vean
+// mientras la lista aún está cargando.
+const ready = ref(false)
+
+onMounted(async () => {
   tastingsStore.loadShared().catch(() => {})
   coffeesStore.loadAll().catch(() => {})
+  try {
+    await tastingsStore.loadAll()
+  }
+  finally {
+    ready.value = true
+  }
 })
 
 const userName = computed(() =>
@@ -96,11 +105,11 @@ const activeCoffee = computed<Coffee | null>(() => {
     <div class="mt-lg flex items-end justify-between gap-md flex-wrap">
       <div>
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px] lg:text-[64px]">
-          Catas
+          Tus <span class="italic text-olive">catas</span>
         </h1>
         <p class="subtitle-italic mt-xs">
           <template v-if="tab === 'shared'">Lo que han catado tus amigos.</template>
-          <template v-else-if="items.length > 0">
+          <template v-else-if="ready && items.length > 0">
             {{ items.length }} sorbo{{ items.length === 1 ? '' : 's' }} registrado{{ items.length === 1 ? '' : 's' }}.
           </template>
           <template v-else>Tu memoria de taza.</template>
@@ -120,8 +129,8 @@ const activeCoffee = computed<Coffee | null>(() => {
       </div>
     </div>
 
-    <!-- Empty -->
-    <div v-if="isEmpty" class="mt-2xl flex flex-col items-center gap-lg">
+    <!-- Empty — solo después de la primera carga. -->
+    <div v-if="isEmpty && ready" class="mt-2xl flex flex-col items-center gap-lg">
       <div class="w-full max-w-[340px] rounded-card-lg bg-surface px-lg py-2xl text-center">
         <p class="font-display italic text-[16px] text-moss leading-relaxed">
           <template v-if="tab === 'shared'">

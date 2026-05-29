@@ -6,9 +6,17 @@ const { currentUser } = useAuth()
 const recipesStore = useRecipesStore()
 const { getBrewMethodLabel } = useCatalog()
 
-onMounted(() => {
-  recipesStore.loadAll().catch(() => {})
+// `ready` evita el flash del empty state mientras la lista aún carga.
+const ready = ref(false)
+
+onMounted(async () => {
   recipesStore.loadShared().catch(() => {})
+  try {
+    await recipesStore.loadAll()
+  }
+  finally {
+    ready.value = true
+  }
 })
 
 const userName = computed(() =>
@@ -94,7 +102,7 @@ function openSheet(r: Recipe) {
     <div class="mt-lg flex items-end justify-between gap-md flex-wrap">
       <div>
         <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px] lg:text-[64px]">
-          Recetas
+          Tus <span class="italic text-olive">recetas</span>
         </h1>
         <p class="subtitle-italic mt-xs">
           <template v-if="tab === 'shared'">Lo que tus amigos comparten.</template>
@@ -116,8 +124,8 @@ function openSheet(r: Recipe) {
       </div>
     </div>
 
-    <!-- Empty -->
-    <div v-if="isEmpty" class="mt-2xl flex flex-col items-center gap-lg">
+    <!-- Empty — solo después de la primera carga. -->
+    <div v-if="isEmpty && ready" class="mt-2xl flex flex-col items-center gap-lg">
       <div class="w-full max-w-[340px] rounded-card-lg bg-surface px-lg py-2xl text-center">
         <p class="font-display italic text-[16px] text-moss leading-relaxed">
           <template v-if="tab === 'shared'">

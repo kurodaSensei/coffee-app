@@ -6,9 +6,17 @@ const { currentUser } = useAuth()
 const coffeesStore = useCoffeesStore()
 const view = useCoffeeViewStore()
 
-onMounted(() => {
-  coffeesStore.loadAll().catch(() => {})
+// `ready` evita el flash del empty state mientras la lista aún carga.
+const ready = ref(false)
+
+onMounted(async () => {
   coffeesStore.loadShared().catch(() => {})
+  try {
+    await coffeesStore.loadAll()
+  }
+  finally {
+    ready.value = true
+  }
 })
 
 const tab = ref<'mine' | 'shared'>('mine')
@@ -138,8 +146,8 @@ const filtersOpen = ref(false)
       </div>
     </div>
 
-    <!-- Empty state -->
-    <div v-if="isEmpty" class="mt-2xl flex flex-col items-center gap-lg">
+    <!-- Empty state — solo después de que la primera carga termine. -->
+    <div v-if="isEmpty && ready" class="mt-2xl flex flex-col items-center gap-lg">
       <div class="w-full max-w-[340px] rounded-card-lg bg-surface px-lg py-2xl text-center">
         <p class="font-display italic text-[16px] text-moss leading-relaxed">
           <template v-if="isFilteredEmpty">
