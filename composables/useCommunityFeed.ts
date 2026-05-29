@@ -16,12 +16,12 @@ function tsMillis(ts: any): number {
 
 /**
  * Feed de Explora: items marcados como 'community' de las tres colecciones,
- * mezclados y ordenados cronológicamente. Excluye los del propio usuario —
- * Explora es para descubrir lo de los demás.
+ * mezclados y ordenados cronológicamente. Incluye los del propio usuario —
+ * en una beta temprana con poco contenido, esconder lo tuyo daba la falsa
+ * impresión de que tu publicación no había llegado.
  */
 export const useCommunityFeed = () => {
   const { getCommunityFeed } = useFirebase()
-  const { userId } = useAuth()
 
   const items = ref<FeedItem[]>([])
   const loading = ref(false)
@@ -61,9 +61,7 @@ export const useCommunityFeed = () => {
         ...recipes.map(r => ({ kind: 'recipe' as const, id: r.id, createdAtMs: tsMillis(r.createdAt), data: r })),
       ]
 
-      items.value = merged
-        .filter(item => item.data.userId !== userId.value)
-        .sort((a, b) => b.createdAtMs - a.createdAtMs)
+      items.value = merged.sort((a, b) => b.createdAtMs - a.createdAtMs)
       loaded.value = true
     }
     catch (e: any) {
