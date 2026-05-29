@@ -114,13 +114,15 @@ export default defineNuxtConfig({
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/icons/apple-touch-icon.png' },
       ],
       script: [
-        // Google Analytics 4 (gtag.js)
+        // Google Analytics 4 (gtag.js).
+        // send_page_view: false → los pageviews los dispara plugins/analytics.client
+        // tras cada router.afterEach (evita doble-contar el primer load).
         {
           async: true,
           src: 'https://www.googletagmanager.com/gtag/js?id=G-0TCSTMMKGL',
         },
         {
-          innerHTML: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-0TCSTMMKGL');`,
+          innerHTML: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-0TCSTMMKGL', { send_page_view: false });`,
         },
       ],
     },
