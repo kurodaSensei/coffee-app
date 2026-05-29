@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const router = useRouter()
-const { currentUser, logout } = useAuth()
+const { currentUser, logout, deleteAccount } = useAuth()
 const coffeesStore = useCoffeesStore()
 const tastingsStore = useTastingsStore()
 const roastersStore = useRoastersStore()
@@ -67,6 +67,38 @@ async function onLogout() {
   })
   if (!ok) return
   await logout()
+}
+
+const toast = useToast()
+const deleting = ref(false)
+
+async function onDeleteAccount() {
+  if (deleting.value) return
+  const ok = await confirm({
+    title: '¿Eliminar tu cuenta?',
+    message: 'Se borrarán de forma inmediata e irreversible todos tus cafés, catas, recetas, wishlist, perfil y amigos. Si te arrepientes después, tendrás que crear una cuenta nueva.',
+    confirmLabel: 'Sí, eliminar todo',
+    destructive: true,
+  })
+  if (!ok) return
+  deleting.value = true
+  try {
+    await deleteAccount()
+    // Si llegamos aquí, todo se borró y el router ya navegó a la landing.
+  }
+  catch (e: any) {
+    if (e?.code === 'auth/requires-recent-login') {
+      toast.error(
+        'Por seguridad, cierra sesión y vuelve a iniciar antes de eliminar la cuenta.',
+      )
+    }
+    else {
+      toast.error('No pudimos eliminar la cuenta', e)
+    }
+  }
+  finally {
+    deleting.value = false
+  }
 }
 
 const {
@@ -244,19 +276,36 @@ const friendsHint = computed(() =>
       </div>
     </section>
 
-    <!-- Cuenta — Perfil ya es la card del avatar arriba; aquí queda solo
-         cerrar sesión, que es lo único que un usuario espera al final. -->
+    <!-- Cuenta — el Perfil ya es la card del avatar arriba; aquí van las
+         acciones destructivas que el usuario espera al final. -->
     <section class="mt-2xl">
       <UiEyebrow>Cuenta</UiEyebrow>
       <div class="mt-sm flex flex-col">
         <button
           type="button"
-          class="group flex items-center gap-md py-md border-b border-moss/10 last:border-b-0 hover:bg-terracotta/5 transition-colors text-left"
+          class="group flex items-center gap-md py-md border-b border-moss/10 hover:bg-terracotta/5 transition-colors text-left"
           @click="onLogout"
         >
           <Icon name="lucide:log-out" class="size-[18px] text-terracotta/70 group-hover:text-terracotta transition-colors shrink-0" aria-hidden="true" />
           <div class="flex flex-col gap-[2px] flex-1 min-w-0">
             <span class="font-sans text-[17px] font-medium text-terracotta leading-tight">Cerrar sesión</span>
+          </div>
+          <Icon name="lucide:chevron-right" class="size-5 text-terracotta/50 shrink-0" />
+        </button>
+        <button
+          type="button"
+          class="group flex items-center gap-md py-md border-b border-moss/10 last:border-b-0 hover:bg-terracotta/5 transition-colors text-left disabled:opacity-50 disabled:pointer-events-none"
+          :disabled="deleting"
+          @click="onDeleteAccount"
+        >
+          <Icon name="lucide:trash-2" class="size-[18px] text-terracotta/70 group-hover:text-terracotta transition-colors shrink-0" aria-hidden="true" />
+          <div class="flex flex-col gap-[2px] flex-1 min-w-0">
+            <span class="font-sans text-[17px] font-medium text-terracotta leading-tight">
+              {{ deleting ? 'Eliminando…' : 'Eliminar mi cuenta' }}
+            </span>
+            <span class="font-sans text-[12px] text-moss-soft leading-tight">
+              Borrado inmediato e irreversible
+            </span>
           </div>
           <Icon name="lucide:chevron-right" class="size-5 text-terracotta/50 shrink-0" />
         </button>

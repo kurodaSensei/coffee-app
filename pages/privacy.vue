@@ -118,7 +118,7 @@ const LAST_UPDATED = '15 de mayo de 2026'
         <section>
           <h2 class="font-display text-[24px] text-moss leading-tight">5. Cuánto tiempo los guardamos</h2>
           <p class="mt-sm">
-            Mantenemos tus datos personales mientras tu cuenta esté activa. Si eliminas tu cuenta, se aplica un periodo de gracia de <strong>30 días</strong> (por si te arrepientes), tras el cual tus datos personales se borran de forma definitiva de nuestras bases de datos activas.
+            Mantenemos tus datos personales mientras tu cuenta esté activa. Si eliminas tu cuenta desde la app (Configuración → Cuenta → Eliminar mi cuenta), el borrado es <strong>inmediato e irreversible</strong>: tus cafés, catas, recetas, wishlist, amigos y perfil se eliminan al instante de nuestras bases de datos activas. Si te arrepientes, deberás crear una cuenta nueva.
           </p>
           <p class="mt-md">
             Los datos agregados y anonimizados que ya no permiten identificarte (estadísticas de uso, por ejemplo) pueden conservarse de forma indefinida.

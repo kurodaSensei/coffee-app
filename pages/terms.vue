@@ -114,9 +114,8 @@ const LAST_UPDATED = '15 de mayo de 2026'
             Sorbo se reserva el derecho de suspender o eliminar cuentas que rompan estas reglas, sin previo aviso si la falta es grave. Para faltas leves, intentaremos contactarte primero.
           </p>
           <p class="mt-md">
-            Tú puedes cerrar tu cuenta cuando quieras desde la app o escribiendo a
-            <a href="mailto:info@sorbo.app" class="text-olive font-medium">info@sorbo.app</a>. Tras la eliminación, tus datos personales se borran de forma definitiva en un plazo de 30 días (ver la
-            <NuxtLink to="/privacy" class="text-olive font-medium">Política de Privacidad</NuxtLink>).
+            Tú puedes eliminar tu cuenta cuando quieras desde la app (Configuración → Cuenta → Eliminar mi cuenta). El borrado es <strong>inmediato e irreversible</strong>: todos tus cafés, catas, recetas, wishlist, amigos y perfil se eliminan al instante. Si te arrepientes, deberás crear una cuenta nueva. Ver la
+            <NuxtLink to="/privacy" class="text-olive font-medium">Política de Privacidad</NuxtLink> para más detalle.
           </p>
         </section>
 

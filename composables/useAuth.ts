@@ -10,6 +10,14 @@ import {
   updateProfile,
   type User,
 } from 'firebase/auth'
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+  doc,
+} from 'firebase/firestore'
 
 const currentUser = ref<User | null>(null)
 const authLoading = ref(true)
@@ -115,6 +123,62 @@ export const useAuth = () => {
     router.push('/login')
   }
 
+  /**
+   * Elimina la cuenta del usuario actual de forma permanente:
+   *  1. Borra todos sus documentos en Firestore (cafés, catas, recetas,
+   *     wishlist, tostadores) por query userId.
+   *  2. Borra friendships donde aparece.
+   *  3. Borra users/{uid} y userPreferences/{uid}.
+   *  4. Borra la cuenta de Firebase Auth.
+   *  5. Limpia stores y redirige a la landing.
+   *
+   * Acción IRREVERSIBLE. Si Auth pide reautenticación reciente, Firebase
+   * tira el error `auth/requires-recent-login` y el caller debe pedir
+   * al usuario que cierre sesión y vuelva a entrar.
+   */
+  const deleteAccount = async () => {
+    if (!currentUser.value) throw new Error('No hay sesión activa')
+    const { $db } = useNuxtApp()
+    const uid = currentUser.value.uid
+
+    // 1. Colecciones donde el dueño se identifica por `userId`.
+    const userScopedCollections = ['coffees', 'tastings', 'recipes', 'wishlist', 'roasters']
+    for (const coll of userScopedCollections) {
+      const q = query(collection($db, coll), where('userId', '==', uid))
+      const snap = await getDocs(q)
+      await Promise.all(snap.docs.map(d => deleteDoc(d.ref)))
+    }
+
+    // 2. Friendships donde el usuario aparece (cualquiera de los 2 lados).
+    const friendsQ = query(
+      collection($db, 'friendships'),
+      where('uids', 'array-contains', uid),
+    )
+    const friendsSnap = await getDocs(friendsQ)
+    await Promise.all(friendsSnap.docs.map(d => deleteDoc(d.ref)))
+
+    // 3. Perfil + preferencias (clave = uid).
+    await deleteDoc(doc($db, 'users', uid)).catch(() => {})
+    await deleteDoc(doc($db, 'userPreferences', uid)).catch(() => {})
+
+    // 4. Cuenta de Firebase Auth — puede pedir reautenticación reciente.
+    await $auth.currentUser?.delete()
+
+    // 5. Reset local + redirect.
+    currentUser.value = null
+    try {
+      useCoffeesStore().reset()
+      useTastingsStore().reset()
+      useRecipesStore().reset()
+      useRoastersStore().reset()
+      useWishlistStore().reset()
+      useFriendsStore().reset()
+      useSettingsStore().reset()
+    }
+    catch { /* ignore */ }
+    router.push('/')
+  }
+
   const userId = computed(() => currentUser.value?.uid || null)
 
   return {
@@ -126,5 +190,6 @@ export const useAuth = () => {
     loginWithGoogle,
     linkEmailPassword,
     logout,
+    deleteAccount,
   }
 }
