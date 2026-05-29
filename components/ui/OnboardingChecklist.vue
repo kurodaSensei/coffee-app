@@ -39,14 +39,14 @@ const steps = computed<Step[]>(() => [
     key: 'tasting',
     label: 'Haz tu primera cata',
     hint: '¿Cómo te supo? Sin tecnicismos.',
-    to: '/app/tastings',
+    to: '/app/tastings/new',
     done: tastingsStore.list.length > 0,
   },
   {
     key: 'recipe',
     label: 'Guarda una receta',
     hint: 'La preparación que te quedó perfecta.',
-    to: '/app/recipes',
+    to: '/app/recipes/new',
     done: recipesStore.list.length > 0,
   },
   {

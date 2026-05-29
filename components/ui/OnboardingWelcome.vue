@@ -20,7 +20,7 @@ interface Slide {
 
 const slides: Slide[] = [
   {
-    eyebrow: 'Bienvenido',
+    eyebrow: 'Hola',
     title: 'Tu diario de',
     italicWord: 'café',
     body: 'Sorbo es la memoria de cada taza que vale la pena recordar. Cataloga, prueba, comparte.',
@@ -41,7 +41,13 @@ const slides: Slide[] = [
     eyebrow: 'Paso 3 · Amigos',
     title: 'Comparte con tu',
     italicWord: 'tribu',
-    body: 'Invita a otros cafeteros y mira lo que están descubriendo. Sin algoritmo, sin ruido.',
+    body: 'Invita a otros cafeteros y comparte directamente lo que estás tomando. Tu gente, sin intermediarios.',
+  },
+  {
+    eyebrow: 'Paso 4 · Comunidad',
+    title: 'Descubre lo que otros',
+    italicWord: 'toman',
+    body: 'En Explora encuentras cafés, catas y recetas que la comunidad comparte. Para inspirarte, no para seguirte.',
   },
 ]
 
