@@ -446,7 +446,7 @@ function smoothScroll(id: string) {
             <ul>
               <!-- <li><NuxtLink to="/login">Iniciar sesión</NuxtLink></li>
               <li><NuxtLink to="/register">Crear cuenta</NuxtLink></li> -->
-              <li><a href="mailto:hola@kurodacafe.com">Contacto</a></li>
+              <li><a href="mailto:info@sorbo.app">Contacto</a></li>
             </ul>
           </div>
         </div>
