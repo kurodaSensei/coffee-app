@@ -113,6 +113,16 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/icons/favicon-32.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/icons/apple-touch-icon.png' },
       ],
+      script: [
+        // Google Analytics 4 (gtag.js)
+        {
+          async: true,
+          src: 'https://www.googletagmanager.com/gtag/js?id=G-0TCSTMMKGL',
+        },
+        {
+          innerHTML: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-0TCSTMMKGL');`,
+        },
+      ],
     },
     pageTransition: { name: 'page', mode: 'out-in' },
     layoutTransition: { name: 'layout', mode: 'out-in' },
