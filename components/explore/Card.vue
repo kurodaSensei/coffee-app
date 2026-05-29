@@ -9,6 +9,7 @@ const { getBrewMethodLabel } = useCatalog()
 const wishlistStore = useWishlistStore()
 const coffeesStore = useCoffeesStore()
 const recipesStore = useRecipesStore()
+const { trackEvent } = useAnalytics()
 
 const KIND_LABEL: Record<FeedItem['kind'], string> = {
   coffee: 'Café',
@@ -71,7 +72,11 @@ async function onSaveToWishlist() {
   if (!coffee.value || savingToWishlist.value) return
   savingToWishlist.value = true
   try {
-    await wishlistStore.addFromCoffee(coffee.value)
+    const result = await wishlistStore.addFromCoffee(coffee.value)
+    // Solo trackeamos cuando realmente se añadió algo nuevo (no duplicado).
+    if (result.added) {
+      trackEvent('explore_save_to_wishlist', { from: 'explore_feed' })
+    }
   }
   finally {
     savingToWishlist.value = false
@@ -83,8 +88,14 @@ async function onDuplicate() {
   if (duplicating.value) return
   duplicating.value = true
   try {
-    if (coffee.value) await coffeesStore.duplicate(coffee.value)
-    else if (recipe.value) await recipesStore.duplicate(recipe.value)
+    if (coffee.value) {
+      const id = await coffeesStore.duplicate(coffee.value)
+      if (id) trackEvent('explore_duplicate', { entity: 'coffee' })
+    }
+    else if (recipe.value) {
+      const id = await recipesStore.duplicate(recipe.value)
+      if (id) trackEvent('explore_duplicate', { entity: 'recipe' })
+    }
   }
   finally {
     duplicating.value = false

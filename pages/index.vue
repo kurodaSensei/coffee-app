@@ -73,6 +73,7 @@ const subscribed = ref(false)
 const formError = ref<string | null>(null)
 
 const { subscribe } = useWaitlist()
+const { trackEvent } = useAnalytics()
 
 async function onSubmit() {
   if (!email.value.trim() || submitting.value) return
@@ -84,6 +85,10 @@ async function onSubmit() {
   if (result.status === 'success' || result.status === 'duplicate') {
     subscribed.value = true
     email.value = ''
+    // Solo trackeamos altas reales, no re-envíos del mismo email.
+    if (result.status === 'success') {
+      trackEvent('waitlist_signup', { source: 'landing' })
+    }
   }
   else if (result.status === 'invalid') {
     formError.value = 'Ingresa un correo válido.'

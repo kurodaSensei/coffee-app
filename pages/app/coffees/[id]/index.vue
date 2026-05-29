@@ -381,6 +381,7 @@ async function onDelete() {
       v-if="coffee"
       v-model="shareOpen"
       :entity-name="coffee.name"
+      entity-kind="coffee"
       :initial-visibility="coffee.visibility ?? 'private'"
       :initial-shared-with="coffee.sharedWith ?? []"
       :on-save="(visibility, uids) => coffeesStore.updateVisibility(coffee!.id, visibility, uids)"

@@ -4,6 +4,7 @@ import { computed, ref, watchEffect } from 'vue'
 definePageMeta({ layout: 'auth', auth: false })
 
 const { register, loginWithGoogle, currentUser } = useAuth()
+const { trackEvent } = useAnalytics()
 const router = useRouter()
 const route = useRoute()
 
@@ -42,6 +43,7 @@ async function onSubmit(e: Event) {
   loading.value = true
   try {
     await register(email.value.trim(), password.value, name.value.trim())
+    trackEvent('signup_success', { method: 'email' })
     router.replace(redirectTo.value)
   }
   catch (err: any) {
@@ -57,6 +59,10 @@ async function onGoogle() {
   loadingGoogle.value = true
   try {
     await loginWithGoogle()
+    // Desde /register asumimos signup; Firebase no distingue first-time vs
+    // returning para Google en el mismo flow, pero la intención del usuario
+    // al estar en /register es crear cuenta.
+    trackEvent('signup_success', { method: 'google' })
     router.replace(redirectTo.value)
   }
   catch (err: any) {

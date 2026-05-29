@@ -51,12 +51,14 @@ const slides: Slide[] = [
   },
 ]
 
+const { trackEvent } = useAnalytics()
+
 const index = ref(0)
 const isLast = computed(() => index.value === slides.length - 1)
 const currentSlide = computed(() => slides[index.value])
 
 function next() {
-  if (isLast.value) finish()
+  if (isLast.value) finish(false)
   else index.value++
 }
 
@@ -64,7 +66,10 @@ function back() {
   if (index.value > 0) index.value--
 }
 
-function finish() {
+function finish(skipped = false) {
+  if (!skipped) {
+    trackEvent('welcome_completed', { slides: slides.length })
+  }
   emit('finish')
   emit('update:modelValue', false)
   // Reset for next mount in case the user logs out and back in
@@ -116,7 +121,7 @@ function finish() {
         <UiButton
           variant="ghost"
           :block="false"
-          @click="finish"
+          @click="finish(true)"
         >
           <span class="text-moss-soft">Saltar</span>
         </UiButton>

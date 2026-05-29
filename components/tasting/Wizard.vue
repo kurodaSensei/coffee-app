@@ -23,6 +23,7 @@ const router = useRouter()
 const tastingsStore = useTastingsStore()
 const coffeesStore = useCoffeesStore()
 const { brewMethodOptions, getBrewMethodLabel } = useCatalog()
+const { trackEvent } = useAnalytics()
 
 onMounted(() => {
   if (!coffeesStore.list.length) coffeesStore.loadAll().catch(() => {})
@@ -183,6 +184,15 @@ async function submit() {
     }
     else {
       const id = await tastingsStore.create(payload)
+      trackEvent('tasting_created', {
+        has_attributes: ratingAroma.value !== null
+          || ratingAcidity.value !== null
+          || ratingSweetness.value !== null
+          || ratingBody.value !== null
+          || ratingAftertaste.value !== null,
+        brew_method: brewMethod.value || 'unknown',
+        is_favorite: !!isFavorite.value,
+      })
       router.replace(`/app/tastings/${id}`)
     }
   }

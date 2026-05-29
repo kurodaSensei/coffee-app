@@ -23,6 +23,7 @@ const router = useRouter()
 const coffeesStore = useCoffeesStore()
 const roastersStore = useRoastersStore()
 const { processOptions, flavorNoteOptions } = useCatalog()
+const { trackEvent } = useAnalytics()
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Wizard state
@@ -229,6 +230,11 @@ async function submit() {
     }
     else {
       const id = await coffeesStore.create(payload)
+      trackEvent('coffee_created', {
+        has_sca_score: scaScore.value !== null && scaScore.value !== undefined,
+        process: process.value || 'other',
+        has_notes: flavorNotes.value.length > 0,
+      })
       router.replace(`/app/coffees/${id}`)
     }
   }

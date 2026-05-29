@@ -142,6 +142,7 @@ async function toggleFavorite() {
       v-if="tasting"
       v-model="shareOpen"
       :entity-name="`cata de ${tasting.coffeeName}`"
+      entity-kind="tasting"
       :initial-visibility="tasting.visibility ?? 'private'"
       :initial-shared-with="tasting.sharedWith ?? []"
       :on-save="(visibility, uids) => tastingsStore.updateVisibility(tasting!.id, visibility, uids)"

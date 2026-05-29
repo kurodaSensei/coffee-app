@@ -7,6 +7,8 @@ const props = defineProps<{
   modelValue: boolean
   /** Nombre del item (para el subtítulo). */
   entityName?: string
+  /** Tipo del item — usado para etiquetar el evento de analytics. */
+  entityKind?: 'coffee' | 'tasting' | 'recipe'
   initialVisibility?: Visibility
   initialSharedWith?: string[]
   /** Persiste la nueva visibilidad. */
@@ -20,6 +22,7 @@ const emit = defineEmits<{
 
 const friendsStore = useFriendsStore()
 const { confirm } = useConfirm()
+const { trackEvent } = useAnalytics()
 
 // Aviso de privacidad mostrado una sola vez por dispositivo.
 const communityWarned = useLocalStorage<boolean>('sorbo:community-warned', false)
@@ -96,6 +99,11 @@ async function save() {
   try {
     const uids = visibility.value === 'friends' ? selectedUids.value.slice() : []
     await props.onSave(visibility.value, uids)
+    trackEvent('visibility_changed', {
+      entity: props.entityKind || 'unknown',
+      visibility: visibility.value,
+      friends_count: uids.length,
+    })
     emit('saved', visibility.value, uids)
     emit('update:modelValue', false)
   }

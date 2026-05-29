@@ -58,10 +58,15 @@ export const usePwaInstall = () => {
   /** Settings ignora el flag de dismissed. */
   const canShowFromSettings = computed(() => !isStandalone.value)
 
+  const { trackEvent } = useAnalytics()
+
   async function install() {
     if (hasNativePrompt.value && $pwa) {
       const result = await $pwa.install()
-      if (result?.outcome === 'accepted') dismissed.value = true
+      if (result?.outcome === 'accepted') {
+        dismissed.value = true
+        trackEvent('pwa_install_accepted', { platform: result.platform || 'web' })
+      }
       return
     }
     if (isIOS.value) {

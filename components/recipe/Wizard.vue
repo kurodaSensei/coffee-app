@@ -18,6 +18,7 @@ const props = withDefaults(
 const router = useRouter()
 const recipesStore = useRecipesStore()
 const { brewMethodOptions, getBrewMethodLabel } = useCatalog()
+const { trackEvent } = useAnalytics()
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Wizard state
@@ -203,6 +204,12 @@ async function submit() {
     }
     else {
       const id = await recipesStore.create(payload)
+      trackEvent('recipe_created', {
+        has_steps: sortedSteps.value.length > 0,
+        step_count: sortedSteps.value.length,
+        brew_method: brewMethod.value || 'unknown',
+        has_author: !!author.value.trim(),
+      })
       router.replace(`/app/recipes/${id}`)
     }
   }
