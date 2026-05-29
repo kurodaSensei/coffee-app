@@ -1,9 +1,7 @@
 <!--
-  TODO LEGAL:
-  Reemplazar los placeholders [NOMBRE COMPLETO] y [CIUDAD] con los datos
-  reales del responsable. Estos documentos son razonables para una beta
-  pero no son consejo legal — antes de monetizar o expandir a UE/UK,
-  conviene revisión profesional.
+  Estos documentos son razonables para una beta pero no son consejo
+  legal. Antes de monetizar o expandir a UE/UK, conviene revisión
+  profesional.
 -->
 <script setup lang="ts">
 definePageMeta({ layout: false, auth: false })
@@ -48,7 +46,7 @@ const LAST_UPDATED = '15 de mayo de 2026'
         <section>
           <h2 class="font-display text-[24px] text-moss leading-tight">1. Quiénes somos</h2>
           <p class="mt-sm">
-            Sorbo es un proyecto operado por <strong>[NOMBRE COMPLETO]</strong>, persona natural con residencia en <strong>[CIUDAD], Colombia</strong>, bajo la marca <strong>KurodaCafe</strong>. Para cualquier asunto relacionado con estos términos puedes escribirnos a
+            Sorbo es un proyecto operado por <strong>Alfredo José Romero Morales</strong>, persona natural con residencia en <strong>Bogotá, Colombia</strong>, bajo la marca <strong>KurodaCafe</strong>. Para cualquier asunto relacionado con estos términos puedes escribirnos a
             <a href="mailto:info@sorbo.app" class="text-olive font-medium">info@sorbo.app</a>.
           </p>
         </section>
@@ -142,7 +140,7 @@ const LAST_UPDATED = '15 de mayo de 2026'
         <section>
           <h2 class="font-display text-[24px] text-moss leading-tight">10. Ley aplicable</h2>
           <p class="mt-sm">
-            Estos términos se rigen por la legislación de la República de Colombia. Cualquier disputa relacionada con el servicio será resuelta ante los tribunales competentes de <strong>[CIUDAD]</strong>, Colombia.
+            Estos términos se rigen por la legislación de la República de Colombia. Cualquier disputa relacionada con el servicio será resuelta ante los tribunales competentes de <strong>Bogotá</strong>, Colombia.
           </p>
         </section>
 

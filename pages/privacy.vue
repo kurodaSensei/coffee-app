@@ -1,9 +1,7 @@
 <!--
-  TODO LEGAL:
-  Reemplazar los placeholders [NOMBRE COMPLETO] y [CIUDAD] con los datos
-  reales del responsable. Estos documentos son razonables para una beta
-  pero no son consejo legal — antes de monetizar o expandir a UE/UK,
-  conviene revisión profesional.
+  Estos documentos son razonables para una beta pero no son consejo
+  legal. Antes de monetizar o expandir a UE/UK, conviene revisión
+  profesional.
 -->
 <script setup lang="ts">
 definePageMeta({ layout: false, auth: false })
@@ -48,7 +46,7 @@ const LAST_UPDATED = '15 de mayo de 2026'
         <section>
           <h2 class="font-display text-[24px] text-moss leading-tight">1. Responsable</h2>
           <p class="mt-sm">
-            <strong>[NOMBRE COMPLETO]</strong>, persona natural con residencia en <strong>[CIUDAD], Colombia</strong>, operando bajo la marca <strong>KurodaCafe</strong>, es responsable del tratamiento de los datos personales que recolecta Sorbo en cumplimiento de la Ley 1581 de 2012 de Colombia.
+            <strong>Alfredo José Romero Morales</strong>, persona natural con residencia en <strong>Bogotá, Colombia</strong>, operando bajo la marca <strong>KurodaCafe</strong>, es responsable del tratamiento de los datos personales que recolecta Sorbo en cumplimiento de la Ley 1581 de 2012 de Colombia.
           </p>
           <p class="mt-md">
             Para cualquier consulta o ejercicio de derechos sobre tus datos, escríbenos a
@@ -178,7 +176,7 @@ const LAST_UPDATED = '15 de mayo de 2026'
           </p>
           <p class="mt-sm">
             Correo: <a href="mailto:info@sorbo.app" class="text-olive font-medium">info@sorbo.app</a><br>
-            Responsable: <strong>[NOMBRE COMPLETO]</strong>, <strong>[CIUDAD]</strong>, Colombia.
+            Responsable: <strong>Alfredo José Romero Morales</strong>, <strong>Bogotá</strong>, Colombia.
           </p>
         </section>
       </div>
