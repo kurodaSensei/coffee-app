@@ -44,9 +44,6 @@ const items = computed<Recipe[]>(() => {
   })
 })
 
-const featured = computed(() => items.value[0] ?? null)
-const rest = computed(() => items.value.slice(1))
-
 const isEmpty = computed(() => items.value.length === 0)
 
 function formatTime(seconds: number): string {
@@ -65,9 +62,18 @@ function methodPill(r: Recipe): string {
   return getBrewMethodLabel(r.brewMethod)
 }
 
+// "Desconocido" es el placeholder cuando no se especifica autor — no lo tratamos
+// como autor real para evitar mostrarlo en italic-olive como si fuese una firma.
+function realAuthor(r: Recipe): string | null {
+  const a = r.author?.trim()
+  if (!a || a.toLowerCase() === 'desconocido') return null
+  return a
+}
+
 function rowEyebrow(r: Recipe): string {
   const method = methodPill(r).toUpperCase()
-  if (r.author) return `${method} · ${r.author.toUpperCase()}`
+  const author = realAuthor(r)
+  if (author) return `${method} · ${author.toUpperCase()}`
   return method
 }
 
@@ -147,75 +153,62 @@ function openSheet(r: Recipe) {
       </UiButton>
     </div>
 
-    <!-- List -->
+    <!-- List — todas las cards usan el mismo estilo light surface. Los specs
+         (dosis/ratio/temp/bestFor) se muestran solo si existen, evitando el
+         contraste visual fuerte que teníamos entre featured dark vs compact light. -->
     <div v-else class="mt-lg flex flex-col gap-sm lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-md">
-      <!-- Featured (first recipe) -->
       <button
-        v-if="featured"
-        type="button"
-        class="group relative overflow-hidden rounded-card-lg bg-moss text-paper p-md sm:p-lg text-left transition-transform duration-200 ease-sorbo hover:-translate-y-[2px] lg:col-span-2 xl:col-span-1"
-        @click="openSheet(featured)"
-      >
-        <div class="flex items-start justify-between gap-md">
-          <UiEyebrow class="text-paper/70">{{ (featured.author || 'Receta').toUpperCase() }}</UiEyebrow>
-          <UiChip variant="honey" compact class="!h-[22px]">
-            {{ methodPill(featured).toUpperCase() }}
-          </UiChip>
-        </div>
-
-        <h2 class="mt-sm font-display tracking-[-0.01em] leading-[0.95] text-[32px] sm:text-[36px]">
-          <template v-if="featured.author">
-            {{ getBrewMethodLabel(featured.brewMethod) }}<br>
-            <span class="italic text-honey">{{ featured.author }}</span>
-          </template>
-          <template v-else>
-            {{ recipeName(featured) }}
-          </template>
-        </h2>
-
-        <div class="mt-md grid grid-cols-3 gap-md">
-          <div class="flex flex-col gap-xxs">
-            <UiEyebrow class="text-paper/70">Dosis</UiEyebrow>
-            <span class="font-mono text-[14px] text-paper">{{ featured.dose }}g</span>
-          </div>
-          <div class="flex flex-col gap-xxs">
-            <UiEyebrow class="text-paper/70">Ratio</UiEyebrow>
-            <span class="font-mono text-[14px] text-honey">
-              {{ featured.ratio || `1:${Math.round(featured.water / featured.dose)}` }}
-            </span>
-          </div>
-          <div class="flex flex-col gap-xxs">
-            <UiEyebrow class="text-paper/70">Temp</UiEyebrow>
-            <span class="font-mono text-[14px] text-paper">
-              {{ featured.waterTemp ? `${featured.waterTemp}°` : '—' }}
-            </span>
-          </div>
-        </div>
-
-        <p v-if="featured.bestFor" class="mt-md font-display italic text-[14px] text-paper/80 leading-relaxed">
-          "{{ featured.bestFor }}"
-        </p>
-      </button>
-
-      <!-- Compact rows -->
-      <button
-        v-for="r in rest"
+        v-for="r in items"
         :key="r.id"
         type="button"
-        class="w-full rounded-card-sm bg-surface p-md text-left transition-colors duration-150 ease-sorbo hover:bg-surface-2"
+        class="w-full rounded-card-lg bg-surface p-md text-left transition-colors duration-150 ease-sorbo hover:bg-surface-2"
         @click="openSheet(r)"
       >
         <div class="flex items-start justify-between gap-md">
           <UiEyebrow>{{ rowEyebrow(r) }}</UiEyebrow>
+          <UiChip v-if="r.brewMethod" variant="default" compact class="!h-[22px]">
+            {{ methodPill(r).toUpperCase() }}
+          </UiChip>
+        </div>
+
+        <div class="mt-xs font-display tracking-[-0.01em] leading-[1.05] text-[26px] sm:text-[28px] text-moss truncate">
+          <template v-if="realAuthor(r)">
+            {{ getBrewMethodLabel(r.brewMethod) }} <span class="italic text-olive">{{ realAuthor(r) }}</span>
+          </template>
+          <template v-else>
+            {{ recipeName(r) }}
+          </template>
+        </div>
+
+        <!-- Specs row — solo si al menos uno existe -->
+        <div v-if="r.dose || r.ratio || r.water || r.waterTemp" class="mt-md grid grid-cols-3 gap-md">
+          <div v-if="r.dose" class="flex flex-col gap-xxs">
+            <UiEyebrow>Dosis</UiEyebrow>
+            <span class="font-mono text-[13px] text-moss">{{ r.dose }}g</span>
+          </div>
+          <div v-if="r.ratio || (r.water && r.dose)" class="flex flex-col gap-xxs">
+            <UiEyebrow>Ratio</UiEyebrow>
+            <span class="font-mono text-[13px] text-olive">
+              {{ r.ratio || `1:${Math.round(r.water / r.dose)}` }}
+            </span>
+          </div>
+          <div v-if="r.waterTemp" class="flex flex-col gap-xxs">
+            <UiEyebrow>Temp</UiEyebrow>
+            <span class="font-mono text-[13px] text-moss">{{ r.waterTemp }}°</span>
+          </div>
+        </div>
+
+        <!-- Duración compacta cuando no hay specs (recetas incompletas) -->
+        <div v-else class="mt-xs">
           <span class="font-mono text-[12px] text-moss-soft tabular-nums">
             {{ durationLabel(r) }}
           </span>
         </div>
-        <div class="mt-xs font-display text-[24px] leading-none text-moss truncate">
-          {{ recipeName(r) }}
-        </div>
-      </button>
 
+        <p v-if="r.bestFor" class="mt-md font-display italic text-[14px] text-moss-soft leading-relaxed line-clamp-2">
+          "{{ r.bestFor }}"
+        </p>
+      </button>
     </div>
 
     <!-- Mobile FAB (only when list has items) -->
