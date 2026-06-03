@@ -225,7 +225,7 @@ async function onDelete() {
       </div>
     </header>
 
-    <main class="flex-1 mx-auto w-full max-w-[1200px] px-md pt-lg pb-[120px] lg:px-xl xl:px-2xl lg:pt-xl lg:pb-2xl">
+    <main class="flex-1 mx-auto w-full max-w-[1200px] px-md pt-lg pb-[180px] lg:px-xl xl:px-2xl lg:pt-xl lg:pb-2xl">
       <!-- Loading -->
       <div v-if="loading" class="flex justify-center py-2xl">
         <span class="size-6 animate-spin rounded-full border-2 border-moss/20 border-t-moss" />

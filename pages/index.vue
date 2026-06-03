@@ -402,7 +402,7 @@ function smoothScroll(id: string) {
         <div class="meta">
           <span>Sin tarjeta</span>
           <span>Cancela cuando quieras</span>
-          <span>iOS · Android · Web</span>
+          <span>PWA en iOS · Android · Web</span>
         </div>
 
         <p class="waitlist-fineprint">
