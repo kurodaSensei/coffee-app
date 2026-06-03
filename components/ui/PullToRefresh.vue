@@ -130,9 +130,15 @@ onUnmounted(() => {
 
     <!-- Contenido — se desplaza hacia abajo según el pull. La transition se
          desactiva mientras el dedo está arrastrando (sigue 1:1) y se reactiva
-         al soltar para el spring-back. -->
+         al soltar para el spring-back.
+
+         CRÍTICO: el transform solo se aplica cuando hay pull activo o refresh
+         en curso. Si lo dejamos siempre con translate3d(0,0,0), este wrapper
+         se convierte en containing block para position:fixed descendants
+         (gotcha clásico de CSS), rompiendo el anchor de los FABs flotantes
+         de las listas (los pega al contenido en lugar del viewport). -->
     <div
-      :style="{ transform: `translate3d(0, ${pullDistance}px, 0)` }"
+      :style="(pullDistance > 0 || isRefreshing) ? { transform: `translate3d(0, ${pullDistance}px, 0)` } : undefined"
       :class="!isPulling && !isRefreshing ? 'transition-transform duration-300 ease-sorbo' : ''"
     >
       <slot />
