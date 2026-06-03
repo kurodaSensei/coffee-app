@@ -18,6 +18,10 @@ onMounted(async () => {
   }
 })
 
+async function refresh() {
+  await wishlistStore.loadAll()
+}
+
 const userName = computed(() =>
   currentUser.value?.displayName || currentUser.value?.email?.split('@')[0] || '',
 )
@@ -216,7 +220,8 @@ async function deleteItem() {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
+  <UiPullToRefresh :on-refresh="refresh">
+    <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Wishlist · {{ items.length }}</UiEyebrow>
       <div class="lg:hidden inline-flex items-center gap-sm">
@@ -427,5 +432,6 @@ async function deleteItem() {
         </UiButton>
       </div>
     </UiBottomSheet>
-  </div>
+    </div>
+  </UiPullToRefresh>
 </template>

@@ -19,6 +19,13 @@ onMounted(async () => {
   }
 })
 
+async function refresh() {
+  await Promise.all([
+    recipesStore.loadAll(),
+    recipesStore.loadShared().catch(() => {}),
+  ])
+}
+
 const userName = computed(() =>
   currentUser.value?.displayName || currentUser.value?.email?.split('@')[0] || '',
 )
@@ -94,7 +101,8 @@ function openSheet(r: Recipe) {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
+  <UiPullToRefresh :on-refresh="refresh">
+    <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Recetas · {{ mineCount }}</UiEyebrow>
       <div class="lg:hidden inline-flex items-center gap-sm">
@@ -234,5 +242,6 @@ function openSheet(r: Recipe) {
         </UiButton>
       </div>
     </UiBottomSheet>
-  </div>
+    </div>
+  </UiPullToRefresh>
 </template>

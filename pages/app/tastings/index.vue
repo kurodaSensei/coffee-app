@@ -22,6 +22,13 @@ onMounted(async () => {
   }
 })
 
+async function refresh() {
+  await Promise.all([
+    tastingsStore.loadAll(),
+    tastingsStore.loadShared().catch(() => {}),
+  ])
+}
+
 const userName = computed(() =>
   currentUser.value?.displayName || currentUser.value?.email?.split('@')[0] || '',
 )
@@ -91,7 +98,8 @@ const activeCoffee = computed<Coffee | null>(() => {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
+  <UiPullToRefresh :on-refresh="refresh">
+    <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Catas · {{ mineCount }}</UiEyebrow>
       <div class="lg:hidden inline-flex items-center gap-sm">
@@ -211,5 +219,6 @@ const activeCoffee = computed<Coffee | null>(() => {
         </UiButton>
       </div>
     </UiBottomSheet>
-  </div>
+    </div>
+  </UiPullToRefresh>
 </template>
