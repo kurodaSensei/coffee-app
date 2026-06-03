@@ -484,7 +484,7 @@ function smoothScroll(id: string) {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 50;
-  padding: 18px 32px;
+  padding: calc(env(safe-area-inset-top) + 18px) calc(env(safe-area-inset-right) + 32px) 18px calc(env(safe-area-inset-left) + 32px);
   display: flex;
   justify-content: space-between;
   align-items: center;
