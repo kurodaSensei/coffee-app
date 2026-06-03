@@ -1,0 +1,187 @@
+{
+  "collections": [
+    {
+      "name": "Sorbo Tokens",
+      "modes": ["Light"],
+      "variables": [
+        {
+          "name": "color/paper",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.9569, "g": 0.949, "b": 0.9216, "a": 1 } },
+          "description": "Background base — papel"
+        },
+        {
+          "name": "color/surface",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.8941, "g": 0.8902, "b": 0.8235, "a": 1 } },
+          "description": "Card surface — moods, hero cards en claro"
+        },
+        {
+          "name": "color/surface2",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.9216, "g": 0.9137, "b": 0.8627, "a": 1 } },
+          "description": "Chips default, button secondary"
+        },
+        {
+          "name": "color/jungle",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.0784, "g": 0.0902, "b": 0.0706, "a": 1 } },
+          "description": "Dark surface — HeroCard fondo, splash device frame"
+        },
+        {
+          "name": "color/olive",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.3333, "g": 0.4196, "b": 0.2275, "a": 1 } },
+          "description": "Brand verde — CTA primary, chips active, badges"
+        },
+        {
+          "name": "color/oliveDark",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.2745, "g": 0.349, "b": 0.1843, "a": 1 } },
+          "description": "Hover/active de olive"
+        },
+        {
+          "name": "color/oliveLight",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.5882, "g": 0.702, "b": 0.4157, "a": 1 } },
+          "description": "Acentos suaves, blobs decorativos, selección"
+        },
+        {
+          "name": "color/honey",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.898, "g": 0.7216, "b": 0.2941, "a": 1 } },
+          "description": "Acento dorado — dot del logo, accents editoriales, dots de loading"
+        },
+        {
+          "name": "color/moss",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.1843, "g": 0.2078, "b": 0.1569, "a": 1 } },
+          "description": "Texto principal sobre paper, fondo splash"
+        },
+        {
+          "name": "color/mossSoft",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.3725, "g": 0.4, "b": 0.3216, "a": 1 } },
+          "description": "Texto secundario, eyebrow"
+        },
+        {
+          "name": "color/mossGhost",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.5412, "g": 0.549, "b": 0.498, "a": 1 } },
+          "description": "Texto deshabilitado, placeholder, label inactivo de TabBar"
+        },
+        {
+          "name": "color/terracotta",
+          "type": "COLOR",
+          "valuesByMode": { "Light": { "r": 0.7569, "g": 0.2902, "b": 0.2275, "a": 1 } },
+          "description": "Crítico/destructivo — error inputs, eliminar cuenta"
+        },
+
+        {
+          "name": "spacing/xxs",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 4 }
+        },
+        {
+          "name": "spacing/xs",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 8 }
+        },
+        {
+          "name": "spacing/sm",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 12 }
+        },
+        {
+          "name": "spacing/md",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 16 }
+        },
+        {
+          "name": "spacing/lg",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 24 }
+        },
+        {
+          "name": "spacing/xl",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 40 }
+        },
+        {
+          "name": "spacing/size2xl",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 64 }
+        },
+        {
+          "name": "spacing/size3xl",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 80 }
+        },
+
+        {
+          "name": "radius/input",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 8 },
+          "description": "Inputs y selects"
+        },
+        {
+          "name": "radius/cardSm",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 12 },
+          "description": "Cards pequeñas, action menu items"
+        },
+        {
+          "name": "radius/cta",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 14 },
+          "description": "Botón primary/dark/ghost"
+        },
+        {
+          "name": "radius/card",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 14 },
+          "description": "Cards estándar"
+        },
+        {
+          "name": "radius/cardLg",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 18 },
+          "description": "Mood cards, hero cards"
+        },
+        {
+          "name": "radius/sheet",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 24 },
+          "description": "Bottom sheets, modales"
+        },
+        {
+          "name": "radius/pill",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 9999 },
+          "description": "Chips, dots, segmented"
+        },
+
+        {
+          "name": "opacity/40",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 0.4 }
+        },
+        {
+          "name": "opacity/55",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 0.55 }
+        },
+        {
+          "name": "opacity/60",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 0.6 }
+        },
+        {
+          "name": "opacity/70",
+          "type": "FLOAT",
+          "valuesByMode": { "Light": 0.7 }
+        }
+      ]
+    }
+  ]
+}
