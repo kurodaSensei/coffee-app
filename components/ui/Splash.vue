@@ -1,16 +1,27 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    /** Italic tagline below the wordmark. */
-    tagline?: string
     /** Footer line under the dots. */
     footer?: string
   }>(),
   {
-    tagline: '"el primer sorbo del día."',
     footer: '— Por KurodaCafe',
   },
 )
+
+// Editorial messages — pick one stable per mount (setup-time, hydration-safe).
+const messages = [
+  ['Cada taza guarda un ', 'recuerdo', '. Preparando el tuyo…'],
+  ['El mejor café es el que se ', 'recuerda', '. Un momento…'],
+  ['Tu diario de ', 'sorbos', ' está despertando…'],
+  ['Calentando el agua, ', 'moliendo', ' los recuerdos…'],
+  ['De la finca a tu ', 'memoria', '. Casi listo…'],
+] as const
+
+const picked = messages[Math.floor(Math.random() * messages.length)]
+const messageBefore = picked[0]
+const messageAccent = picked[1]
+const messageAfter = picked[2]
 </script>
 
 <template>
@@ -18,88 +29,61 @@ withDefaults(
     role="status"
     aria-live="polite"
     aria-label="Cargando Sorbo"
-    class="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-moss text-paper splash"
+    class="splash fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-moss text-paper"
   >
-    <!-- Subtle diagonal texture -->
-    <div aria-hidden="true" class="absolute inset-0 splash-texture" />
+    <!-- Diagonal texture overlay -->
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0 splash-texture" />
+
+    <!-- Radial honey/olive glow -->
+    <div aria-hidden="true" class="pointer-events-none absolute splash-glow" />
 
     <!-- Center stack -->
-    <div class="relative flex flex-col items-center px-md">
-      <!-- Steam wisps -->
-      <div class="relative flex h-[60px] w-[120px] items-end justify-center gap-md pb-xs">
-        <svg viewBox="0 0 12 60" width="12" height="60" class="steam-wisp steam-wisp-1" aria-hidden="true">
-          <path
-            d="M6 58 Q2 46 6 32 Q10 18 6 4"
-            stroke="#E5B84B"
-            stroke-width="3"
-            stroke-linecap="round"
-            fill="none"
-            opacity="0.6"
-          />
-        </svg>
-        <svg viewBox="0 0 12 60" width="12" height="60" class="steam-wisp steam-wisp-2" aria-hidden="true">
-          <path
-            d="M6 58 Q2 46 6 32 Q10 18 6 4"
-            stroke="#E5B84B"
-            stroke-width="3"
-            stroke-linecap="round"
-            fill="none"
-            opacity="0.85"
-          />
-        </svg>
-        <svg viewBox="0 0 12 60" width="12" height="60" class="steam-wisp steam-wisp-3" aria-hidden="true">
-          <path
-            d="M6 58 Q2 46 6 32 Q10 18 6 4"
-            stroke="#E5B84B"
-            stroke-width="3"
-            stroke-linecap="round"
-            fill="none"
-            opacity="0.6"
-          />
-        </svg>
-      </div>
-
-      <!-- Cup illustration -->
-      <svg viewBox="0 0 180 180" width="180" height="180" aria-hidden="true">
-        <!-- Saucer shadow -->
-        <ellipse cx="90" cy="162" rx="64" ry="6" fill="#5F6652" opacity="0.7" />
-        <!-- Cup body -->
-        <path
-          d="M40 70 L40 148 Q40 158 50 158 L122 158 Q132 158 132 148 L132 70 Z"
-          fill="#F4F2EB"
-        />
-        <!-- Handle -->
-        <path
-          d="M132 88 Q154 88 154 108 Q154 128 132 128"
-          stroke="#F4F2EB"
-          stroke-width="9"
-          fill="none"
-          stroke-linecap="round"
-        />
-        <!-- Coffee surface -->
-        <ellipse cx="86" cy="72" rx="46" ry="5" fill="#556B3A" />
+    <div class="relative z-[2] flex flex-col items-center px-md text-center">
+      <!-- Steam wisps (drawing animation) -->
+      <svg
+        class="splash-steam mb-[6px]"
+        width="90"
+        height="48"
+        viewBox="0 0 90 48"
+        aria-hidden="true"
+      >
+        <path d="M28 44 C28 32, 36 32, 36 22 C36 12, 31 9, 31 3" />
+        <path d="M46 46 C46 33, 54 33, 54 21 C54 9, 49 6, 49 1" />
+        <path d="M64 44 C64 32, 72 32, 72 22 C72 12, 67 9, 67 3" />
       </svg>
 
+      <!-- Mark badge -->
+      <div class="splash-mark flex size-[96px] items-center justify-center rounded-[24px] bg-olive">
+        <span class="font-display text-[66px] leading-none text-paper">
+          S<span class="text-honey">.</span>
+        </span>
+      </div>
+
       <!-- Wordmark -->
-      <h1 class="mt-xl font-display text-[48px] leading-none text-paper">
+      <h1 class="splash-wordmark mt-[32px] font-display text-[56px] leading-none text-paper">
         Sorbo<span class="text-honey">.</span>
       </h1>
 
-      <!-- Tagline -->
-      <p class="mt-sm font-display italic text-[14px] text-center text-paper/55">
-        {{ tagline }}
+      <!-- Byline -->
+      <p class="splash-byline mt-md font-mono text-[10px] uppercase tracking-[0.22em] text-paper/50">
+        {{ footer }}
+      </p>
+
+      <!-- Editorial message -->
+      <p class="splash-message mt-[36px] max-w-[260px] font-display italic text-[17px] leading-snug text-paper/70">
+        "{{ messageBefore }}<span class="text-honey not-italic-fix">{{ messageAccent }}</span>{{ messageAfter }}"
       </p>
     </div>
 
-    <!-- Bottom dots + author -->
-    <div class="absolute inset-x-0 bottom-[56px] flex flex-col items-center gap-md">
-      <div class="flex items-center gap-xs" aria-hidden="true">
-        <span class="splash-dot splash-dot-1 size-[6px] rounded-[3px] bg-honey" />
-        <span class="splash-dot splash-dot-2 size-[6px] rounded-[3px] bg-honey" />
-        <span class="splash-dot splash-dot-3 size-[6px] rounded-[3px] bg-honey" />
+    <!-- Bottom loader -->
+    <div class="splash-footer absolute inset-x-0 bottom-[56px] z-[2] flex flex-col items-center">
+      <div class="flex items-center gap-[7px]" aria-hidden="true">
+        <span class="splash-dot splash-dot-1 size-[7px] rounded-full bg-honey" />
+        <span class="splash-dot splash-dot-2 size-[7px] rounded-full bg-honey" />
+        <span class="splash-dot splash-dot-3 size-[7px] rounded-full bg-honey" />
       </div>
-      <p class="font-mono text-[9px] uppercase tracking-[0.16em] text-paper/45">
-        {{ footer }}
+      <p class="mt-[18px] font-mono text-[9px] uppercase tracking-[0.2em] text-paper/40">
+        Cargando tu diario
       </p>
     </div>
   </div>
@@ -107,47 +91,108 @@ withDefaults(
 
 <style scoped>
 .splash-texture {
-  background-image: linear-gradient(
+  background-image: repeating-linear-gradient(
     45deg,
-    transparent 0%,
-    transparent 1.6%,
-    rgba(244, 242, 235, 0.02) 1.6%,
-    rgba(244, 242, 235, 0.02) 1.72%
+    transparent 0,
+    transparent 16px,
+    rgba(244, 242, 235, 0.015) 16px,
+    rgba(244, 242, 235, 0.015) 17px
   );
-  background-size: 14px 14px;
 }
 
-.steam-wisp {
-  animation: steam-rise 3.2s ease-in-out infinite;
-  transform-origin: bottom center;
-}
-.steam-wisp-1 { animation-delay: 0s; }
-.steam-wisp-2 { animation-delay: 0.35s; }
-.steam-wisp-3 { animation-delay: 0.7s; }
-
-@keyframes steam-rise {
-  0% { transform: translateY(6px) scaleY(0.95); opacity: 0.3; }
-  50% { transform: translateY(0) scaleY(1); opacity: 1; }
-  100% { transform: translateY(-6px) scaleY(1.05); opacity: 0.4; }
+.splash-glow {
+  top: 38%;
+  left: 50%;
+  width: 420px;
+  height: 420px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(85, 107, 58, 0.5) 0%, transparent 62%);
 }
 
+/* Keep the honey accent italic-aligned with the surrounding serif italic */
+.not-italic-fix {
+  font-style: italic;
+}
+
+/* ---------- Steam (drawing) ---------- */
+.splash-steam {
+  opacity: 0;
+  animation: splash-steam-in 1s ease 0.3s forwards;
+}
+.splash-steam path {
+  stroke: var(--honey);
+  stroke-width: 3;
+  stroke-linecap: round;
+  fill: none;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: splash-steam-draw 2.4s ease-in-out infinite;
+}
+.splash-steam path:nth-child(1) { animation-delay: 0s; opacity: 0.55; }
+.splash-steam path:nth-child(2) { animation-delay: 0.3s; opacity: 0.85; }
+.splash-steam path:nth-child(3) { animation-delay: 0.6s; opacity: 0.55; }
+@keyframes splash-steam-draw {
+  0% { stroke-dashoffset: 60; opacity: 0; }
+  40% { opacity: 0.8; }
+  70% { stroke-dashoffset: 0; opacity: 0.5; }
+  100% { stroke-dashoffset: -20; opacity: 0; }
+}
+@keyframes splash-steam-in {
+  to { opacity: 1; }
+}
+
+/* ---------- Entrance choreography ---------- */
+.splash-mark {
+  opacity: 0;
+  transform: scale(0.7) translateY(16px);
+  box-shadow: 0 16px 40px rgba(85, 107, 58, 0.4);
+  animation: splash-mark-in 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.3) 0.15s forwards;
+}
+@keyframes splash-mark-in {
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.splash-wordmark,
+.splash-byline,
+.splash-message,
+.splash-footer {
+  opacity: 0;
+  transform: translateY(14px);
+}
+.splash-wordmark { animation: splash-rise 0.8s ease 0.45s forwards; }
+.splash-byline   { animation: splash-rise 0.8s ease 0.6s forwards; }
+.splash-message  { animation: splash-rise 1s ease 0.8s forwards; }
+.splash-footer   { animation: splash-rise 0.8s ease 1s forwards; }
+@keyframes splash-rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Dots ---------- */
 .splash-dot {
-  opacity: 0.25;
-  animation: dot-pulse 1.4s ease-in-out infinite;
+  opacity: 0.3;
+  animation: splash-dot 1.3s ease-in-out infinite;
 }
-.splash-dot-1 { animation-delay: 0s; }
-.splash-dot-2 { animation-delay: 0.2s; }
-.splash-dot-3 { animation-delay: 0.4s; }
-
-@keyframes dot-pulse {
-  0%, 100% { opacity: 0.25; }
-  50% { opacity: 0.85; }
+.splash-dot-2 { animation-delay: 0.18s; }
+.splash-dot-3 { animation-delay: 0.36s; }
+@keyframes splash-dot {
+  0%, 100% { opacity: 0.3; transform: translateY(0); }
+  45% { opacity: 1; transform: translateY(-3px); }
 }
 
+/* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .steam-wisp,
-  .splash-dot {
+  .splash-steam,
+  .splash-mark,
+  .splash-wordmark,
+  .splash-byline,
+  .splash-message,
+  .splash-footer,
+  .splash-dot,
+  .splash-steam path {
     animation: none;
+    opacity: 1;
+    transform: none;
+    stroke-dashoffset: 0;
   }
 }
 </style>
