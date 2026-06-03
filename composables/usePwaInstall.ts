@@ -55,8 +55,12 @@ export const usePwaInstall = () => {
     return true
   })
 
-  /** Settings ignora el flag de dismissed. */
-  const canShowFromSettings = computed(() => !isStandalone.value)
+  /**
+   * Settings es el camino secundario: solo aparece cuando el banner del
+   * dashboard fue descartado. Si el banner sigue visible, no duplicamos la
+   * acción en ajustes (genera ruido y confusión).
+   */
+  const canShowFromSettings = computed(() => !isStandalone.value && dismissed.value)
 
   const { trackEvent } = useAnalytics()
 

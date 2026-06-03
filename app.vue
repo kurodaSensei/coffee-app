@@ -5,8 +5,11 @@ import { Toaster } from 'vue-sonner'
 const { authLoading } = useAuth()
 const { iosSheetOpen, androidSheetOpen } = usePwaInstall()
 
-// Hold the splash for at least MIN_SPLASH_MS so it never flashes.
-const MIN_SPLASH_MS = 700
+// Hold the splash for at least MIN_SPLASH_MS so it nunca flashea ni se pierde
+// en cargas rápidas. Con 1500ms el usuario ve el splash a full opacity ~1
+// segundo (descontando los 300ms del fade-in inicial), suficiente para que
+// el detalle editorial (badge S. + mensaje rotativo) sea perceptible.
+const MIN_SPLASH_MS = 1500
 const splashHeld = ref(true)
 
 onMounted(() => {

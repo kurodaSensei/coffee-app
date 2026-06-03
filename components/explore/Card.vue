@@ -108,12 +108,27 @@ const coffeeEyebrow = computed(() => {
   const proc = c.process ? PROCESS_LABEL[c.process] || '' : ''
   return [proc, c.originRegion].filter(Boolean).join(' · ')
 })
+
+// Acento de borde izquierdo por tipo — permite escanear el feed de un vistazo.
+// Implementado con inset box-shadow para que respete border-radius (un border-left
+// regular cortaría los corners redondeados).
+const accentClass = computed(() => {
+  switch (props.item.kind) {
+    case 'coffee': return 'shadow-[inset_3px_0_0_var(--honey)]'
+    case 'tasting': return 'shadow-[inset_3px_0_0_var(--olive)]'
+    case 'recipe': return 'shadow-[inset_3px_0_0_var(--terracotta)]'
+    default: return ''
+  }
+})
 </script>
 
 <template>
   <NuxtLink
     :to="detailLink"
-    class="block rounded-card-lg bg-surface p-md transition-colors duration-150 ease-sorbo hover:bg-surface-2"
+    :class="[
+      'relative block rounded-card-lg bg-surface p-md transition-colors duration-150 ease-sorbo hover:bg-surface-2',
+      accentClass,
+    ]"
   >
     <!-- Autor -->
     <header class="flex items-center gap-sm">
@@ -179,10 +194,12 @@ const coffeeEyebrow = computed(() => {
       </div>
     </div>
 
-    <!-- Acciones de la card (no se propagan al NuxtLink) -->
+    <!-- Acciones overlay top-right — no se propagan al NuxtLink.
+         Posicionadas absolute para no ocupar espacio en el flow y no chocar
+         con el TabBar mobile. -->
     <div
       v-if="coffee || recipe"
-      class="mt-md flex items-center justify-end gap-xs"
+      class="absolute top-md right-md flex items-center gap-xxs"
     >
       <button
         v-if="coffee"
@@ -190,7 +207,7 @@ const coffeeEyebrow = computed(() => {
         class="inline-flex items-center justify-center size-[32px] rounded-pill transition-colors duration-150 ease-sorbo disabled:opacity-50"
         :class="inWishlist
           ? 'bg-honey text-jungle'
-          : 'bg-surface-2 text-moss-soft hover:bg-surface hover:text-moss'"
+          : 'bg-paper/80 backdrop-blur-sm text-moss-soft hover:bg-paper hover:text-moss'"
         :aria-label="inWishlist ? 'Ya en tu wishlist' : 'Guardar a wishlist'"
         :disabled="savingToWishlist"
         @click.stop.prevent="onSaveToWishlist"
@@ -204,7 +221,7 @@ const coffeeEyebrow = computed(() => {
 
       <button
         type="button"
-        class="inline-flex items-center justify-center size-[32px] rounded-pill bg-surface-2 text-moss-soft hover:bg-surface hover:text-moss transition-colors duration-150 ease-sorbo disabled:opacity-50"
+        class="inline-flex items-center justify-center size-[32px] rounded-pill bg-paper/80 backdrop-blur-sm text-moss-soft hover:bg-paper hover:text-moss transition-colors duration-150 ease-sorbo disabled:opacity-50"
         :aria-label="coffee ? 'Añadir a mi colección' : 'Añadir a mis recetas'"
         :disabled="duplicating"
         @click.stop.prevent="onDuplicate"

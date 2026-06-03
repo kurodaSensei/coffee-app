@@ -14,7 +14,7 @@ const props = withDefaults(
 
 <template>
   <div
-    :class="cn('flex items-center gap-xxs w-full', $props.class)"
+    :class="cn('flex items-center gap-xs w-full', $props.class)"
     role="progressbar"
     :aria-valuenow="current"
     :aria-valuemin="1"
@@ -25,8 +25,12 @@ const props = withDefaults(
       :key="i"
       :class="
         cn(
-          'flex-1 h-[3px] rounded-pill transition-colors duration-200 ease-sorbo',
-          i <= current ? 'bg-olive' : 'bg-moss/10',
+          'h-[5px] rounded-pill transition-all duration-300 ease-sorbo',
+          i === current
+            ? 'flex-[2] bg-olive'
+            : i < current
+              ? 'flex-1 bg-olive'
+              : 'flex-1 bg-moss/20',
         )
       "
     />

@@ -40,11 +40,40 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+
+    /* Native-like: evita scroll chaining y previene pull-to-refresh del
+       browser que cerraba la PWA al tirar hacia abajo desde el top.
+       En iOS 16+ también minimiza el rubber-band. */
+    overscroll-behavior: contain;
   }
 
-  /* Tap target reset for mobile */
-  button, [role="button"], a {
+  /* Tap target reset + native-like behavior en elementos interactivos.
+     - tap-highlight-color: transparent → sin flash azul al tocar
+     - touch-action: manipulation → previene double-tap zoom de iOS
+     - touch-callout: none → previene el menu nativo (Copy/Share/Look up)
+       al hacer long press sobre botones e iconos
+     - user-select: none → previene selección accidental al tocar UI */
+  button, [role="button"], [role="tab"], a, label, summary, .eyebrow {
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Pero permitimos selección de texto en contenido editorial — el usuario
+     puede querer copiar una nota de cata, un quote del manifesto, etc. */
+  p, h1, h2, h3, h4, h5, h6, blockquote, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
+
+  /* Inputs explícitamente seleccionables y con callout normal */
+  input, textarea, select {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
   }
 
   /* Selection */
@@ -142,6 +171,28 @@
   .layout-enter-from,
   .layout-leave-to {
     opacity: 0;
+  }
+
+  /* Wizards (cafés/catas/recetas /new) — slide-up + fade al entrar,
+     slide-down + fade al salir. Da la sensación de "estás entrando a un
+     flujo focalizado" que el page-transition genérico no transmite. */
+  .wizard-enter-active {
+    transition:
+      opacity 350ms cubic-bezier(0.2, 0.9, 0.3, 1),
+      transform 350ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  .wizard-leave-active {
+    transition:
+      opacity 250ms cubic-bezier(0.4, 0, 0.6, 1),
+      transform 250ms cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  .wizard-enter-from {
+    opacity: 0;
+    transform: translateY(48px);
+  }
+  .wizard-leave-to {
+    opacity: 0;
+    transform: translateY(24px);
   }
 }
 

@@ -19,7 +19,7 @@ const LAST_UPDATED = '15 de mayo de 2026'
 
 <template>
   <div class="min-h-svh bg-paper text-moss">
-    <header class="border-b border-moss/10">
+    <header class="border-b border-moss/10 pt-[env(safe-area-inset-top)]">
       <div class="mx-auto max-w-[720px] flex items-center justify-between px-md py-md lg:px-xl">
         <NuxtLink to="/" class="inline-flex items-center gap-xs font-display text-[20px] text-moss">
           <img src="/sorbo.svg" alt="" aria-hidden="true" class="size-6">

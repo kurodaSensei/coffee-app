@@ -20,6 +20,10 @@ onMounted(() => {
   if (wishlistStore.list.length === 0) wishlistStore.loadAll().catch(() => {})
 })
 
+async function refresh() {
+  await load()
+}
+
 const userName = computed(() =>
   currentUser.value?.displayName || currentUser.value?.email?.split('@')[0] || '',
 )
@@ -38,7 +42,8 @@ const kindFilters = computed(() => [
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
+  <UiPullToRefresh :on-refresh="refresh">
+    <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Explora</UiEyebrow>
       <div class="lg:hidden inline-flex items-center gap-sm">
@@ -115,5 +120,6 @@ const kindFilters = computed(() => [
         :item="item"
       />
     </div>
-  </div>
+    </div>
+  </UiPullToRefresh>
 </template>

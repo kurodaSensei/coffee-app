@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-definePageMeta({ layout: false })
+definePageMeta({
+  layout: false,
+  pageTransition: { name: 'wizard', mode: 'out-in' },
+})
 
 const route = useRoute()
 const initialCoffeeId = computed(() => {

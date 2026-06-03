@@ -1,5 +1,8 @@
 <script setup lang="ts">
-definePageMeta({ layout: false })
+definePageMeta({
+  layout: false,
+  pageTransition: { name: 'wizard', mode: 'out-in' },
+})
 </script>
 
 <template>

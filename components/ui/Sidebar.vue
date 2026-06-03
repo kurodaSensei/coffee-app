@@ -58,13 +58,22 @@ function isActive(to: string): boolean {
               :aria-current="isActive(item.to) ? 'page' : undefined"
               :class="
                 cn(
-                  'block px-sm py-[10px] rounded-cta font-sans text-label transition-colors duration-150 ease-sorbo',
+                  'flex items-center gap-sm px-sm py-[10px] rounded-cta font-sans text-label transition-colors duration-150 ease-sorbo',
                   isActive(item.to)
-                    ? 'bg-surface-2 text-moss'
+                    ? 'text-olive font-medium'
                     : 'text-moss-soft hover:bg-surface-2/60 hover:text-moss',
                 )
               "
             >
+              <span
+                aria-hidden="true"
+                :class="
+                  cn(
+                    'inline-block size-[6px] rounded-pill transition-colors duration-150',
+                    isActive(item.to) ? 'bg-olive' : 'bg-transparent',
+                  )
+                "
+              />
               {{ item.label }}
             </NuxtLink>
           </li>

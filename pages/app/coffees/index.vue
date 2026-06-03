@@ -19,6 +19,14 @@ onMounted(async () => {
   }
 })
 
+// Pull-to-refresh: recarga ambas listas (propios + compartidos) en paralelo
+async function refresh() {
+  await Promise.all([
+    coffeesStore.loadAll(),
+    coffeesStore.loadShared().catch(() => {}),
+  ])
+}
+
 const tab = ref<'mine' | 'shared'>('mine')
 
 const mineCount = computed(() => coffeesStore.list.length)
@@ -88,7 +96,8 @@ const filtersOpen = ref(false)
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl lg:pb-2xl">
+  <UiPullToRefresh :on-refresh="refresh">
+    <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl lg:pb-2xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Cafés · {{ mineCount }}</UiEyebrow>
       <div class="lg:hidden inline-flex items-center gap-sm">
@@ -205,5 +214,6 @@ const filtersOpen = ref(false)
     </NuxtLink>
 
     <CoffeeFiltersSheet v-model="filtersOpen" />
-  </div>
+    </div>
+  </UiPullToRefresh>
 </template>

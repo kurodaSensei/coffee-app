@@ -55,17 +55,29 @@ onUnmounted(() => {
 
 // Posicionamos el dropdown vía Teleport + position:fixed para que no se corte
 // cuando el botón está cerca del borde izquierdo (sidebar desktop) o derecho
-// (avatar mobile). Decidimos alinear left o right según en qué mitad del
-// viewport esté el botón.
+// (avatar mobile). En mobile (vw < 768) usamos full-width anchored al header
+// porque el panel de 320px solapa con el hero a 390-500px de ancho.
 const { x: btnX, y: btnY, width: btnW, height: btnH } = useElementBounding(buttonRef)
 const { width: vw } = useWindowSize()
 
+const isMobile = computed(() => vw.value < 768)
+
 const dropdownStyle = computed(() => {
-  const btnRight = btnX.value + btnW.value
   const top = btnY.value + btnH.value + 8
   const margin = 12
-  // Si el botón está más cerca del borde derecho, alineamos el dropdown a la
-  // derecha del botón; si está más a la izquierda, alineamos a la izquierda.
+
+  // Mobile: full-width anchored al header, evita el solape con el hero
+  if (isMobile.value) {
+    return {
+      position: 'fixed' as const,
+      top: `${top}px`,
+      left: `${margin}px`,
+      right: `${margin}px`,
+    }
+  }
+
+  // Desktop: dropdown alineado al borde del botón (left/right según mitad de viewport)
+  const btnRight = btnX.value + btnW.value
   const alignRight = btnRight > vw.value / 2
   if (alignRight) {
     return {
@@ -160,7 +172,12 @@ async function reject(f: Friendship) {
         role="dialog"
         aria-label="Solicitudes de amistad"
         :style="dropdownStyle"
-        class="z-40 w-[320px] max-w-[calc(100vw-24px)] rounded-card-lg bg-paper border border-moss/10 shadow-[0_12px_32px_rgba(47,53,40,0.12)] p-md"
+        :class="
+          cn(
+            'z-40 rounded-card-lg bg-paper border border-moss/10 shadow-[0_12px_32px_rgba(47,53,40,0.12)] p-md',
+            isMobile ? 'w-auto' : 'w-[320px] max-w-[calc(100vw-24px)]',
+          )
+        "
       >
       <div class="flex items-center justify-between gap-md pb-sm">
         <UiEyebrow>Solicitudes</UiEyebrow>

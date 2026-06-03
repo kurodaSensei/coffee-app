@@ -2,7 +2,10 @@
 import { computed, onMounted, ref } from 'vue'
 import type { Coffee } from '~/types'
 
-definePageMeta({ layout: false })
+definePageMeta({
+  layout: false,
+  pageTransition: { name: 'wizard', mode: 'out-in' },
+})
 
 const route = useRoute()
 const router = useRouter()

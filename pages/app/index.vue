@@ -204,7 +204,7 @@ const stats = computed(() => {
         class="col-span-2 lg:row-span-2"
       />
       <UiQuickCard eyebrow="Rápido" label="Nueva cata" to="/app/tastings/new" />
-      <UiQuickCard eyebrow="Rápido" label="+ Café" to="/app/coffees/new" />
+      <UiQuickCard eyebrow="Rápido" label="Nuevo café" to="/app/coffees/new" />
     </section>
 
     <!-- Stats -->
@@ -229,7 +229,8 @@ const stats = computed(() => {
         </div>
         <div class="flex items-center justify-between border-b border-moss/10 py-md">
           <span class="font-display italic text-[16px] text-moss-soft">score promedio</span>
-          <span class="font-mono text-[15px] text-olive">{{ stats.avgScore !== null ? stats.avgScore : '—' }}</span>
+          <span v-if="stats.avgScore !== null" class="font-mono text-[15px] text-olive">{{ stats.avgScore }}</span>
+          <span v-else class="font-mono text-[10px] uppercase tracking-eyebrow text-moss-ghost">sin catas</span>
         </div>
       </div>
 
@@ -244,7 +245,8 @@ const stats = computed(() => {
           <span class="font-display italic text-[14px] text-moss-soft">{{ stats.tastings === 1 ? 'cata registrada' : 'catas registradas' }}</span>
         </div>
         <div class="flex flex-col gap-sm">
-          <span class="font-display text-[64px] leading-none text-olive">{{ stats.avgScore !== null ? stats.avgScore : '—' }}</span>
+          <span v-if="stats.avgScore !== null" class="font-display text-[64px] leading-none text-olive">{{ stats.avgScore }}</span>
+          <span v-else class="font-display italic text-[28px] leading-none text-moss-ghost">sin catas</span>
           <span class="font-display italic text-[14px] text-moss-soft">score promedio</span>
         </div>
       </div>

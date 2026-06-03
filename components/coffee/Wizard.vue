@@ -267,7 +267,7 @@ const submitLabel = computed(() =>
 
 <template>
   <div class="min-h-svh bg-paper text-moss font-sans antialiased flex flex-col">
-    <header class="px-md pt-md lg:px-xl">
+    <header class="px-md pt-[calc(env(safe-area-inset-top)+16px)] lg:px-xl">
       <div class="mx-auto w-full max-w-[640px] flex items-center justify-between gap-md">
         <button
           v-if="step === 1"

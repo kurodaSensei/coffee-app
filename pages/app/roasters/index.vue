@@ -39,10 +39,11 @@ function coffeesCount(roasterId: string): number {
   return (coffeesStore.list as { roasterId?: string }[]).filter(c => c.roasterId === roasterId).length
 }
 
-function avatarTone(name: string): 'olive' | 'honey' | 'jungle' | 'surface' {
-  // simple deterministic pick based on first char
+function avatarTone(name: string): 'olive' | 'honey' | 'jungle' {
+  // simple deterministic pick based on first char.
+  // No 'surface' aquí: las cards son bg-surface y el avatar surface se difumina.
   const c = (name || '?').charCodeAt(0)
-  const tones: Array<'olive' | 'honey' | 'jungle' | 'surface'> = ['olive', 'honey', 'jungle', 'surface']
+  const tones: Array<'olive' | 'honey' | 'jungle'> = ['olive', 'honey', 'jungle']
   return tones[c % tones.length]
 }
 

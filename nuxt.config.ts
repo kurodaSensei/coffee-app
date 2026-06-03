@@ -100,6 +100,16 @@ export default defineNuxtConfig({
       title: 'Sorbo',
       meta: [
         { name: 'description', content: 'Un diario para cada sorbo' },
+        // viewport-fit=cover → habilita safe-area-inset-* en iPhone con notch.
+        // interactive-widget=resizes-content → cuando aparece el keyboard,
+        // achica el viewport en lugar de superponer el teclado encima.
+        // NO usamos maximum-scale ni user-scalable=no porque rompen WCAG
+        // (usuarios con baja visión necesitan poder zoomear). El doble-tap
+        // zoom de botones lo previene `touch-action: manipulation` en CSS.
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content',
+        },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
       ],

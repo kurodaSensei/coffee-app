@@ -429,28 +429,16 @@ function smoothScroll(id: string) {
             <p class="tag">"Un diario para cada sorbo. Hecho desde Colombia, con demasiados naturales."</p>
           </div>
 
+          <!-- Una sola columna de links — las anteriores Comunidad y Cuenta
+               tenían solo 1 item cada una y se veían desbalanceadas. -->
           <div class="footer-col">
-            <h4>— Producto</h4>
+            <h4>— Links</h4>
             <ul>
               <li><a href="#features" @click.prevent="smoothScroll('features')">Features</a></li>
               <li><a href="#como" @click.prevent="smoothScroll('como')">Cómo funciona</a></li>
               <li><a href="#por-que" @click.prevent="smoothScroll('por-que')">Por qué Sorbo</a></li>
               <li><a href="#waitlist" @click.prevent="smoothScroll('waitlist')">Waitlist</a></li>
-            </ul>
-          </div>
-
-          <div class="footer-col">
-            <h4>— Comunidad</h4>
-            <ul>
               <li><a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener">Instagram</a></li>
-            </ul>
-          </div>
-
-          <div class="footer-col">
-            <h4>— Cuenta</h4>
-            <ul>
-              <!-- <li><NuxtLink to="/login">Iniciar sesión</NuxtLink></li>
-              <li><NuxtLink to="/register">Crear cuenta</NuxtLink></li> -->
               <li><a href="mailto:info@sorbo.app">Contacto</a></li>
             </ul>
           </div>
@@ -496,7 +484,7 @@ function smoothScroll(id: string) {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 50;
-  padding: 18px 32px;
+  padding: calc(env(safe-area-inset-top) + 18px) calc(env(safe-area-inset-right) + 32px) 18px calc(env(safe-area-inset-left) + 32px);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1452,7 +1440,7 @@ function smoothScroll(id: string) {
 }
 .footer-top {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 40px;
   padding-bottom: 56px;
   border-bottom: 1px solid rgba(244, 242, 235, 0.14);
