@@ -108,12 +108,27 @@ const coffeeEyebrow = computed(() => {
   const proc = c.process ? PROCESS_LABEL[c.process] || '' : ''
   return [proc, c.originRegion].filter(Boolean).join(' · ')
 })
+
+// Acento de borde izquierdo por tipo — permite escanear el feed de un vistazo.
+// Implementado con inset box-shadow para que respete border-radius (un border-left
+// regular cortaría los corners redondeados).
+const accentClass = computed(() => {
+  switch (props.item.kind) {
+    case 'coffee': return 'shadow-[inset_3px_0_0_var(--honey)]'
+    case 'tasting': return 'shadow-[inset_3px_0_0_var(--olive)]'
+    case 'recipe': return 'shadow-[inset_3px_0_0_var(--terracotta)]'
+    default: return ''
+  }
+})
 </script>
 
 <template>
   <NuxtLink
     :to="detailLink"
-    class="relative block rounded-card-lg bg-surface p-md transition-colors duration-150 ease-sorbo hover:bg-surface-2"
+    :class="[
+      'relative block rounded-card-lg bg-surface p-md transition-colors duration-150 ease-sorbo hover:bg-surface-2',
+      accentClass,
+    ]"
   >
     <!-- Autor -->
     <header class="flex items-center gap-sm">
