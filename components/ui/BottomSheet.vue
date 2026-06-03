@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onUnmounted, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
+import { useWindowSize } from '@vueuse/core'
 
 const props = withDefaults(
   defineProps<{
@@ -27,6 +28,11 @@ watch(
   (open) => {
     if (typeof document === 'undefined') return
     document.body.style.overflow = open ? 'hidden' : ''
+    // Reset drag state cuando se abre — por si quedó algo del cierre anterior.
+    if (open) {
+      dragY.value = 0
+      isDragging.value = false
+    }
   },
 )
 
@@ -43,6 +49,74 @@ if (typeof window !== 'undefined') {
 onUnmounted(() => {
   if (typeof document !== 'undefined') document.body.style.overflow = ''
 })
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Drag-to-close (mobile only)
+// ─────────────────────────────────────────────────────────────────────────────
+// Threshold de cierre: si el usuario arrastra más del 25% de la altura del
+// sheet O suelta con velocidad descendente alta, se cierra. Si no, vuelve
+// a su posición con un spring-back suave.
+
+const sheetRef = ref<HTMLElement | null>(null)
+const isDragging = ref(false)
+const dragY = ref(0)
+
+// Drag solo en mobile — en desktop el sheet es un modal centrado y aplicarle
+// transform translate3d rompería el lg:-translate-x-1/2 lg:-translate-y-1/2.
+const { width: vw } = useWindowSize()
+const isMobile = computed(() => vw.value < 1024)
+
+let startY = 0
+let startTime = 0
+let pointerId: number | null = null
+
+function onDragStart(e: PointerEvent) {
+  // Solo botón principal del mouse o cualquier touch
+  if (e.pointerType === 'mouse' && e.button !== 0) return
+  startY = e.clientY
+  startTime = performance.now()
+  pointerId = e.pointerId
+  isDragging.value = true
+  // Capturamos el pointer para recibir eventos aunque el dedo salga del handle
+  ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+}
+
+function onDragMove(e: PointerEvent) {
+  if (!isDragging.value || e.pointerId !== pointerId) return
+  const delta = e.clientY - startY
+  // Solo arrastre hacia abajo — si tira hacia arriba, no se mueve
+  dragY.value = Math.max(0, delta)
+}
+
+function onDragEnd(e: PointerEvent) {
+  if (!isDragging.value || e.pointerId !== pointerId) return
+  const elapsed = performance.now() - startTime
+  const distance = dragY.value
+  const velocity = distance / Math.max(elapsed, 1) // px/ms
+
+  const sheetHeight = sheetRef.value?.offsetHeight || 600
+  const distanceThreshold = sheetHeight * 0.25
+  const velocityThreshold = 0.6 // px/ms — un swipe rápido cierra
+
+  const shouldClose = distance > distanceThreshold || velocity > velocityThreshold
+
+  isDragging.value = false
+  pointerId = null
+
+  if (shouldClose) {
+    // Reset dragY antes de emitir close: el inline style :style desaparece
+    // y la leave-to-class translate-y-full puede tomar control para hacer
+    // el slide-down completo. Sin esto, el inline transform "100px" ganaría
+    // al class translate-y-full y el sheet se quedaría visible.
+    dragY.value = 0
+    close()
+  }
+  else {
+    // Spring-back animado a 0 — la transition CSS se reactiva cuando
+    // isDragging=false, así que basta con setear dragY=0.
+    dragY.value = 0
+  }
+}
 </script>
 
 <template>
@@ -68,15 +142,31 @@ onUnmounted(() => {
     >
       <div
         v-if="modelValue"
+        ref="sheetRef"
         role="dialog"
         aria-modal="true"
         :aria-label="title"
-        class="fixed inset-x-0 bottom-0 z-50 max-h-[88svh] flex flex-col rounded-t-sheet bg-paper text-moss
-               shadow-[0_-12px_40px_rgba(20,23,18,0.18)]
-               lg:inset-auto lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-full lg:max-w-[440px] lg:rounded-card-lg lg:max-h-[80vh] lg:shadow-[0_24px_60px_rgba(20,23,18,0.24)]"
+        :style="isMobile && dragY > 0 ? { transform: `translate3d(0, ${dragY}px, 0)` } : undefined"
+        :class="[
+          'fixed inset-x-0 bottom-0 z-50 max-h-[88svh] flex flex-col rounded-t-sheet bg-paper text-moss',
+          'shadow-[0_-12px_40px_rgba(20,23,18,0.18)]',
+          'lg:inset-auto lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-full lg:max-w-[440px] lg:rounded-card-lg lg:max-h-[80vh] lg:shadow-[0_24px_60px_rgba(20,23,18,0.24)]',
+          // Mientras el usuario arrastra desactivamos transición para que la
+          // posición siga al dedo 1:1. Al soltar, restauramos la transición
+          // para que el spring-back sea suave.
+          !isDragging && 'transition-transform duration-200 ease-sorbo',
+        ]"
       >
-        <!-- Drag handle (mobile only) -->
-        <div class="lg:hidden flex justify-center pt-sm pb-xs shrink-0">
+        <!-- Drag handle (mobile only) — el touch-action: none reserva el
+             gesto vertical para nosotros (sin esto el browser intenta
+             scrollear y nuestro pointermove no recibe deltas claros). -->
+        <div
+          class="lg:hidden flex justify-center pt-sm pb-xs shrink-0 touch-none cursor-grab active:cursor-grabbing"
+          @pointerdown="onDragStart"
+          @pointermove="onDragMove"
+          @pointerup="onDragEnd"
+          @pointercancel="onDragEnd"
+        >
           <span aria-hidden="true" class="h-[5px] w-12 rounded-pill bg-moss-ghost" />
         </div>
 
