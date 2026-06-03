@@ -109,11 +109,11 @@ function onKeydown(e: KeyboardEvent) {
       <slot name="trailing" />
     </div>
 
-    <div class="flex items-baseline gap-xxs">
+    <div class="flex items-baseline gap-[6px]">
       <span class="font-display text-[48px] sm:text-[56px] leading-none text-paper">
         {{ displayValue }}
       </span>
-      <span class="font-mono text-[13px] text-paper">{{ unitSuffix }}</span>
+      <span class="font-display text-[20px] sm:text-[22px] leading-none text-paper/60">{{ unitSuffix }}</span>
     </div>
 
     <div

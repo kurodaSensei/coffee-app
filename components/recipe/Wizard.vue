@@ -327,14 +327,10 @@ const nextHint = computed(() => stepTitles[(step.value + 1) as 1 | 2 | 3] || '')
 
           <UiInput
             v-model="author"
+            label="Autor / Fuente"
             class="mt-md"
             placeholder="James Hoffmann"
-          >
-            <template #label>Autor / Fuente</template>
-          </UiInput>
-
-          <!-- UiInput doesn't support label slot — fallback inline below -->
-          <div class="pt-[14px] pb-[13px] border-b border-moss/10 -mt-[1px]" v-if="false" />
+          />
         </div>
       </section>
 

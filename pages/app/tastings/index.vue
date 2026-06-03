@@ -170,11 +170,11 @@ const activeCoffee = computed<Coffee | null>(() => {
                 "{{ t.personalNotes }}"
               </p>
             </div>
-            <div class="shrink-0 flex flex-col items-end gap-xxs">
+            <div class="shrink-0 flex items-baseline gap-[2px] pl-sm">
               <span class="font-display text-[28px] leading-none text-olive">
                 {{ t.ratingOverall.toFixed(1) }}
               </span>
-              <span class="font-mono text-[10px] tracking-eyebrow uppercase text-moss-soft">
+              <span class="font-display text-[14px] leading-none text-moss-ghost">
                 /10
               </span>
             </div>

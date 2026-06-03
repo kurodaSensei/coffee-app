@@ -254,7 +254,7 @@ async function deleteItem() {
           "Tu próximo café favorito empieza siendo un deseo."
         </p>
       </div>
-      <UiButton variant="dark" :block="false" class="lg:hidden" @click="openCreate">
+      <UiButton variant="primary" :block="false" @click="openCreate">
         + Nuevo deseo
       </UiButton>
     </div>
