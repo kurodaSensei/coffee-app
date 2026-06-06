@@ -18,6 +18,11 @@ const pullDistance = ref(0)
 const isPulling = ref(false)
 const isRefreshing = ref(false)
 
+const { light, medium } = useHaptic()
+// Tick haptico cuando se cruza el threshold por primera vez en este pull —
+// le dice al usuario "ya soltá y va a refrescar"
+let crossedThreshold = false
+
 let startY = 0
 
 function isAtTop(): boolean {
@@ -29,6 +34,7 @@ function onTouchStart(e: TouchEvent) {
   if (isRefreshing.value || !isAtTop()) return
   startY = e.touches[0].clientY
   isPulling.value = true
+  crossedThreshold = false
 }
 
 function onTouchMove(e: TouchEvent) {
@@ -45,6 +51,12 @@ function onTouchMove(e: TouchEvent) {
   // da la sensación de elasticidad clásica de iOS/Android.
   pullDistance.value = Math.pow(delta, 0.75)
 
+  // Haptic light al cruzar el threshold — feedback de "ya soltá"
+  if (!crossedThreshold && pullDistance.value >= props.threshold) {
+    crossedThreshold = true
+    light()
+  }
+
   // Cuando ya estamos pulling, bloqueamos el scroll del body para que el
   // gesto no se confunda con scroll vertical.
   if (pullDistance.value > 8 && e.cancelable) {
@@ -57,6 +69,7 @@ async function onTouchEnd() {
   isPulling.value = false
 
   if (pullDistance.value >= props.threshold && !isRefreshing.value) {
+    medium() // haptic medium cuando el refresh efectivamente dispara
     isRefreshing.value = true
     // Mantenemos la card del indicador visible durante el refresh
     pullDistance.value = props.threshold

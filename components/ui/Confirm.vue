@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 
 const { currentRequest, resolveCurrent } = useConfirm()
+const { medium, heavy } = useHaptic()
 
 // Estado local del sheet; se sincroniza con currentRequest.
 const open = ref(false)
@@ -17,6 +18,8 @@ const cancelLabel = computed(() => options.value?.cancelLabel || 'Cancelar')
 const destructive = computed(() => !!options.value?.destructive)
 
 function onConfirm() {
+  // Heavy si es destructive (eliminar), medium si es confirmación normal
+  destructive.value ? heavy() : medium()
   resolveCurrent(true)
 }
 
