@@ -153,11 +153,13 @@ function close() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const submitting = ref(false)
+const { medium } = useHaptic()
 
 async function submit() {
   if (submitting.value) return
   if (!validateStep2()) return
   if (!selectedCoffee.value || !brewMethod.value) return
+  medium()
   submitting.value = true
   try {
     const c = selectedCoffee.value

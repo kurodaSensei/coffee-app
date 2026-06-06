@@ -199,9 +199,11 @@ function commitCustomCountry() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const submitting = ref(false)
+const { medium } = useHaptic()
 
 async function submit() {
   if (submitting.value) return
+  medium()
   submitting.value = true
   try {
     const payload: CoffeeInput = {

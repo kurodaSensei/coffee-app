@@ -36,7 +36,10 @@ function isActive(item: TabItem): boolean {
   return route.path === item.to || route.path.startsWith(`${item.to}/`)
 }
 
+const { light } = useHaptic()
+
 function onSelect(item: TabItem) {
+  light()
   emit('update:modelValue', item.key)
   emit('select', item)
 }

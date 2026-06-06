@@ -4,7 +4,10 @@ import { ref } from 'vue'
 definePageMeta({ layout: false, auth: false })
 
 const SITE_URL = 'https://sorbo.app'
-const OG_IMAGE = `${SITE_URL}/og-image.svg`
+// PNG (no SVG) — WhatsApp/Telegram rechazan SVG. El SVG sigue en /public
+// como source of truth para regenerar; render via Chrome headless con las
+// webfonts cargadas vía CSS, sin necesidad de tener las TTF locales.
+const OG_IMAGE = `${SITE_URL}/og-image.png`
 const DESCRIPTION = 'Tu diario para cada café de especialidad. Registra catas, guarda recetas, descubre lo que otros cafeteros toman. Sin Excel, sin red social, sin ruido.'
 
 useHead({
@@ -21,6 +24,7 @@ useHead({
     { property: 'og:title', content: 'Sorbo · Un diario para cada sorbo' },
     { property: 'og:description', content: DESCRIPTION },
     { property: 'og:image', content: OG_IMAGE },
+    { property: 'og:image:type', content: 'image/png' },
     { property: 'og:image:width', content: '1200' },
     { property: 'og:image:height', content: '630' },
     { property: 'og:image:alt', content: 'Sorbo · Un diario para cada sorbo de café' },

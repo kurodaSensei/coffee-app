@@ -139,6 +139,39 @@ function openSheet(r: Recipe) {
     </div>
 
     <!-- Empty — solo después de la primera carga. -->
+    <!-- Skeletons mientras carga -->
+    <div
+      v-if="!ready"
+      class="mt-lg flex flex-col gap-sm lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-md"
+      aria-busy="true"
+    >
+      <div
+        v-for="n in 3"
+        :key="`skel-${n}`"
+        class="rounded-card-lg bg-surface p-md flex flex-col gap-xs"
+      >
+        <div class="flex items-start justify-between gap-md">
+          <UiSkeleton class="h-3 w-24" />
+          <UiSkeleton class="h-5 w-12 rounded-pill" />
+        </div>
+        <UiSkeleton class="h-7 w-1/2 rounded-card mt-xxs" />
+        <div class="grid grid-cols-3 gap-md mt-sm">
+          <div class="flex flex-col gap-xxs">
+            <UiSkeleton class="h-3 w-12" />
+            <UiSkeleton class="h-4 w-10" />
+          </div>
+          <div class="flex flex-col gap-xxs">
+            <UiSkeleton class="h-3 w-12" />
+            <UiSkeleton class="h-4 w-10" />
+          </div>
+          <div class="flex flex-col gap-xxs">
+            <UiSkeleton class="h-3 w-12" />
+            <UiSkeleton class="h-4 w-10" />
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div v-if="isEmpty && ready" class="mt-2xl flex flex-col items-center gap-lg">
       <div class="w-full max-w-[340px] rounded-card-lg bg-surface px-lg py-2xl text-center">
         <p class="font-display italic text-[16px] text-moss leading-relaxed">
