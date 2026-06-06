@@ -3,24 +3,23 @@
   Sorbo · Email template · Bienvenida BETA Nº 01
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  Cómo usar este template:
+  Template genérico (sin placeholders) — se envía igual a todos los
+  destinatarios de la primera tanda de beta.
+
+  Cómo usar:
 
   1. Sube la imagen del hero a public/email/welcome-beta-01.png en el repo
      y deploya. La imagen estará en https://sorbo.app/email/welcome-beta-01.png
 
   2. Abre este archivo en Chrome/Safari (file://) — verás cómo se renderiza.
 
-  3. Reemplaza los placeholders manualmente por cada destinatario:
-     - {{nombre}}      → el nombre de pila de la persona
-     - {{linkAcceso}}  → normalmente https://sorbo.app/register
+  3. Selecciona TODO el contenido renderizado (Cmd+A) y copia (Cmd+C).
 
-  4. Selecciona TODO el contenido renderizado (Cmd+A) y copia (Cmd+C).
-
-  5. En Gmail compose, pega con Cmd+V. Gmail preserva el formato rich-text.
+  4. En Gmail compose, pega con Cmd+V. Gmail preserva el formato rich-text.
      La imagen se embebe vía URL, las fuentes caen al fallback serif/sans
      del sistema del destinatario (sigue luciendo editorial).
 
-  6. Sugerencias de subject:
+  5. Sugerencias de subject:
      · "Tu acceso a Sorbo está listo"
      · "Bienvenida a la beta de Sorbo"
      · "Sorbo abre sus puertas — para ti"
@@ -62,8 +61,8 @@
           <tr>
             <td style="padding: 44px 24px 16px 24px;">
               <h1 style="margin: 0; font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif; font-weight: 400; font-size: 38px; line-height: 1.1; color: #2F3528; letter-spacing: -0.01em;">
-                Bienvenida,<br>
-                <span style="font-style: italic; color: #556B3A;">{{nombre}}</span>.
+                Bienvenido<br>
+                <span style="font-style: italic; color: #556B3A;">a Sorbo</span>.
               </h1>
             </td>
           </tr>
@@ -101,7 +100,7 @@
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td align="center" bgcolor="#556B3A" style="border-radius: 14px;">
-                    <a href="{{linkAcceso}}"
+                    <a href="https://sorbo.app/register" target="_blank"
                        style="display: inline-block; padding: 14px 32px; background-color: #556B3A; color: #F4F2EB; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; font-weight: 500; font-size: 14px; border-radius: 14px;">
                       Empezar a sorber →
                     </a>
