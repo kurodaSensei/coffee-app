@@ -155,6 +155,29 @@ const filtersOpen = ref(false)
       </div>
     </div>
 
+    <!-- Skeletons mientras carga — evita el flash empty antes de que llegue data. -->
+    <div
+      v-if="!ready"
+      class="mt-lg flex flex-col gap-md lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-md"
+      aria-busy="true"
+    >
+      <div
+        v-for="n in 4"
+        :key="`skel-${n}`"
+        class="relative overflow-hidden rounded-card-lg bg-surface p-md flex flex-col gap-sm"
+      >
+        <UiSkeleton class="h-3 w-24" />
+        <UiSkeleton class="h-7 w-2/3 rounded-card mt-xs" />
+        <UiSkeleton class="h-3 w-32" />
+        <div class="flex gap-xs mt-xs">
+          <UiSkeleton class="h-5 w-16 rounded-pill" />
+          <UiSkeleton class="h-5 w-14 rounded-pill" />
+          <UiSkeleton class="h-5 w-12 rounded-pill" />
+        </div>
+        <UiSkeleton class="h-3 w-20 mt-sm" />
+      </div>
+    </div>
+
     <!-- Empty state — solo después de que la primera carga termine. -->
     <div v-if="isEmpty && ready" class="mt-2xl flex flex-col items-center gap-lg">
       <div class="w-full max-w-[340px] rounded-card-lg bg-surface px-lg py-2xl text-center">

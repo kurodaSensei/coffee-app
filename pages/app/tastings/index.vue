@@ -137,6 +137,31 @@ const activeCoffee = computed<Coffee | null>(() => {
       </div>
     </div>
 
+    <!-- Skeletons mientras carga -->
+    <div
+      v-if="!ready"
+      class="mt-lg flex flex-col gap-sm lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-md"
+      aria-busy="true"
+    >
+      <div
+        v-for="n in 4"
+        :key="`skel-${n}`"
+        class="rounded-card-lg bg-surface p-md flex flex-col gap-xs"
+      >
+        <div class="flex items-start justify-between gap-md">
+          <div class="flex-1 flex flex-col gap-xs">
+            <UiSkeleton class="h-3 w-28" />
+            <UiSkeleton class="h-7 w-2/3 rounded-card mt-xxs" />
+          </div>
+          <div class="flex items-baseline gap-xxs">
+            <UiSkeleton class="h-7 w-10" />
+            <UiSkeleton class="h-4 w-6" />
+          </div>
+        </div>
+        <UiSkeleton class="h-3 w-full mt-xs" />
+      </div>
+    </div>
+
     <!-- Empty — solo después de la primera carga. -->
     <div v-if="isEmpty && ready" class="mt-2xl flex flex-col items-center gap-lg">
       <div class="w-full max-w-[340px] rounded-card-lg bg-surface px-lg py-2xl text-center">

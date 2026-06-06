@@ -68,9 +68,33 @@ const kindFilters = computed(() => [
       <UiSegmented v-model="selectedKind" :items="kindFilters" />
     </div>
 
-    <!-- Loading -->
-    <div v-if="loading" class="mt-2xl flex justify-center">
-      <span class="size-6 animate-spin rounded-full border-2 border-moss/20 border-t-moss" />
+    <!-- Skeletons mientras carga -->
+    <div
+      v-if="loading"
+      class="mt-lg grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-md"
+      aria-busy="true"
+    >
+      <div
+        v-for="n in 4"
+        :key="`skel-${n}`"
+        class="rounded-card-lg bg-surface p-md flex flex-col gap-sm"
+      >
+        <!-- Author header -->
+        <div class="flex items-center gap-sm">
+          <UiSkeleton class="size-8 rounded-pill" />
+          <div class="flex-1 flex flex-col gap-xs">
+            <UiSkeleton class="h-3 w-24" />
+            <UiSkeleton class="h-3 w-32" />
+          </div>
+        </div>
+        <UiSkeleton class="h-3 w-28 mt-sm" />
+        <UiSkeleton class="h-6 w-2/3 rounded-card" />
+        <UiSkeleton class="h-3 w-1/2" />
+        <div class="flex gap-xs mt-xs">
+          <UiSkeleton class="h-5 w-16 rounded-pill" />
+          <UiSkeleton class="h-5 w-14 rounded-pill" />
+        </div>
+      </div>
     </div>
 
     <!-- Error -->
