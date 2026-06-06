@@ -93,6 +93,46 @@ const isFilteredEmpty = computed(
 )
 
 const filtersOpen = ref(false)
+
+// ─── Long-press → action sheet ────────────────────────────────────────────
+const router = useRouter()
+const { confirm } = useConfirm()
+const { medium } = useHaptic()
+
+const actionSheetOpen = ref(false)
+const actionCoffee = ref<Coffee | null>(null)
+
+function openActions(coffee: Coffee) {
+  medium()
+  actionCoffee.value = coffee
+  actionSheetOpen.value = true
+}
+
+function onShare() {
+  if (!actionCoffee.value) return
+  // El share existente vive en el detail page. Redirigimos al detail con
+  // un query hint que abre el sheet automáticamente — pendiente de
+  // implementar; por ahora navegamos al detail.
+  router.push(`/app/coffees/${actionCoffee.value.id}?action=share`)
+}
+
+function onEdit() {
+  if (!actionCoffee.value) return
+  router.push(`/app/coffees/${actionCoffee.value.id}/edit`)
+}
+
+async function onDelete() {
+  const coffee = actionCoffee.value
+  if (!coffee) return
+  const ok = await confirm({
+    title: `Eliminar "${coffee.name}"`,
+    message: 'Esta acción no se puede deshacer.',
+    confirmLabel: 'Eliminar',
+    destructive: true,
+  })
+  if (!ok) return
+  await coffeesStore.remove(coffee.id)
+}
 </script>
 
 <template>
@@ -217,13 +257,17 @@ const filtersOpen = ref(false)
       v-else
       class="mt-lg flex flex-col gap-md lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-md"
     >
-      <CoffeeCard
+      <UiLongPress
         v-for="c in items"
         :key="c.id"
-        :coffee="c"
-        :mode="view.state.viewMode"
-        class="lg:[&_h3]:text-[28px]"
-      />
+        :on-long-press="() => openActions(c)"
+      >
+        <CoffeeCard
+          :coffee="c"
+          :mode="view.state.viewMode"
+          class="lg:[&_h3]:text-[28px]"
+        />
+      </UiLongPress>
     </div>
 
     <!-- Mobile FAB (only when list has items) -->
@@ -237,6 +281,16 @@ const filtersOpen = ref(false)
     </NuxtLink>
 
     <CoffeeFiltersSheet v-model="filtersOpen" />
+
+    <!-- Long-press action sheet -->
+    <UiCardActionSheet
+      v-model="actionSheetOpen"
+      :title="actionCoffee?.name || ''"
+      subtitle="Café"
+      @share="onShare"
+      @edit="onEdit"
+      @delete="onDelete"
+    />
     </div>
   </UiPullToRefresh>
 </template>
