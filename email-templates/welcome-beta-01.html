@@ -1,0 +1,186 @@
+<!--
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Sorbo · Email template · Bienvenida BETA Nº 01
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Cómo usar este template:
+
+  1. Sube la imagen del hero a public/email/welcome-beta-01.png en el repo
+     y deploya. La imagen estará en https://sorbo.app/email/welcome-beta-01.png
+
+  2. Abre este archivo en Chrome/Safari (file://) — verás cómo se renderiza.
+
+  3. Reemplaza los placeholders manualmente por cada destinatario:
+     - {{nombre}}      → el nombre de pila de la persona
+     - {{linkAcceso}}  → normalmente https://sorbo.app/register
+
+  4. Selecciona TODO el contenido renderizado (Cmd+A) y copia (Cmd+C).
+
+  5. En Gmail compose, pega con Cmd+V. Gmail preserva el formato rich-text.
+     La imagen se embebe vía URL, las fuentes caen al fallback serif/sans
+     del sistema del destinatario (sigue luciendo editorial).
+
+  6. Sugerencias de subject:
+     · "Tu acceso a Sorbo está listo"
+     · "Bienvenida a la beta de Sorbo"
+     · "Sorbo abre sus puertas — para ti"
+
+  Nota sobre fuentes: los emails NO cargan webfonts (Gmail/Outlook las
+  bloquean). Usamos font-stacks con Georgia como fallback de DM Serif
+  Display, y system-ui como fallback de Geist. La estética editorial se
+  mantiene.
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <title>Bienvenida a Sorbo · Beta Nº 01</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F4F2EB; color-scheme: light;">
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F4F2EB; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; color: #2F3528;">
+    <tr>
+      <td align="center" style="padding: 32px 16px;">
+
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%;">
+
+          <!-- ─── Hero banner ─── -->
+          <tr>
+            <td style="padding: 0;">
+              <img src="https://sorbo.app/email/welcome-beta-01.png"
+                   alt="Sorbo · Bienvenida Beta Nº 01"
+                   width="600"
+                   style="display: block; width: 100%; max-width: 600px; height: auto; border-radius: 14px; border: 0; outline: none; text-decoration: none;">
+            </td>
+          </tr>
+
+          <!-- ─── Greeting ─── -->
+          <tr>
+            <td style="padding: 44px 24px 16px 24px;">
+              <h1 style="margin: 0; font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif; font-weight: 400; font-size: 38px; line-height: 1.1; color: #2F3528; letter-spacing: -0.01em;">
+                Bienvenida,<br>
+                <span style="font-style: italic; color: #556B3A;">{{nombre}}</span>.
+              </h1>
+            </td>
+          </tr>
+
+          <!-- ─── Editorial intro ─── -->
+          <tr>
+            <td style="padding: 0 24px 8px 24px;">
+              <p style="margin: 0; font-family: 'DM Serif Display', Georgia, serif; font-style: italic; font-size: 17px; line-height: 1.5; color: #5F6652;">
+                Te abro las puertas de la primera beta cerrada de Sorbo —
+                un diario para cada café que pase por tu taza.
+              </p>
+            </td>
+          </tr>
+
+          <!-- ─── Body ─── -->
+          <tr>
+            <td style="padding: 16px 24px 8px 24px;">
+              <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.65; color: #2F3528;">
+                Estás entre las primeras personas en probarla. La idea es simple:
+                registrar cada café, anotar cómo estuvo la taza, guardar las recetas
+                que te van bien y descubrir lo que otros cafeteros están tomando —
+                sin la ansiedad de una red social.
+              </p>
+              <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.65; color: #2F3528;">
+                Es web app instalable (PWA), funciona offline y se actualiza sola.
+                Si te gusta, la dejas en tu pantalla de inicio como una app nativa.
+              </p>
+            </td>
+          </tr>
+
+          <!-- ─── CTA button ─── -->
+          <tr>
+            <td align="center" style="padding: 24px 24px 32px 24px;">
+              <!-- Outlook-friendly button (tabla en lugar de display:inline-block) -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" bgcolor="#556B3A" style="border-radius: 14px;">
+                    <a href="{{linkAcceso}}"
+                       style="display: inline-block; padding: 14px 32px; background-color: #556B3A; color: #F4F2EB; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; font-weight: 500; font-size: 14px; border-radius: 14px;">
+                      Empezar a sorber →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 16px 0 0 0; font-size: 12px; line-height: 1.5; color: #8A8C7F;">
+                Regístrate con el mismo correo al que llegó este mensaje.
+              </p>
+            </td>
+          </tr>
+
+          <!-- ─── Divider ─── -->
+          <tr>
+            <td style="padding: 0 24px;">
+              <hr style="border: 0; border-top: 1px solid rgba(47, 53, 40, 0.10); margin: 0;">
+            </td>
+          </tr>
+
+          <!-- ─── Por dónde empezar ─── -->
+          <tr>
+            <td style="padding: 32px 24px 16px 24px;">
+              <p style="margin: 0 0 12px 0; font-family: ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #5F6652;">
+                — Por dónde empezar
+              </p>
+              <ol style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.7; color: #2F3528;">
+                <li style="margin-bottom: 6px;">Registra tu primer café — el último que probaste.</li>
+                <li style="margin-bottom: 6px;">Cátalo en 3 pasos. Score automático, una nota corta para recordarlo.</li>
+                <li>Si querés replicarlo, guarda la receta con timer.</li>
+              </ol>
+            </td>
+          </tr>
+
+          <!-- ─── Closing italic quote ─── -->
+          <tr>
+            <td style="padding: 24px 24px 16px 24px;">
+              <p style="margin: 0; font-family: 'DM Serif Display', Georgia, serif; font-style: italic; font-size: 16px; line-height: 1.55; color: #5F6652;">
+                "Cada sorbo es un pequeño viaje.
+                <span style="color: #556B3A;">Sorbo</span> es donde los recuerdas."
+              </p>
+            </td>
+          </tr>
+
+          <!-- ─── Feedback + sign-off ─── -->
+          <tr>
+            <td style="padding: 16px 24px 32px 24px;">
+              <p style="margin: 0 0 16px 0; font-size: 13px; line-height: 1.65; color: #5F6652;">
+                Si encuentras algún bug, sentís que falta algo, o algo se siente raro —
+                contesta este correo y lo arreglo. Beta significa que tu feedback cuenta.
+              </p>
+              <p style="margin: 0; font-size: 14px; color: #2F3528;">
+                Gracias por estar,<br>
+                <span style="font-family: 'DM Serif Display', Georgia, serif; font-style: italic; font-size: 20px; color: #556B3A;">Alfredo</span>
+                <span style="font-family: ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #5F6652;"> · KurodaCafe</span>
+              </p>
+            </td>
+          </tr>
+
+          <!-- ─── Footer ─── -->
+          <tr>
+            <td align="center" style="padding: 24px; border-top: 1px solid rgba(47, 53, 40, 0.10);">
+              <p style="margin: 0 0 8px 0; font-family: ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #8A8C7F;">
+                — Sorbo · 2026
+              </p>
+              <p style="margin: 0; font-size: 12px; line-height: 1.6; color: #8A8C7F;">
+                <a href="https://sorbo.app" style="color: #5F6652; text-decoration: none;">sorbo.app</a>
+                &nbsp;·&nbsp;
+                <a href="https://instagram.com/kurodacafe" style="color: #5F6652; text-decoration: none;">@kurodacafe</a>
+                &nbsp;·&nbsp;
+                <a href="mailto:info@sorbo.app" style="color: #5F6652; text-decoration: none;">info@sorbo.app</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
