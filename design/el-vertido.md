@@ -341,7 +341,112 @@ Ajustes por café:
 
 Devuelve `{ ratio: number, reason: string }`.
 
-### 4.5 Matching de recetas
+### 4.5 Author Intent — la señal explícita del autor
+
+> Adición posterior al borrador inicial. Resuelve el cold-start de la capa colaborativa: las recetas traen señal fuerte desde el día 1.
+
+Al crear una receta, el autor puede declarar para qué tipo de café la diseñó. Esto se vuelve la señal de mayor peso en el matching — más alta incluso que el aprendizaje colaborativo, porque es **intencional**, no inferida.
+
+#### Modelo
+
+```ts
+export interface RecipeProfileTarget {
+  process?: CoffeeProcess[]
+  roastBand?: ('light' | 'mid' | 'dark')[]
+  flavorClass?: ('fruit' | 'choco' | 'floral' | 'nut' | 'spice')[]
+  scoreBand?: ('casual' | 'specialty' | 'topShelf')[]
+}
+
+export interface Recipe {
+  // ...campos existentes
+  /** Perfil(es) de café para los que la receta fue diseñada. Público en recetas community. */
+  designedFor?: RecipeProfileTarget[]
+  /** Cafés del autor que inspiraron la receta. SIEMPRE privado, incluso en community. */
+  inspiredByCoffeeIds?: string[]
+}
+```
+
+#### UX en el wizard de receta
+
+Nueva sección opcional en el stage 1 (Identidad) del wizard de receta:
+
+```
+[Sección expandible: "¿Para qué café la diseñaste? (opcional)"]
+
+Tres caminos:
+  ○ Eligiendo cafés tuyos     → multi-select de cafés en tu colección.
+                                 App deriva perfiles agregados.
+  ○ Describiendo el perfil    → pickers para process / roast / flavor / score.
+                                 Multi-select en cada eje (varios perfiles compatibles).
+  ○ Es una receta universal   → default. Sin asociación.
+
+Preview en vivo:
+"Diseñada para cafés naturales de tueste claro con notas frutales."
+```
+
+Cuando el autor elige "Cafés tuyos", se guardan dos cosas:
+- `inspiredByCoffeeIds`: los IDs (privados, solo para él)
+- `designedFor`: el perfil derivado, editable antes de guardar
+
+#### Scoring con Author Intent
+
+```
+score(r, coffee) = 
+    w.ratio        * proximityScore(recipeRatio, recommendedRatio, 1.5)
+  + w.popularity   * log(r.usageCount + 1)
+  + w.affinity     * profileAffinity(r.id, coffeeProfile)
+  + w.authorIntent * authorIntentScore(r.designedFor, coffeeProfile)
+  + w.isOwn        * (r.userId === currentUserId ? 1 : 0)
+  + w.recency      * recencyBoost(r.lastUsedAt)
+```
+
+Pesos default:
+- `w.authorIntent: 5.0`  ← **el más alto: señal explícita del autor**
+- `w.ratio: 4.0`
+- `w.affinity: 3.0`
+- `w.popularity: 1.5`
+- `w.isOwn: 0.8`
+- `w.recency: 0.5`
+
+```ts
+function authorIntentScore(targets: RecipeProfileTarget[] | undefined, profile: CoffeeProfile): number {
+  if (!targets || targets.length === 0) return 0  // sin asociación → sin bonus
+  return Math.max(...targets.map(t => profileTargetMatch(t, profile)))
+}
+
+function profileTargetMatch(target: RecipeProfileTarget, profile: CoffeeProfile): number {
+  let dimensions = 0
+  let matches = 0
+  if (target.process) { dimensions++; if (target.process.includes(profile.process)) matches++ }
+  if (target.roastBand) { dimensions++; if (target.roastBand.includes(profile.roastBand)) matches++ }
+  if (target.flavorClass) { dimensions++; if (target.flavorClass.includes(profile.flavorClass)) matches++ }
+  if (target.scoreBand) { dimensions++; if (target.scoreBand.includes(profile.scoreBand)) matches++ }
+  return dimensions > 0 ? matches / dimensions : 0  // 0-1
+}
+```
+
+Backward compat: recetas sin `designedFor` devuelven 0 en `authorIntentScore`. El sistema cae naturalmente al scoring por reglas + collaborative. Cero migración.
+
+#### Privacidad
+
+| Campo | Visibilidad |
+|---|---|
+| `designedFor` | Pública si la receta es community. Necesaria para algoritmo + discovery |
+| `inspiredByCoffeeIds` | Siempre privada. Se almacena en sub-colección `recipes/{id}/private/inspirations` con regla "solo el dueño lee" |
+
+#### Discovery — display en el detalle de receta
+
+Si `designedFor.length > 0`, el detalle de receta muestra una línea editorial italic:
+
+> *Diseñada para cafés naturales de tueste claro con notas frutales.*
+
+Esto convierte a `designedFor` en feature de descubrimiento orgánico — un usuario explorando recetas community sabe inmediatamente si una receta encaja con su café actual, sin algoritmo siquiera.
+
+#### Autocorrección
+
+Si un autor pone `designedFor` falso (clickbait, aspiracional), los outcomes colaborativos lo corrigen sin censura: ratings bajos con cafés de ese perfil bajan el `affinity` real, que ponderado en la fórmula puede compensar el `authorIntent`. El sistema autoregula.
+
+### 4.6 Matching de recetas
 
 ```ts
 function matchRecipes(coffee: Coffee | null, method: BrewMethod): MatchResult[]
@@ -349,26 +454,9 @@ function matchRecipes(coffee: Coffee | null, method: BrewMethod): MatchResult[]
 
 Pool: tus recetas + recetas comunidad del mismo método (max 50 fetched).
 
-Scoring de cada receta candidata:
-```
-score(r, coffee) = 
-    w.ratio       * proximityScore(recipeRatio, recommendedRatio, 1.5)
-  + w.popularity  * log(r.usageCount + 1)
-  + w.affinity    * profileAffinity(r.id, coffeeProfile)
-  + w.isOwn       * (r.userId === currentUserId ? 1 : 0)
-  + w.recency     * recencyBoost(r.lastUsedAt)
-```
+El scoring usa la fórmula descrita en 4.5 (con `authorIntent` incluido). Devuelve top 3 por tab (tuyas / comunidad) con razones humanas que mencionan qué peso contribuyó más al match.
 
-Pesos default:
-- `w.ratio: 4.0`
-- `w.popularity: 1.5`
-- `w.affinity: 3.0`
-- `w.isOwn: 0.8`
-- `w.recency: 0.5`
-
-Devuelve top 3 por tab (tuyas / comunidad) con razones humanas.
-
-### 4.6 La capa de aprendizaje colaborativo
+### 4.7 La capa de aprendizaje colaborativo
 
 **Idea**: cada ritual completado genera un `RitualOutcome`. Cuando un usuario cata el resultado, se registra `cataRating`. Estos outcomes son la señal de "qué tan bien funciona la receta R con cafés de perfil P".
 
@@ -384,7 +472,7 @@ Devuelve top 3 por tab (tuyas / comunidad) con razones humanas.
 
 Cero Cloud Functions. Todo client-side con un debounce.
 
-### 4.7 Por qué esto funciona sin ML
+### 4.8 Por qué esto funciona sin ML
 
 - En beta cerrada con <100 outcomes totales, las reglas heurísticas mandan
 - A medida que crece la base, el peso `w.affinity` puede subir si el usuario quiere (configurable más adelante)
@@ -406,6 +494,13 @@ export interface CoffeeProfile {
   roastBand: 'light' | 'mid' | 'dark'
   flavorClass: 'fruit' | 'choco' | 'floral' | 'nut' | 'spice' | 'mixed'
   scoreBand: 'casual' | 'specialty' | 'topShelf'
+}
+
+export interface RecipeProfileTarget {
+  process?: CoffeeProcess[]
+  roastBand?: ('light' | 'mid' | 'dark')[]
+  flavorClass?: ('fruit' | 'choco' | 'floral' | 'nut' | 'spice')[]
+  scoreBand?: ('casual' | 'specialty' | 'topShelf')[]
 }
 
 export interface RitualOutcome {
@@ -438,9 +533,14 @@ export interface RitualOutcome {
 ### 5.2 Extensiones a colecciones existentes
 
 ```ts
-// Recipe — agregar campos para el affinity cache (opcionales)
+// Recipe — agregar campos para Author Intent + affinity cache (opcionales)
 export interface Recipe {
   // ... campos existentes
+
+  /** Author Intent: para qué perfil de café fue diseñada. Pública. */
+  designedFor?: RecipeProfileTarget[]
+
+  // Affinity cache (collaborative learning)
   usageCount?: number  // # de RitualOutcome con este recipeId
   lastUsedAt?: Timestamp
   affinityByProfile?: {
@@ -451,6 +551,13 @@ export interface Recipe {
       updatedAt: Timestamp
     }
   }
+}
+
+// Subcolección privada: recipes/{id}/private/inspirations
+// Solo el dueño puede leer. Almacena cafés que inspiraron la receta —
+// referencia personal, nunca pública.
+export interface RecipeInspirations {
+  inspiredByCoffeeIds: string[]
 }
 ```
 
@@ -467,8 +574,15 @@ match /ritualOutcomes/{outcomeId} {
   allow delete: if false;  // outcomes son inmutables, solo el sistema los elimina
 }
 
-// Recipes — affinityByProfile sigue las mismas rules que el resto del Recipe doc
-// (no requiere nuevas, ya está cubierto)
+// Sub-colección private de Recipe: inspirations (cafés que inspiraron al autor)
+// Solo el dueño de la receta puede leer/escribir.
+match /recipes/{recipeId}/private/{docId} {
+  allow read, write: if request.auth != null
+    && get(/databases/$(database)/documents/recipes/$(recipeId)).data.userId == request.auth.uid;
+}
+
+// Recipes — designedFor + affinityByProfile siguen las mismas rules que el resto
+// del Recipe doc (ya está cubierto por la regla de community/private).
 ```
 
 ### 5.4 Índices compuestos
@@ -574,7 +688,8 @@ Vercel sirve este manifest en `pour.sorbo.app/manifest.json` vía rewrite rule e
 | 0 | **Diseño** (este doc) | — | Documento validado, decisiones cerradas |
 | 1 | **Visual language + microinteractions** | 1 día | Componentes base: `<RitualBackground>`, `<RitualParticles>`, `<RitualTransition>`, sellos SVG |
 | 2 | **Flujo end-to-end con stubs** | 1 día | RitualWizard con 6 stages, navegación, datos stub |
-| 3 | **Algoritmo de recomendación rule-based** | 0.5 día | `useBrewIntelligence.ts` con tests |
+| 2.5 | **Author Intent en wizard de receta** | 0.5 día | Nueva sección "¿Para qué café la diseñaste?" + `designedFor` + sub-colección inspirations |
+| 3 | **Algoritmo de recomendación rule-based** | 0.5 día | `useBrewIntelligence.ts` con tests + `authorIntentScore` |
 | 4 | **Integración entry points** | 0.5 día | 4 entries (café, receta, método, dashboard) |
 | 5 | **Tracking de outcomes** | 0.5 día | Modelo + store + Firestore rules + writes |
 | 6 | **Affinity learning** | 0.5 día | Profile derivation + cache + integración en scoring |
@@ -583,7 +698,7 @@ Vercel sirve este manifest en `pour.sorbo.app/manifest.json` vía rewrite rule e
 | 9 | **Subdominio + DNS + PWA** | 0.5 día | Vercel, manifest, verificación install |
 | 10 | **Verificación + polish final** | 0.5 día | Testing manual, ajustes de timing, copy review |
 
-**Total**: ~6-7 días de trabajo enfocado.
+**Total**: ~6.5-7.5 días de trabajo enfocado.
 
 ### 7.2 Hitos de validación
 
