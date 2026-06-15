@@ -199,8 +199,8 @@ const stats = computed(() => {
       <UiHeroCard
         eyebrow="Hoy"
         title="¿Preparas café?"
-        subtitle="Inicia una cata o registra una preparación."
-        to="/app/tastings/new"
+        subtitle="Empieza el vertido: café, método, receta, taza."
+        to="/app/vertido"
         class="col-span-2 lg:row-span-2"
       />
       <UiQuickCard eyebrow="Rápido" label="Nueva cata" to="/app/tastings/new" />
