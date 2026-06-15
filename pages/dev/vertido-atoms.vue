@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import VertidoBackground from '~/components/vertido/Background.vue'
-import VertidoLiquidColumn from '~/components/vertido/LiquidColumn.vue'
 import VertidoParticles from '~/components/vertido/Particles.vue'
 import VertidoStamp from '~/components/vertido/Stamp.vue'
 import VertidoTransition from '~/components/vertido/Transition.vue'
@@ -23,8 +22,6 @@ const stages: Stage[] = ['coffee', 'method', 'recipe', 'adjust', 'pour', 'close'
 const stampNames = ['coffee', 'method', 'recipe', 'adjust', 'pour', 'cup'] as const
 
 const particlesActive = ref(false)
-const liquidProgress = ref(0.3)
-const liquidPhase = ref<'bloom' | 'pour' | 'drain'>('pour')
 
 // Transition demo
 const transitioning = ref(false)
@@ -123,45 +120,6 @@ function onTransitionDone() {
         >
           {{ particlesActive ? 'Pausar' : 'Activar' }} gránulos
         </button>
-      </section>
-
-      <!-- ━━━ Liquid column ━━━ -->
-      <section class="space-y-3">
-        <h2 class="font-mono text-[10px] tracking-[0.2em] text-paper/50 uppercase">
-          Cronómetro líquido
-        </h2>
-        <div class="flex items-end gap-8">
-          <VertidoLiquidColumn :progress="liquidProgress" :phase="liquidPhase" />
-          <div class="space-y-3 flex-1">
-            <label class="block">
-              <span class="font-mono text-[10px] uppercase tracking-widest text-paper/60">
-                Progreso: {{ Math.round(liquidProgress * 100) }}%
-              </span>
-              <input
-                v-model.number="liquidProgress"
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                class="block w-full mt-2 accent-honey"
-              >
-            </label>
-            <div class="flex gap-2">
-              <button
-                v-for="p in (['bloom', 'pour', 'drain'] as const)"
-                :key="p"
-                type="button"
-                class="px-3 py-1.5 rounded-full font-mono text-[10px] uppercase tracking-widest"
-                :class="liquidPhase === p
-                  ? 'bg-honey text-jungle'
-                  : 'border border-paper/20 text-paper/70'"
-                @click="liquidPhase = p"
-              >
-                {{ p }}
-              </button>
-            </div>
-          </div>
-        </div>
       </section>
 
       <!-- ━━━ Transition ━━━ -->
