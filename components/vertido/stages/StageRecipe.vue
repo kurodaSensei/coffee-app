@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import Stamp from '../Stamp.vue'
 import StageHeader from '../StageHeader.vue'
 import { useVertidoSession } from '~/composables/useVertidoSession'
-import type { Recipe, RecipeStep } from '~/types'
+import type { BrewMethod, Recipe, RecipeStep } from '~/types'
 
 const { state, setRecipe } = useVertidoSession()
 const recipesStore = useRecipesStore()
@@ -15,23 +15,169 @@ onMounted(() => {
   }
 })
 
-// Pick top match: por método. Fase 3 = Affinity Score.
-const top = computed<Recipe | null>(() => {
+// ─── Recetas estándar por método ─────────────────────────────────────
+// Síntesis local — siempre disponible, sin Firestore. Cada una es una
+// receta razonable de "industria" para que el usuario tenga un default
+// confiable aunque no haya creado nada todavía.
+interface StandardConfig {
+  dose: number
+  water: number
+  temp: number
+  totalSec: number
+  steps: RecipeStep[]
+}
+
+const STANDARD: Record<BrewMethod, StandardConfig> = {
+  v60: {
+    dose: 18, water: 300, temp: 93, totalSec: 180,
+    steps: [
+      { timeSeconds: 0,  title: 'Bloom',      description: '36g — humedece y espera' },
+      { timeSeconds: 45, title: 'Vertido 1',  description: 'hasta 150g en espiral' },
+      { timeSeconds: 90, title: 'Vertido 2',  description: 'hasta 300g' },
+    ],
+  },
+  chemex: {
+    dose: 30, water: 500, temp: 96, totalSec: 240,
+    steps: [
+      { timeSeconds: 0,   title: 'Bloom',     description: '60g — humedece' },
+      { timeSeconds: 45,  title: 'Vertido 1', description: 'hasta 250g' },
+      { timeSeconds: 120, title: 'Vertido 2', description: 'hasta 500g' },
+    ],
+  },
+  kalita: {
+    dose: 22, water: 350, temp: 93, totalSec: 210,
+    steps: [
+      { timeSeconds: 0,  title: 'Bloom',     description: '44g — humedece' },
+      { timeSeconds: 45, title: 'Vertidos',  description: 'pulsos de 80g hasta 350g' },
+    ],
+  },
+  origami: {
+    dose: 18, water: 300, temp: 93, totalSec: 180,
+    steps: [
+      { timeSeconds: 0,  title: 'Bloom',     description: '36g — humedece' },
+      { timeSeconds: 45, title: 'Vertidos',  description: 'espiral hasta 300g' },
+    ],
+  },
+  suiren: {
+    dose: 15, water: 240, temp: 92, totalSec: 180,
+    steps: [
+      { timeSeconds: 0,  title: 'Bloom',     description: '30g — humedece' },
+      { timeSeconds: 45, title: 'Vertidos',  description: 'lenta espiral hasta 240g' },
+    ],
+  },
+  aeropress: {
+    dose: 17, water: 250, temp: 85, totalSec: 120,
+    steps: [
+      { timeSeconds: 0,  title: 'Vierte',   description: 'todo el agua, agita' },
+      { timeSeconds: 60, title: 'Reposo',   description: '30s con tapa' },
+      { timeSeconds: 90, title: 'Presiona', description: 'presión constante 30s' },
+    ],
+  },
+  french_press: {
+    dose: 30, water: 500, temp: 95, totalSec: 240,
+    steps: [
+      { timeSeconds: 0,   title: 'Vierte', description: 'todo el agua, agita' },
+      { timeSeconds: 240, title: 'Prensa', description: 'baja el émbolo lento' },
+    ],
+  },
+  espresso: {
+    dose: 18, water: 36, temp: 93, totalSec: 30,
+    steps: [
+      { timeSeconds: 0,  title: 'Pre-infusión', description: '5s suaves' },
+      { timeSeconds: 5,  title: 'Extracción',   description: '25s, 36g en taza' },
+    ],
+  },
+  moka_pot: {
+    dose: 18, water: 200, temp: 100, totalSec: 240,
+    steps: [
+      { timeSeconds: 0,   title: 'Fuego medio', description: 'espera el gorgoteo' },
+      { timeSeconds: 180, title: 'Apaga',       description: 'al primer borboteo fuerte' },
+    ],
+  },
+  phin: {
+    dose: 25, water: 120, temp: 95, totalSec: 270,
+    steps: [
+      { timeSeconds: 0,  title: 'Pre-humedece', description: '30g, espera 30s' },
+      { timeSeconds: 30, title: 'Llena',        description: 'agua hasta el borde' },
+    ],
+  },
+  cold_brew: {
+    dose: 100, water: 1000, temp: 20, totalSec: 43200,
+    steps: [
+      { timeSeconds: 0,     title: 'Mezcla', description: 'café grueso + agua fría' },
+      { timeSeconds: 43200, title: 'Filtra', description: 'después de 12 horas' },
+    ],
+  },
+  other: {
+    dose: 18, water: 300, temp: 93, totalSec: 180,
+    steps: [
+      { timeSeconds: 0, title: 'Bloom',    description: 'humedece' },
+      { timeSeconds: 45, title: 'Vertido', description: 'tu método, tu pulso' },
+    ],
+  },
+}
+
+function makeStandardRecipe(method: BrewMethod): Recipe {
+  const c = STANDARD[method]
+  const ratio = `1:${Math.round(c.water / c.dose)}`
+  return {
+    id: `std:${method}`,
+    name: 'La Estándar',
+    brewMethod: method,
+    dose: c.dose,
+    water: c.water,
+    waterTemp: c.temp,
+    ratio,
+    steps: c.steps,
+    // Timestamps sintéticos — esta receta solo vive en sesión, jamás se persiste.
+    createdAt: { toMillis: () => 0 } as any,
+    updatedAt: { toMillis: () => 0 } as any,
+  }
+}
+
+// ─── Opciones disponibles ────────────────────────────────────────────
+const userRecipes = computed<Recipe[]>(() => {
   const list = recipesStore.list as Recipe[]
-  const matched = list.filter(r => !state.method || r.brewMethod === state.method)
-  return matched[0] ?? list[0] ?? null
+  if (!state.method) return list.slice(0, 5)
+  return list.filter(r => r.brewMethod === state.method).slice(0, 5)
 })
 
-const steps = computed<RecipeStep[]>(() => top.value?.steps?.slice(0, 4) ?? [])
+// Recomendada: el top match de las del usuario. Si no hay ninguna, null.
+const recommended = computed<Recipe | null>(() => userRecipes.value[0] ?? null)
 
-function mmss(seconds: number) {
-  const m = Math.floor(seconds / 60)
-  const s = seconds % 60
-  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+// Estándar: siempre disponible, sintética.
+const standardRecipe = computed<Recipe>(() => makeStandardRecipe(state.method ?? 'v60'))
+
+// Otras: las recetas restantes del usuario (sin la recomendada).
+const otherUserRecipes = computed<Recipe[]>(() => {
+  const all = userRecipes.value
+  return recommended.value ? all.slice(1) : all
+})
+
+// Selección: por defecto, la recomendada si existe; si no, la estándar.
+const selectedId = ref<string>(recommended.value?.id ?? standardRecipe.value.id)
+
+const selected = computed<Recipe>(() => {
+  if (selectedId.value === standardRecipe.value.id) return standardRecipe.value
+  return userRecipes.value.find(r => r.id === selectedId.value) ?? standardRecipe.value
+})
+
+function pick(r: Recipe) {
+  selectedId.value = r.id
+}
+
+function ratioOf(r: Recipe) {
+  if (r.ratio) return r.ratio
+  if (r.dose > 0) return `1:${Math.round(r.water / r.dose)}`
+  return ''
+}
+
+function summary(r: Recipe) {
+  return `${r.dose}g · ${r.water}ml${r.waterTemp ? ' · ' + r.waterTemp + '°' : ''}`
 }
 
 function confirm(e: MouseEvent) {
-  if (top.value) setRecipe(top.value)
+  setRecipe(selected.value)
   emit('advance', { x: e.clientX, y: e.clientY })
 }
 
@@ -39,17 +185,12 @@ function skipRecipe(e: MouseEvent) {
   setRecipe(null)
   emit('advance', { x: e.clientX, y: e.clientY })
 }
-
-const dose = computed(() => top.value?.dose ?? 18)
-const water = computed(() => top.value?.water ?? 300)
-const temp = computed(() => top.value?.waterTemp ?? 93)
 </script>
 
 <template>
   <section class="relative flex flex-col h-full">
     <StageHeader :n="3" label="RECETA" />
 
-    <!-- Sello firma flotando arriba izquierda -->
     <Stamp
       name="recipe"
       :size="130"
@@ -57,77 +198,93 @@ const temp = computed(() => top.value?.waterTemp ?? 93)
       style="opacity: 0.13; transform: rotate(-10deg);"
     />
 
-    <div class="flex-1 px-md flex flex-col overflow-hidden">
+    <div class="flex-1 px-md flex flex-col overflow-y-auto">
       <h2
-        class="font-display text-paper leading-[0.95] tracking-[-0.02em] mb-4"
-        style="font-size: 30px;"
+        class="font-display text-paper leading-[0.95] tracking-[-0.02em] mb-5 lg:text-[40px]"
+        style="font-size: 32px;"
       >
-        La <em class="italic text-honey">{{ top?.name?.split(' ')[0] || 'Clásica' }}</em><br>
-        de la casa
+        Elige tu <em class="italic text-honey">guía</em>
       </h2>
 
-      <!-- Bloque 3 números en mono -->
-      <div class="grid grid-cols-3 gap-1 mb-4 p-3 rounded-[11px] bg-paper/5">
-        <div class="text-center">
-          <p class="font-mono uppercase text-paper/35 mb-0.5" style="font-size: 7px; letter-spacing: 0.12em;">
-            CAFÉ
-          </p>
-          <p class="font-mono font-medium text-paper leading-none" style="font-size: 25px;">
-            {{ dose }}<span class="text-paper/40" style="font-size: 11px;">g</span>
-          </p>
-        </div>
-        <div class="text-center">
-          <p class="font-mono uppercase text-paper/35 mb-0.5" style="font-size: 7px; letter-spacing: 0.12em;">
-            AGUA
-          </p>
-          <p class="font-mono font-medium text-paper leading-none" style="font-size: 25px;">
-            {{ water }}<span class="text-paper/40" style="font-size: 11px;">ml</span>
-          </p>
-        </div>
-        <div class="text-center">
-          <p class="font-mono uppercase text-paper/35 mb-0.5" style="font-size: 7px; letter-spacing: 0.12em;">
-            TEMP
-          </p>
-          <p class="font-mono font-medium text-paper leading-none" style="font-size: 25px;">
-            {{ temp }}<span class="text-paper/40" style="font-size: 11px;">°</span>
-          </p>
-        </div>
-      </div>
-
-      <p class="font-mono uppercase text-paper/30 mb-2" style="font-size: 7px; letter-spacing: 0.15em;">
-        — PASOS
-      </p>
-
-      <div v-if="steps.length > 0" class="flex flex-col">
-        <div
-          v-for="(st, i) in steps"
-          :key="i"
-          class="flex gap-2.5 items-start py-1.5 border-t"
-          :class="i === 0 ? 'border-paper/15' : 'border-paper/[0.06]'"
+      <!-- Recomendada (si el usuario tiene recetas para este método) -->
+      <button
+        v-if="recommended"
+        type="button"
+        class="text-left p-4 rounded-[14px] border transition-colors mb-2.5"
+        :class="selectedId === recommended.id
+          ? 'bg-honey/10 border-honey/35'
+          : 'bg-paper/5 border-paper/10 hover:border-paper/25'"
+        @click="pick(recommended)"
+      >
+        <p
+          class="font-mono uppercase tracking-[0.25em] mb-2"
+          :class="selectedId === recommended.id ? 'text-honey' : 'text-honey/55'"
+          style="font-size: 9px;"
         >
-          <span
-            class="font-mono min-w-[36px] mt-px"
-            :class="i === 0 ? 'text-honey' : 'text-paper/30'"
-            style="font-size: 9px;"
+          — RECOMENDADA
+        </p>
+        <p class="font-display text-paper leading-[1.05] mb-1.5" style="font-size: 22px;">
+          {{ recommended.name }}
+        </p>
+        <p class="font-mono text-paper/55" style="font-size: 11px; letter-spacing: 0.05em;">
+          {{ summary(recommended) }} · {{ ratioOf(recommended) }}
+        </p>
+      </button>
+
+      <!-- Estándar (siempre) -->
+      <button
+        type="button"
+        class="text-left p-4 rounded-[14px] border transition-colors mb-2.5"
+        :class="selectedId === standardRecipe.id
+          ? 'bg-honey/10 border-honey/35'
+          : 'bg-paper/5 border-paper/10 hover:border-paper/25'"
+        @click="pick(standardRecipe)"
+      >
+        <p
+          class="font-mono uppercase tracking-[0.25em] mb-2"
+          :class="selectedId === standardRecipe.id ? 'text-honey' : 'text-paper/45'"
+          style="font-size: 9px;"
+        >
+          — ESTÁNDAR
+        </p>
+        <p class="font-display text-paper leading-[1.05] mb-1.5" style="font-size: 22px;">
+          {{ standardRecipe.name }}
+        </p>
+        <p class="font-mono text-paper/55" style="font-size: 11px; letter-spacing: 0.05em;">
+          {{ summary(standardRecipe) }} · {{ ratioOf(standardRecipe) }}
+        </p>
+      </button>
+
+      <!-- Otras del usuario, compactas -->
+      <div v-if="otherUserRecipes.length > 0" class="mt-3">
+        <p class="font-mono uppercase text-paper/35 mb-2" style="font-size: 9px; letter-spacing: 0.22em;">
+          — otras tuyas
+        </p>
+        <button
+          v-for="r in otherUserRecipes"
+          :key="r.id"
+          type="button"
+          class="w-full text-left px-3.5 py-2.5 rounded-[12px] border transition-colors mb-1.5 flex items-baseline justify-between gap-3"
+          :class="selectedId === r.id
+            ? 'bg-honey/10 border-honey/35'
+            : 'bg-paper/[0.03] border-paper/10 hover:border-paper/25'"
+          @click="pick(r)"
+        >
+          <p class="font-display text-paper truncate" style="font-size: 16px;">
+            {{ r.name }}
+          </p>
+          <p
+            class="font-mono flex-shrink-0"
+            :class="selectedId === r.id ? 'text-honey' : 'text-paper/40'"
+            style="font-size: 10px; letter-spacing: 0.05em;"
           >
-            {{ mmss(st.timeSeconds) }}
-          </span>
-          <div>
-            <p
-              class="font-sans font-medium"
-              :class="i === 0 ? 'text-paper' : 'text-paper/60'"
-              style="font-size: 12px;"
-            >
-              {{ st.title }}
-            </p>
-            <p v-if="st.description" class="font-mono text-paper/30 mt-0.5" style="font-size: 9px;">
-              {{ st.description }}
-            </p>
-          </div>
-        </div>
+            {{ summary(r) }}
+          </p>
+        </button>
       </div>
     </div>
 
+    <!-- Footer: CTA + escape "sin receta" -->
     <div class="px-md pb-md pt-sm space-y-2">
       <button
         type="button"
@@ -136,7 +293,7 @@ const temp = computed(() => top.value?.waterTemp ?? 93)
         @click="confirm"
       >
         <span class="w-[5px] h-[5px] rounded-[1px] bg-jungle inline-block" />
-        Iniciar
+        Iniciar {{ selected.name }}
       </button>
       <button
         type="button"
@@ -144,7 +301,7 @@ const temp = computed(() => top.value?.waterTemp ?? 93)
         style="font-size: 10px; letter-spacing: 0.2em;"
         @click="skipRecipe"
       >
-        sin receta
+        sin receta · ajuste libre
       </button>
     </div>
   </section>

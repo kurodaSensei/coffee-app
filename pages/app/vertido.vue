@@ -88,7 +88,7 @@ const exitColorClass = computed(() =>
          columna centrada que mantiene la lectura mobile-first. -->
     <main class="relative z-10 pb-md">
       <div
-        class="mx-auto max-w-[480px] w-full"
+        class="mx-auto max-w-[480px] lg:max-w-[640px] w-full"
         style="min-height: calc(100vh - 80px);"
       >
         <Transition name="stage" mode="out-in">
