@@ -15,18 +15,36 @@ onMounted(() => {
   }
 })
 
+// Búsqueda — typeahead por nombre o tostador. Sin query: lista corta
+// editorial. Con query: hasta 30 matches (suficiente para no abrumar
+// pero permitir desambiguar entre cafés homónimos de distintos tostadores).
+const query = ref('')
+const queryNorm = computed(() => query.value.trim().toLowerCase())
+
+function sortByRecent(a: Coffee, b: Coffee) {
+  const tb = (b.createdAt as any)?.toMillis?.() ?? 0
+  const ta = (a.createdAt as any)?.toMillis?.() ?? 0
+  return tb - ta
+}
+
 const coffees = computed<Coffee[]>(() => {
   const list = [...(coffeesStore.list as Coffee[])]
+  if (!queryNorm.value) {
+    return list.sort(sortByRecent).slice(0, 6)
+  }
   return list
-    .sort((a, b) => {
-      const tb = (b.createdAt as any)?.toMillis?.() ?? 0
-      const ta = (a.createdAt as any)?.toMillis?.() ?? 0
-      return tb - ta
+    .filter((c) => {
+      const n = (c.name || '').toLowerCase()
+      const r = (c.roasterName || '').toLowerCase()
+      return n.includes(queryNorm.value) || r.includes(queryNorm.value)
     })
-    .slice(0, 6)
+    .sort(sortByRecent)
+    .slice(0, 30)
 })
 
-// Selección preliminar: hover/tap pre-confirma, segundo tap o botón confirma.
+const totalCoffees = computed(() => (coffeesStore.list as Coffee[]).length)
+const hasMoreThanShown = computed(() => !queryNorm.value && totalCoffees.value > 6)
+
 const selected = ref<Coffee | null>(null)
 
 function pick(c: Coffee) {
@@ -56,7 +74,7 @@ function confirm(e: MouseEvent) {
     <div class="flex-1 px-md flex flex-col">
       <!-- Headline: "¿qué café tienes hoy?" con em italic honey -->
       <h2
-        class="font-display text-paper leading-[0.95] tracking-[-0.02em] mb-6"
+        class="font-display text-paper leading-[0.95] tracking-[-0.02em] mb-5"
         style="font-size: 38px;"
       >
         ¿qué café
@@ -65,8 +83,31 @@ function confirm(e: MouseEvent) {
         </em>
       </h2>
 
+      <!-- Search bar minimal: hairline en honey al focus, sin border box.
+           Default vacío con placeholder editorial — discreto pero presente. -->
+      <div class="relative mb-4 border-b border-paper/15 focus-within:border-honey/60 transition-colors">
+        <input
+          v-model="query"
+          type="search"
+          placeholder="busca por nombre o tostador"
+          autocomplete="off"
+          class="w-full bg-transparent py-2.5 pr-8 font-sans text-paper placeholder:text-paper/30 focus:outline-none"
+          style="font-size: 14px;"
+        >
+        <span
+          class="absolute right-0 top-1/2 -translate-y-1/2 font-mono uppercase tracking-[0.15em] text-paper/30 pointer-events-none"
+          style="font-size: 9px;"
+        >
+          {{ queryNorm ? `${coffees.length}` : `${totalCoffees}` }}
+        </span>
+      </div>
+
       <!-- Lista editorial; el seleccionado se hincha con acento honey -->
-      <ul class="flex flex-col gap-2">
+      <ul
+        v-if="coffees.length > 0"
+        class="flex flex-col gap-2 overflow-y-auto"
+        :style="queryNorm ? 'max-height: calc(100vh - 360px);' : ''"
+      >
         <li v-for="c in coffees" :key="c.id">
           <button
             type="button"
@@ -101,6 +142,25 @@ function confirm(e: MouseEvent) {
           </button>
         </li>
       </ul>
+
+      <!-- Empty state cuando no hay matches -->
+      <div v-else-if="queryNorm" class="py-8 text-center">
+        <p class="font-display italic text-paper/45" style="font-size: 18px;">
+          nada encontrado
+        </p>
+        <p class="font-mono uppercase tracking-[0.15em] text-paper/30 mt-2" style="font-size: 9px;">
+          prueba con otro término
+        </p>
+      </div>
+
+      <!-- Hint cuando hay más cafés que los 6 visibles -->
+      <p
+        v-if="hasMoreThanShown"
+        class="font-mono uppercase tracking-[0.18em] text-paper/30 mt-3 text-center"
+        style="font-size: 9px;"
+      >
+        {{ totalCoffees - 6 }} más · escribe para buscar
+      </p>
     </div>
 
     <!-- CTA al pie -->
