@@ -56,7 +56,7 @@ const dots = STAGE_ORDER
 </script>
 
 <template>
-  <div class="relative min-h-screen overflow-x-hidden">
+  <div class="relative min-h-screen overflow-x-hidden bg-jungle">
     <VertidoBackground :stage="state.stage" />
     <VertidoParticles :active="particlesActive" />
     <VertidoTransition

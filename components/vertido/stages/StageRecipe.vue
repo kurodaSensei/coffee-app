@@ -37,7 +37,7 @@ function pick(r: Recipe | null, e: MouseEvent) {
       <li v-for="r in matched" :key="r.id">
         <button
           type="button"
-          class="w-full text-left py-4 px-1 border-b border-paper/10 hover:border-honey/50 transition-colors"
+          class="w-full text-left py-4 px-1 border-b border-paper/20 hover:border-honey/70 transition-colors"
           :class="state.recipe?.id === r.id ? 'border-honey' : ''"
           @click="pick(r, $event)"
         >

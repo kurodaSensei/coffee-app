@@ -60,7 +60,7 @@ async function choose(action: VertidoOutcomeAction) {
 
       <button
         type="button"
-        class="w-full text-left p-5 rounded-2xl border border-paper/10 hover:border-paper/30 transition-colors"
+        class="w-full text-left p-5 rounded-2xl border border-paper/30 hover:border-paper/60 transition-colors"
         @click="choose('discard')"
       >
         <p class="font-display italic text-paper/70 text-[22px]">

@@ -46,13 +46,16 @@ function pick(m: BrewMethod, e: MouseEvent) {
           state.method === m.value
             ? 'bg-honey text-jungle'
             : m.value === suggested
-              ? 'border border-honey text-honey'
-              : 'border border-paper/20 text-paper/70 hover:border-paper/50 hover:text-paper',
+              ? 'border border-honey/80 text-honey'
+              : 'border border-paper/40 text-paper hover:border-paper/70',
         ]"
         @click="pick(m.value, $event)"
       >
         {{ m.label }}
-        <span v-if="m.value === suggested && state.method !== m.value" class="ml-1 opacity-60">·</span>
+        <span
+          v-if="m.value === suggested && state.method !== m.value"
+          class="ml-2 font-mono text-[9px] tracking-[0.2em] uppercase opacity-80"
+        >sugerido</span>
       </button>
     </div>
   </StageFrame>

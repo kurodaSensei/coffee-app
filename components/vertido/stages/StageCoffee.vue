@@ -51,7 +51,7 @@ const emit = defineEmits<{ advance: [origin: { x: number; y: number }] }>()
       <li v-for="c in coffees" :key="c.id">
         <button
           type="button"
-          class="w-full text-left py-4 px-1 border-b border-paper/10 hover:border-honey/50 transition-colors group"
+          class="w-full text-left py-4 px-1 border-b border-paper/20 hover:border-honey/70 transition-colors group"
           :class="state.coffee?.id === c.id ? 'border-honey' : ''"
           @click="pick(c, $event)"
         >

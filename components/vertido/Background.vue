@@ -36,7 +36,7 @@ const palette = computed(() => STAGE_PALETTE[props.stage])
 
 <template>
   <div
-    class="ritual-bg fixed inset-0 -z-10 overflow-hidden transition-colors duration-[800ms] ease-sorbo"
+    class="ritual-bg fixed inset-0 z-0 overflow-hidden transition-colors duration-[800ms] ease-sorbo"
     :style="{ backgroundColor: palette.bg }"
     aria-hidden="true"
   >

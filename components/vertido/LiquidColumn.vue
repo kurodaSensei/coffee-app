@@ -71,8 +71,8 @@ const fillColor = computed(() => {
          L 40 220
          Q 22 220 22 200
          Z"
-      stroke="rgba(244, 242, 235, 0.4)"
-      stroke-width="1"
+      stroke="rgba(244, 242, 235, 0.7)"
+      stroke-width="1.5"
       stroke-linejoin="round"
     />
 
