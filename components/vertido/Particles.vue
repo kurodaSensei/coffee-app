@@ -81,10 +81,14 @@ const particles = computed(() =>
   animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
   animation-iteration-count: infinite;
   animation-play-state: paused;
+  /* Inactive: ocultas del todo. Pause sin opacity:0 las dejaba visibles
+     en su posición inicial, ensuciando otros stages. */
+  opacity: 0 !important;
 }
 
 .ritual-particles--active .ritual-particle {
   animation-play-state: running;
+  opacity: revert !important;
 }
 
 @keyframes fall-from-center {

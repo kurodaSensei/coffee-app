@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import Stamp from '../Stamp.vue'
 import StageHeader from '../StageHeader.vue'
 import { useVertidoSession } from '~/composables/useVertidoSession'
 import type { Coffee } from '~/types'
@@ -63,13 +62,8 @@ function confirm(e: MouseEvent) {
   <section class="relative flex flex-col h-full">
     <StageHeader :n="1" label="CAFÉ" />
 
-    <!-- Sello off-axis, esquina superior derecha, marca de capítulo -->
-    <Stamp
-      name="coffee"
-      :size="140"
-      class="absolute top-16 -right-4 text-paper pointer-events-none"
-      style="opacity: 0.14; transform: rotate(-8deg);"
-    />
+    <!-- Sello del grano de café oculto temporalmente — no convencía
+         visualmente. Cuando se reactive, ajustar tamaño/posición/SVG. -->
 
     <div class="flex-1 px-md flex flex-col">
       <!-- Headline: "¿qué café tienes hoy?" con em italic honey -->
