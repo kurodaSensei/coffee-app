@@ -29,7 +29,7 @@ const slides: Slide[] = [
     eyebrow: 'Paso 1 · Cafés',
     title: 'Registra cada',
     italicWord: 'descubrimiento',
-    body: 'Anota el tostador, el origen, el método. Construye tu colección, taza por taza.',
+    body: 'Anota la marca, el origen, el método. Construye tu colección, taza por taza.',
   },
   {
     eyebrow: 'Paso 2 · Catas',

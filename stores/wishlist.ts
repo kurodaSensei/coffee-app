@@ -49,7 +49,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
     return (s || '').trim().toLowerCase()
   }
 
-  /** Busca un item ya guardado que coincida con el café (nombre + tostador). */
+  /** Busca un item ya guardado que coincida con el café (nombre + marca). */
   function findMatchingItem(coffee: Coffee): WishlistItem | null {
     const name = normalize(coffee.name)
     const roaster = normalize(coffee.roasterName)
@@ -61,7 +61,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
 
   /**
    * Añade un café de la comunidad a la wishlist. Si ya estaba (mismo nombre
-   * y tostador) avisa con un toast y no duplica.
+   * y marca) avisa con un toast y no duplica.
    */
   async function addFromCoffee(coffee: Coffee): Promise<{ added: boolean }> {
     const toast = useToast()

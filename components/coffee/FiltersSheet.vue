@@ -134,7 +134,7 @@ function toggleCountry(value: string) {
       </section>
 
       <section v-if="roastersInUse.length > 0" class="flex flex-col gap-xs">
-        <UiEyebrow>Tostador</UiEyebrow>
+        <UiEyebrow>Marca</UiEyebrow>
         <div class="flex flex-wrap gap-xxs">
           <UiChip
             v-for="r in roastersInUse"

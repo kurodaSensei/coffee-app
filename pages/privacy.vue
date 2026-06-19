@@ -67,7 +67,7 @@ const LAST_UPDATED = '15 de mayo de 2026'
 
           <h3 class="mt-md font-display italic text-[18px] text-olive">De tu contenido</h3>
           <ul class="mt-xs flex flex-col gap-xs pl-md">
-            <li class="list-disc">Los cafés que registras (nombre, tostador, origen, proceso, notas, etc.).</li>
+            <li class="list-disc">Los cafés que registras (nombre, marca, origen, proceso, notas, etc.).</li>
             <li class="list-disc">Las catas que haces (puntajes, atributos, notas personales).</li>
             <li class="list-disc">Las recetas y la wishlist.</li>
             <li class="list-disc">El nivel de visibilidad que asignas a cada item (privado, amigos o comunidad).</li>

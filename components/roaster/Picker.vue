@@ -225,7 +225,7 @@ watch(
           v-else-if="!query.trim()"
           class="px-md py-md font-display italic text-[13px] text-moss-soft"
         >
-          {{ roastersStore.loading ? 'Cargando tostadores…' : 'Aún no tienes tostadores guardados.' }}
+          {{ roastersStore.loading ? 'Cargando marcas…' : 'Aún no tienes marcas guardadas.' }}
         </p>
 
         <div v-if="showCreate" :class="filtered.length > 0 ? 'border-t border-moss/10' : ''">

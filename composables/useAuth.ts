@@ -126,7 +126,7 @@ export const useAuth = () => {
   /**
    * Elimina la cuenta del usuario actual de forma permanente:
    *  1. Borra todos sus documentos en Firestore (cafés, catas, recetas,
-   *     wishlist, tostadores) por query userId.
+   *     wishlist, marcas) por query userId.
    *  2. Borra friendships donde aparece.
    *  3. Borra users/{uid} y userPreferences/{uid}.
    *  4. Borra la cuenta de Firebase Auth.

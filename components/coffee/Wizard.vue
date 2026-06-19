@@ -128,7 +128,7 @@ const roasterPurchaseHint = computed(() => {
   if (r.instagram) hints.push(`Instagram ${r.instagram}`)
   if (r.website) hints.push(`Web ${r.website}`)
   if (hints.length === 0) return ''
-  return `Tu tostador tiene ${hints.join(' · ')}`
+  return `Esta marca tiene ${hints.join(' · ')}`
 })
 
 const referencePlaceholder = computed(() =>
@@ -144,7 +144,8 @@ const errors = ref<Record<string, string>>({})
 function validateStep1(): boolean {
   errors.value = {}
   if (!name.value.trim()) errors.value.name = 'El nombre es obligatorio'
-  if (!roaster.value?.name?.trim()) errors.value.roaster = 'El tostador es obligatorio'
+  // Marca es opcional — no todos los cafés vienen con info clara del
+  // tostador y queremos que registrar una bolsa cualquiera sea fácil.
   return Object.keys(errors.value).length === 0
 }
 
@@ -309,7 +310,7 @@ const submitLabel = computed(() =>
           ¿Cómo se llama<br>este <span class="italic text-olive">café</span>?
         </h1>
         <p class="subtitle-italic mt-sm">
-          Nombre y tostador es lo único obligatorio.
+          Solo el nombre es obligatorio.
         </p>
 
         <div class="mt-xl flex flex-col gap-xs">
@@ -321,8 +322,8 @@ const submitLabel = computed(() =>
           />
           <RoasterPicker
             v-model="roaster"
-            label="Tostador"
-            placeholder="Selecciona o crea uno…"
+            label="Marca"
+            placeholder="Tostador, tienda, marca…"
             :error="errors.roaster"
           />
         </div>

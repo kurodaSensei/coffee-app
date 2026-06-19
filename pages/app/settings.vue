@@ -168,7 +168,7 @@ const friendsHint = computed(() =>
         >
           <Icon name="lucide:flame" class="size-[18px] text-moss-soft group-hover:text-moss transition-colors shrink-0" aria-hidden="true" />
           <div class="flex flex-col gap-[2px] flex-1 min-w-0">
-            <span class="font-sans text-[17px] font-medium text-moss leading-tight">Tostadores</span>
+            <span class="font-sans text-[17px] font-medium text-moss leading-tight">Marcas</span>
             <span class="font-sans text-[12px] text-moss-soft leading-tight">
               {{ roastersCount }} {{ roastersCount === 1 ? 'activo' : 'activos' }}
             </span>

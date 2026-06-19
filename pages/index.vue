@@ -307,13 +307,13 @@ function smoothScroll(id: string) {
           <div class="step">
             <div class="step-num">— 01 / Agrega</div>
             <h3>Registra el <em>café</em></h3>
-            <p>Nombre, tostador, origen. Solo lo esencial — los detalles son opcionales.</p>
+            <p>Nombre, marca, origen. Solo lo esencial — los detalles son opcionales.</p>
             <div class="visual">
               <div class="v-add">
                 <div class="lbl">— Nombre</div>
                 <div class="val">Gold natural</div>
                 <div class="sep" />
-                <div class="lbl">— Tostador</div>
+                <div class="lbl">— Marca</div>
                 <div class="val olive">KurodaCafe</div>
               </div>
             </div>

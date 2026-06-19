@@ -399,7 +399,7 @@ async function deleteItem() {
           />
           <UiInput
             v-model="form.roasterName"
-            label="Tostador / origen"
+            label="Marca / origen"
             placeholder="Hartmann, Panamá"
           />
 

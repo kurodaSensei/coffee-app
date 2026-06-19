@@ -13,12 +13,12 @@ export const useRoastersStore = defineStore('roasters', () => {
       remove: deleteRoaster,
     },
     messages: {
-      created: 'Tostador creado',
-      updated: 'Tostador actualizado',
-      removed: 'Tostador eliminado',
-      createFailed: 'No se pudo crear el tostador',
-      updateFailed: 'No se pudo actualizar el tostador',
-      removeFailed: 'No se pudo eliminar el tostador',
+      created: 'Marca creada',
+      updated: 'Marca actualizada',
+      removed: 'Marca eliminada',
+      createFailed: 'No se pudo crear la marca',
+      updateFailed: 'No se pudo actualizar la marca',
+      removeFailed: 'No se pudo eliminar la marca',
     },
   })
 
