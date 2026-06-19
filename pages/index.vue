@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 definePageMeta({ layout: false, auth: false })
 
@@ -71,34 +71,83 @@ useHead({
   },
 })
 
-const email = ref('')
-const submitting = ref(false)
-const subscribed = ref(false)
-const formError = ref<string | null>(null)
+// ─────────────────────────────────────────────────────────────────────────────
+// Registro inline en la landing — reemplaza la waitlist.
+// El producto ya está disponible: pedir email "para avisar cuando salga"
+// era contradictorio. Mantenemos el diseño de la sección, cambia el flujo.
+// ─────────────────────────────────────────────────────────────────────────────
 
-const { subscribe } = useWaitlist()
+const { register, loginWithGoogle, currentUser } = useAuth()
 const { trackEvent } = useAnalytics()
+const router = useRouter()
 
-async function onSubmit() {
-  if (!email.value.trim() || submitting.value) return
-  submitting.value = true
-  formError.value = null
-  const result = await subscribe(email.value, 'landing')
-  submitting.value = false
+const isLoggedIn = computed(() => !!currentUser.value)
 
-  if (result.status === 'success' || result.status === 'duplicate') {
-    subscribed.value = true
-    email.value = ''
-    // Solo trackeamos altas reales, no re-envíos del mismo email.
-    if (result.status === 'success') {
-      trackEvent('waitlist_signup', { source: 'landing' })
-    }
+const name = ref('')
+const email = ref('')
+const password = ref('')
+const acceptedTerms = ref(false)
+
+const errors = ref<{ name?: string; email?: string; password?: string; terms?: string; general?: string }>({})
+const loading = ref(false)
+const loadingGoogle = ref(false)
+
+function validate(): boolean {
+  errors.value = {}
+  if (!name.value.trim()) errors.value.name = 'Cuéntanos tu nombre'
+  if (!email.value) errors.value.email = 'Correo requerido'
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) errors.value.email = 'Correo no válido'
+  if (!password.value) errors.value.password = 'Contraseña requerida'
+  else if (password.value.length < 8) errors.value.password = 'Mínimo 8 caracteres'
+  if (!acceptedTerms.value) errors.value.terms = 'Debes aceptar los términos para continuar'
+  return Object.keys(errors.value).length === 0
+}
+
+async function onRegister(e: Event) {
+  e.preventDefault()
+  if (!validate()) return
+  loading.value = true
+  try {
+    await register(email.value.trim(), password.value, name.value.trim())
+    trackEvent('signup_success', { method: 'email', source: 'landing' })
+    router.replace('/app')
   }
-  else if (result.status === 'invalid') {
-    formError.value = 'Ingresa un correo válido.'
+  catch (err: any) {
+    errors.value = { general: mapAuthError(err?.code) }
   }
-  else {
-    formError.value = 'No pudimos guardar tu correo. Inténtalo de nuevo.'
+  finally {
+    loading.value = false
+  }
+}
+
+async function onGoogle() {
+  errors.value = {}
+  if (!acceptedTerms.value) {
+    errors.value = { terms: 'Debes aceptar los términos para continuar' }
+    return
+  }
+  loadingGoogle.value = true
+  try {
+    await loginWithGoogle()
+    trackEvent('signup_success', { method: 'google', source: 'landing' })
+    router.replace('/app')
+  }
+  catch (err: any) {
+    errors.value = { general: err?.message || mapAuthError(err?.code) }
+  }
+  finally {
+    loadingGoogle.value = false
+  }
+}
+
+function mapAuthError(code?: string): string {
+  switch (code) {
+    case 'auth/invalid-email': return 'Correo no válido'
+    case 'auth/email-already-in-use': return 'Ese correo ya tiene cuenta. Inicia sesión.'
+    case 'auth/weak-password': return 'Contraseña muy débil. Mínimo 8 caracteres.'
+    case 'auth/network-request-failed': return 'Sin conexión. Revisa tu red.'
+    case 'auth/popup-closed-by-user': return 'Cancelaste el registro con Google'
+    default: return 'No pudimos crear tu cuenta. Inténtalo otra vez.'
   }
 }
 
@@ -122,7 +171,13 @@ function smoothScroll(id: string) {
         <a href="#features" @click.prevent="smoothScroll('features')">Features</a>
         <a href="#como" @click.prevent="smoothScroll('como')">Cómo funciona</a>
         <a href="#por-que" @click.prevent="smoothScroll('por-que')">Por qué Sorbo</a>
-        <a href="#waitlist" class="nav-cta" @click.prevent="smoothScroll('waitlist')">Waitlist</a>
+        <template v-if="isLoggedIn">
+          <NuxtLink to="/app" class="nav-cta">Ir a la app →</NuxtLink>
+        </template>
+        <template v-else>
+          <NuxtLink to="/login" class="nav-login">Ingresar</NuxtLink>
+          <a href="#registro" class="nav-cta" @click.prevent="smoothScroll('registro')">Crear cuenta</a>
+        </template>
       </div>
     </nav>
 
@@ -132,7 +187,7 @@ function smoothScroll(id: string) {
         <div>
           <div class="hero-eyebrow">
             <span class="dot-live" aria-hidden="true" />
-            <span class="label">Beta privada · 2026</span>
+            <span class="label">En vivo · gratis</span>
           </div>
           <h1>
             Un diario<br>
@@ -144,12 +199,22 @@ function smoothScroll(id: string) {
           </p>
 
           <div class="hero-cta">
-            <a href="#waitlist" class="btn-primary" @click.prevent="smoothScroll('waitlist')">
-              Únete a la waitlist →
-            </a>
-            <a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener" class="btn-ghost-light">
-              Sígueme en Instagram
-            </a>
+            <template v-if="isLoggedIn">
+              <NuxtLink to="/app" class="btn-primary">
+                Ir a la app →
+              </NuxtLink>
+              <a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener" class="btn-ghost-light">
+                Sígueme en Instagram
+              </a>
+            </template>
+            <template v-else>
+              <a href="#registro" class="btn-primary" @click.prevent="smoothScroll('registro')">
+                Empieza tu diario →
+              </a>
+              <NuxtLink to="/login" class="btn-ghost-light">
+                Ya tengo cuenta
+              </NuxtLink>
+            </template>
           </div>
 
           <div class="hero-meta">
@@ -163,7 +228,7 @@ function smoothScroll(id: string) {
             </div>
             <div class="hero-meta-item">
               <div class="num"><em>0</em>$</div>
-              <div class="lbl">en beta privada</div>
+              <div class="lbl">para siempre</div>
             </div>
           </div>
         </div>
@@ -377,47 +442,114 @@ function smoothScroll(id: string) {
       </div>
     </section>
 
-    <!-- ============ WAITLIST ============ -->
-    <section id="waitlist" class="waitlist">
+    <!-- ============ REGISTRO ============ -->
+    <section id="registro" class="waitlist">
       <div class="waitlist-inner">
-        <div class="eyebrow">— Beta privada · cupos limitados</div>
-        <h2>Sé de los <em>primeros</em><br>en sorber</h2>
-        <p>Te avisamos en cuanto se abra el acceso. Sin spam — solo cuando estemos listos.</p>
+        <template v-if="isLoggedIn">
+          <div class="eyebrow">— Ya estás dentro</div>
+          <h2>Tu <em>diario</em><br>te espera</h2>
+          <p>Continúa donde lo dejaste.</p>
+          <NuxtLink to="/app" class="btn-primary signup-cta-go">
+            Ir a tu diario →
+          </NuxtLink>
+        </template>
 
-        <form class="waitlist-form" novalidate @submit.prevent="onSubmit">
-          <input
-            v-model="email"
-            type="email"
-            placeholder="tucorreo@ejemplo.com"
-            autocomplete="email"
-            inputmode="email"
-            required
-            :disabled="subscribed"
+        <template v-else>
+          <div class="eyebrow">— Crea tu cuenta · es gratis</div>
+          <h2>Empieza tu <em>diario</em><br>en menos de un minuto</h2>
+          <p>Sin tarjeta, sin trial. Solo tú y tu memoria de taza.</p>
+
+          <form class="signup-form" novalidate @submit="onRegister">
+            <div class="field">
+              <label for="su-name">— Nombre</label>
+              <input
+                id="su-name"
+                v-model="name"
+                type="text"
+                autocomplete="name"
+                placeholder="Cómo te llamas"
+                :aria-invalid="!!errors.name || undefined"
+              >
+              <p v-if="errors.name" class="field-error">{{ errors.name }}</p>
+            </div>
+            <div class="field">
+              <label for="su-email">— Correo</label>
+              <input
+                id="su-email"
+                v-model="email"
+                type="email"
+                autocomplete="email"
+                inputmode="email"
+                placeholder="tucorreo@ejemplo.com"
+                :aria-invalid="!!errors.email || undefined"
+              >
+              <p v-if="errors.email" class="field-error">{{ errors.email }}</p>
+            </div>
+            <div class="field">
+              <label for="su-password">— Contraseña</label>
+              <input
+                id="su-password"
+                v-model="password"
+                type="password"
+                autocomplete="new-password"
+                placeholder="Mínimo 8 caracteres"
+                :aria-invalid="!!errors.password || undefined"
+              >
+              <p v-if="errors.password" class="field-error">{{ errors.password }}</p>
+            </div>
+
+            <label class="terms">
+              <input v-model="acceptedTerms" type="checkbox">
+              <span>
+                He leído y acepto los
+                <NuxtLink to="/terms" target="_blank">Términos</NuxtLink>
+                y la
+                <NuxtLink to="/privacy" target="_blank">Política de Privacidad</NuxtLink>.
+              </span>
+            </label>
+            <p v-if="errors.terms" class="field-error terms-error">{{ errors.terms }}</p>
+
+            <p v-if="errors.general" class="form-error" role="alert">{{ errors.general }}</p>
+
+            <button type="submit" :disabled="loading || loadingGoogle" class="signup-submit">
+              <template v-if="loading">Creando…</template>
+              <template v-else>Crear cuenta →</template>
+            </button>
+          </form>
+
+          <div class="signup-divider">
+            <span class="line" aria-hidden="true" />
+            <span class="lbl">o</span>
+            <span class="line" aria-hidden="true" />
+          </div>
+
+          <button
+            type="button"
+            class="btn-google"
+            :disabled="loading || loadingGoogle"
+            @click="onGoogle"
           >
-          <button type="submit" :disabled="submitting || subscribed" :class="{ done: subscribed }">
-            <template v-if="subscribed">✓ Estás dentro</template>
-            <template v-else-if="submitting">Enviando…</template>
-            <template v-else>Únete →</template>
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />
+              <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853" />
+              <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05" />
+              <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335" />
+            </svg>
+            <template v-if="loadingGoogle">Conectando…</template>
+            <template v-else>Continuar con Google</template>
           </button>
-        </form>
 
-        <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
+          <div class="meta">
+            <span>Sin tarjeta</span>
+            <span>Cancela cuando quieras</span>
+            <span>PWA en iOS · Android · Web</span>
+          </div>
 
-        <div class="meta">
-          <span>Sin tarjeta</span>
-          <span>Cancela cuando quieras</span>
-          <span>PWA en iOS · Android · Web</span>
-        </div>
-
-        <p class="waitlist-fineprint">
-          Al unirte aceptas nuestra
-          <NuxtLink to="/privacy">Política de Privacidad</NuxtLink>.
-        </p>
-
-        <!-- <div class="login-link">
-          <span>¿Ya tienes cuenta?</span>
-          <NuxtLink to="/login">Inicia sesión</NuxtLink>
-        </div> -->
+          <div class="login-link">
+            <span>¿Ya tienes cuenta?</span>
+            <NuxtLink to="/login">Inicia sesión</NuxtLink>
+          </div>
+        </template>
       </div>
     </section>
 
@@ -441,7 +573,9 @@ function smoothScroll(id: string) {
               <li><a href="#features" @click.prevent="smoothScroll('features')">Features</a></li>
               <li><a href="#como" @click.prevent="smoothScroll('como')">Cómo funciona</a></li>
               <li><a href="#por-que" @click.prevent="smoothScroll('por-que')">Por qué Sorbo</a></li>
-              <li><a href="#waitlist" @click.prevent="smoothScroll('waitlist')">Waitlist</a></li>
+              <li v-if="isLoggedIn"><NuxtLink to="/app">Ir a la app</NuxtLink></li>
+              <li v-else><a href="#registro" @click.prevent="smoothScroll('registro')">Crear cuenta</a></li>
+              <li v-if="!isLoggedIn"><NuxtLink to="/login">Iniciar sesión</NuxtLink></li>
               <li><a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener">Instagram</a></li>
               <li><a href="mailto:info@sorbo.app">Contacto</a></li>
             </ul>
@@ -538,8 +672,21 @@ function smoothScroll(id: string) {
   transition: transform 0.2s;
 }
 .nav .nav-cta:hover { transform: translateY(-1px); color: var(--moss); }
+/* Subtle text link, slightly heavier than the section links so el ojo
+   lo separa del scroll-nav y lo lee como acción. */
+.nav .nav-login {
+  font-family: var(--font-sans) !important;
+  text-transform: none !important;
+  font-size: 13px !important;
+  letter-spacing: 0 !important;
+  color: rgba(244, 242, 235, 0.85) !important;
+  font-weight: 500;
+}
+.nav .nav-login:hover { color: var(--paper) !important; }
 @media (max-width: 760px) {
   .nav { padding: 14px 18px; }
+  /* En mobile escondemos los anchors de sección + Ingresar (este último
+     se accede desde el CTA "Ya tengo cuenta" del hero o el footer). */
   .nav .links a:not(.nav-cta) { display: none; }
 }
 
@@ -1426,6 +1573,166 @@ function smoothScroll(id: string) {
   font-weight: 500;
 }
 .waitlist-fineprint a:hover { text-decoration: underline; }
+
+/* ───── Registro inline (reemplaza al waitlist-form) ───── */
+.signup-form {
+  margin: 40px auto 0;
+  max-width: 420px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.signup-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px 8px;
+  background: var(--paper);
+  border: 1px solid rgba(47, 53, 40, 0.10);
+  border-radius: 12px;
+  transition: border-color 0.15s;
+}
+.signup-form .field:focus-within {
+  border-color: rgba(85, 107, 58, 0.5);
+}
+.signup-form .field label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--moss-soft);
+}
+.signup-form .field input {
+  background: transparent;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--moss);
+  width: 100%;
+}
+.signup-form .field input::placeholder {
+  color: var(--moss-ghost);
+  font-style: italic;
+  font-family: var(--font-display);
+  font-size: 14px;
+}
+.signup-form .field-error {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--terracotta);
+  margin-top: -4px;
+}
+.signup-form .terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 4px;
+  cursor: pointer;
+}
+.signup-form .terms input[type="checkbox"] {
+  margin-top: 3px;
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  accent-color: var(--olive);
+  cursor: pointer;
+}
+.signup-form .terms span {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--moss-soft);
+  line-height: 1.5;
+  text-align: left;
+}
+.signup-form .terms a {
+  color: var(--olive);
+  font-weight: 500;
+}
+.signup-form .terms a:hover { text-decoration: underline; }
+.signup-form .terms-error {
+  margin-top: 0;
+  text-align: left;
+}
+.signup-form .signup-submit {
+  margin-top: 10px;
+  background: var(--moss);
+  color: var(--paper);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 14px 22px;
+  border-radius: 12px;
+  border: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.signup-form .signup-submit:hover:not(:disabled) {
+  background: var(--jungle);
+  transform: translateY(-1px);
+}
+.signup-form .signup-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ───── Divider "o" ───── */
+.signup-divider {
+  margin: 24px auto 18px;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.signup-divider .line {
+  flex: 1;
+  height: 1px;
+  background: rgba(47, 53, 40, 0.15);
+}
+.signup-divider .lbl {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--moss-soft);
+}
+
+/* ───── Google button ───── */
+.btn-google {
+  margin: 0 auto;
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--paper);
+  color: var(--moss);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 13px 22px;
+  border-radius: 12px;
+  border: 1px solid rgba(47, 53, 40, 0.15);
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.btn-google:hover:not(:disabled) {
+  border-color: rgba(47, 53, 40, 0.35);
+  transform: translateY(-1px);
+}
+.btn-google:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ───── CTA logged-in state (Ir a tu diario) ───── */
+.signup-cta-go {
+  margin: 40px auto 0;
+  display: inline-block;
+}
+
 @media (max-width: 560px) {
   .waitlist { padding: 80px 18px; }
   .waitlist-form { flex-direction: column; }
