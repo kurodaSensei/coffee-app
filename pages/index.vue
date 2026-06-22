@@ -44,25 +44,73 @@ useHead({
   script: [
     {
       type: 'application/ld+json',
+      // @graph: une 3 entidades (SoftwareApplication + WebSite + Org)
+      // bajo @ids cruzados, dándole a Google/AI engines un modelo
+      // coherente del producto y su autoría. SoftwareApplication es
+      // elegible para Rich Results (a diferencia de WebApplication).
       innerHTML: JSON.stringify({
         '@context': 'https://schema.org',
-        '@type': 'WebApplication',
-        'name': 'Sorbo',
-        'description': DESCRIPTION,
-        'url': `${SITE_URL}/`,
-        'applicationCategory': 'LifestyleApplication',
-        'operatingSystem': 'Web',
-        'inLanguage': 'es',
-        'offers': {
-          '@type': 'Offer',
-          'price': '0',
-          'priceCurrency': 'USD',
-        },
-        'creator': {
-          '@type': 'Organization',
-          'name': 'KurodaCafe',
-          'url': 'https://instagram.com/kurodacafe',
-        },
+        '@graph': [
+          {
+            '@type': 'SoftwareApplication',
+            '@id': `${SITE_URL}/#software`,
+            'name': 'Sorbo',
+            'alternateName': 'Sorbo App',
+            'description': DESCRIPTION,
+            'disambiguatingDescription': 'Aplicación web progresiva (PWA) para registro de cafés de especialidad, catas SCA y recetas de extracción. No confundir con la palabra común "sorbo" (sip).',
+            'url': `${SITE_URL}/`,
+            'applicationCategory': 'LifestyleApplication',
+            'operatingSystem': 'Web, iOS, Android',
+            'inLanguage': 'es',
+            'datePublished': '2026-06-15',
+            'dateModified': new Date().toISOString().split('T')[0],
+            'featureList': [
+              'Registro de cafés de especialidad con detalle (origen, variedad, proceso, SCA score)',
+              'Catas guiadas con scoring estándar SCA',
+              'Recetas con temporizador integrado para 12 métodos de extracción',
+              'Wishlist de cafés que aún no compras',
+              'Feed comunitario con visibilidad granular (privado, amigos, comunidad)',
+              'Catálogo de marcas y tostadores',
+              'PWA instalable en iOS, Android, macOS y Windows',
+            ],
+            'offers': {
+              '@type': 'Offer',
+              'name': 'Plan gratuito',
+              'price': '0',
+              'priceCurrency': 'USD',
+              'availability': 'https://schema.org/InStock',
+              'seller': { '@id': `${SITE_URL}/#organization` },
+            },
+            'creator': { '@id': `${SITE_URL}/#organization` },
+            'publisher': { '@id': `${SITE_URL}/#organization` },
+            'image': OG_IMAGE,
+          },
+          {
+            '@type': 'WebSite',
+            '@id': `${SITE_URL}/#website`,
+            'url': `${SITE_URL}/`,
+            'name': 'Sorbo',
+            'description': DESCRIPTION,
+            'inLanguage': 'es',
+            'publisher': { '@id': `${SITE_URL}/#organization` },
+          },
+          {
+            '@type': 'Organization',
+            '@id': `${SITE_URL}/#organization`,
+            'name': 'KurodaCafe',
+            'url': `${SITE_URL}/`,
+            'email': 'info@sorbo.app',
+            'logo': {
+              '@type': 'ImageObject',
+              'url': `${SITE_URL}/icons/icon-512.png`,
+              'width': 512,
+              'height': 512,
+            },
+            'sameAs': [
+              'https://instagram.com/kurodacafe',
+            ],
+          },
+        ],
       }),
     },
   ],
@@ -442,6 +490,75 @@ function smoothScroll(id: string) {
       </div>
     </section>
 
+    <!-- ============ FAQ ============
+         Headings tipo pregunta + respuesta directa al inicio de cada
+         bloque, optimizado para extracción por AI engines y para que
+         Google muestre People Also Ask. -->
+    <section id="faq" class="faq">
+      <div class="faq-inner">
+        <div class="eyebrow">— Preguntas frecuentes</div>
+        <h2>Lo que <em>quieres saber</em></h2>
+
+        <div class="faq-list">
+          <article class="faq-item">
+            <h3>¿Qué es Sorbo?</h3>
+            <p>
+              Sorbo es un diario digital para café de especialidad. Es una PWA gratuita —
+              Web, iOS y Android — donde registras cafés, haces catas con scoring SCA,
+              guardas recetas con temporizador y, opcionalmente, exploras una comunidad de
+              cafeteros. No es una red social ni una hoja de cálculo: es un cuaderno editorial.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>¿Cuánto cuesta?</h3>
+            <p>
+              Sorbo es gratuito y sin tarjeta. No hay versión "Pro" ni paywall escondido. El
+              proyecto vive en el tier gratuito de Firebase y Vercel, lo cual nos permite
+              ofrecer todas las funciones sin cobrar.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>¿Qué métodos de extracción soporta?</h3>
+            <p>
+              12 métodos: V60, Chemex, Kalita, Origami, Suiren, AeroPress, Prensa francesa,
+              Espresso, Moka, Phin, Cold brew, y un genérico "otro". Cada método tiene una
+              receta estándar incorporada (dosis, agua, temperatura, tiempos) que puedes usar
+              tal cual o personalizar.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>¿Mis catas son privadas?</h3>
+            <p>
+              Sí, por defecto. Cada café, cata y receta nace en modo privado — solo tú las ves.
+              Tienes tres niveles de visibilidad por item: privado, amigos (UIDs que tú eliges),
+              o comunidad (feed público en Explora). Tú decides ítem por ítem.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>¿Sorbo funciona sin internet?</h3>
+            <p>
+              Parcialmente. Como PWA puedes instalarla en tu teléfono y abrirla sin conexión —
+              verás los datos que ya cargaste. Los registros nuevos requieren conexión para
+              sincronizar con Firestore.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>¿Usa el sistema de scoring SCA?</h3>
+            <p>
+              Sí. La puntuación de cafés sigue el estándar de la Specialty Coffee Association
+              (0-100 puntos). Para catas usamos un sistema editorial complementario de 0-10
+              puntos en aroma, dulzor, acidez, cuerpo, acabado y un score overall.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ REGISTRO ============ -->
     <section id="registro" class="waitlist">
       <div class="waitlist-inner">
@@ -576,6 +693,8 @@ function smoothScroll(id: string) {
               <li v-if="isLoggedIn"><NuxtLink to="/app">Ir a la app</NuxtLink></li>
               <li v-else><a href="#registro" @click.prevent="smoothScroll('registro')">Crear cuenta</a></li>
               <li v-if="!isLoggedIn"><NuxtLink to="/login">Iniciar sesión</NuxtLink></li>
+              <li><a href="#faq" @click.prevent="smoothScroll('faq')">FAQ</a></li>
+              <li><NuxtLink to="/about">Sobre el proyecto</NuxtLink></li>
               <li><a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener">Instagram</a></li>
               <li><a href="mailto:info@sorbo.app">Contacto</a></li>
             </ul>
@@ -1453,6 +1572,67 @@ function smoothScroll(id: string) {
 }
 @media (max-width: 560px) {
   .why { padding: 80px 18px; }
+}
+
+/* ==================== FAQ ====================
+   Lista vertical de Q/A. Cada pregunta es H3 con tipo serif italic;
+   la respuesta arranca con la frase clave para extracción por AI
+   engines (primera oración debe poder citarse sola). */
+.faq {
+  background: var(--paper);
+  padding: 120px 32px;
+}
+.faq-inner {
+  max-width: 920px;
+  margin: 0 auto;
+}
+.faq h2 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--moss);
+  margin-top: 18px;
+  font-weight: 400;
+}
+.faq h2 em { font-style: italic; color: var(--olive); }
+.faq-list {
+  margin-top: 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.faq-item {
+  padding: 32px 0;
+  border-top: 1px solid rgba(47, 53, 40, 0.10);
+}
+.faq-item:last-child {
+  border-bottom: 1px solid rgba(47, 53, 40, 0.10);
+}
+.faq-item h3 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--moss);
+  font-weight: 400;
+  margin-bottom: 14px;
+}
+.faq-item h3::before {
+  content: '— ';
+  color: var(--olive);
+  font-style: normal;
+}
+.faq-item p {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--moss-soft);
+  max-width: 720px;
+}
+@media (max-width: 560px) {
+  .faq { padding: 80px 18px; }
+  .faq-item h3 { font-size: 20px; }
+  .faq-item p { font-size: 14px; }
 }
 
 /* ==================== WAITLIST ==================== */

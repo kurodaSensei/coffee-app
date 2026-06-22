@@ -27,7 +27,11 @@ export const useAuth = () => {
   const { $auth } = useNuxtApp()
   const router = useRouter()
 
-  if (!_initialized) {
+  // Solo iniciamos el listener en cliente — durante prerender (Nuxt
+  // static build de páginas públicas) $auth no existe porque el plugin
+  // de Firebase es .client.ts. currentUser permanece null en el HTML
+  // generado y la hidratación lo actualiza al cargar en el browser.
+  if (import.meta.client && !_initialized) {
     _initialized = true
     onAuthStateChanged($auth, async (user) => {
       currentUser.value = user

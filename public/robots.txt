@@ -1,2 +1,41 @@
+# Sorbo · sorbo.app
+# Permitimos el sitio público completo. La app autenticada (/app/**) y
+# las páginas de desarrollo (/dev/**) se excluyen para no contaminar el
+# índice con shells SPA sin contenido indexable.
+
 User-Agent: *
-Disallow:
+Disallow: /app/
+Disallow: /dev/
+
+# ───── AI crawlers ─────
+# Permitimos retrieval + citación. Bloqueamos las rutas autenticadas
+# para evitar que se "entrene" sobre shells vacíos o se intente cita
+# contenido que no debería ser citable.
+
+User-Agent: GPTBot
+Allow: /
+Disallow: /app/
+Disallow: /dev/
+
+User-Agent: ClaudeBot
+Allow: /
+Disallow: /app/
+Disallow: /dev/
+
+User-Agent: Claude-Web
+Allow: /
+Disallow: /app/
+Disallow: /dev/
+
+User-Agent: PerplexityBot
+Allow: /
+Disallow: /app/
+Disallow: /dev/
+
+User-Agent: OAI-SearchBot
+Allow: /
+Disallow: /app/
+Disallow: /dev/
+
+# Sitemap autogenerado por @nuxtjs/sitemap en build.
+Sitemap: https://sorbo.app/sitemap.xml
