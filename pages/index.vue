@@ -203,6 +203,18 @@ function smoothScroll(id: string) {
   const el = document.getElementById(id)
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
+
+// ─── Mobile nav ───
+const mobileNavOpen = ref(false)
+
+function openMobileNav() { mobileNavOpen.value = true }
+function closeMobileNav() { mobileNavOpen.value = false }
+
+function mobileScrollAndClose(id: string) {
+  closeMobileNav()
+  // pequeño delay para que el panel se cierre antes del scroll
+  setTimeout(() => smoothScroll(id), 200)
+}
 </script>
 
 <template>
@@ -227,7 +239,86 @@ function smoothScroll(id: string) {
           <a href="#registro" class="nav-cta" @click.prevent="smoothScroll('registro')">Crear cuenta</a>
         </template>
       </div>
+
+      <!-- Hamburger (solo <760px) — abre panel con todos los links. -->
+      <button
+        type="button"
+        class="nav-burger"
+        :aria-expanded="mobileNavOpen"
+        aria-label="Abrir menú"
+        aria-controls="mobile-nav-panel"
+        @click="openMobileNav"
+      >
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+      </button>
     </nav>
+
+    <!-- ============ MOBILE NAV PANEL ============ -->
+    <Transition
+      enter-active-class="mobile-nav-transition-enter"
+      leave-active-class="mobile-nav-transition-leave"
+    >
+      <div
+        v-if="mobileNavOpen"
+        id="mobile-nav-panel"
+        class="mobile-nav"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menú principal"
+        @keydown.esc="closeMobileNav"
+      >
+        <div class="mobile-nav-header">
+          <NuxtLink to="/" class="brand" aria-label="Sorbo · Inicio" @click="closeMobileNav">
+            <img src="/sorbo.svg" alt="" aria-hidden="true" class="mark-svg">
+            <div class="name">Sorbo<span class="dot">.</span></div>
+          </NuxtLink>
+          <button
+            type="button"
+            class="mobile-nav-close"
+            aria-label="Cerrar menú"
+            @click="closeMobileNav"
+          >
+            ×
+          </button>
+        </div>
+
+        <nav class="mobile-nav-links" aria-label="Navegación principal móvil">
+          <a href="#features" @click.prevent="mobileScrollAndClose('features')">Features</a>
+          <a href="#como" @click.prevent="mobileScrollAndClose('como')">Cómo funciona</a>
+          <a href="#por-que" @click.prevent="mobileScrollAndClose('por-que')">Por qué Sorbo</a>
+          <a href="#faq" @click.prevent="mobileScrollAndClose('faq')">Preguntas frecuentes</a>
+          <NuxtLink to="/about" @click="closeMobileNav">Sobre el proyecto</NuxtLink>
+        </nav>
+
+        <div class="mobile-nav-cta">
+          <template v-if="isLoggedIn">
+            <NuxtLink to="/app" class="mobile-nav-btn primary" @click="closeMobileNav">
+              Ir a la app →
+            </NuxtLink>
+          </template>
+          <template v-else>
+            <a
+              href="#registro"
+              class="mobile-nav-btn primary"
+              @click.prevent="mobileScrollAndClose('registro')"
+            >
+              Crear cuenta
+            </a>
+            <NuxtLink to="/login" class="mobile-nav-btn ghost" @click="closeMobileNav">
+              Ya tengo cuenta
+            </NuxtLink>
+          </template>
+        </div>
+
+        <p class="mobile-nav-foot">
+          <a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener">@kurodacafe</a>
+          ·
+          <a href="mailto:info@sorbo.app">info@sorbo.app</a>
+        </p>
+      </div>
+    </Transition>
 
     <!-- ============ HERO ============ -->
     <section class="hero">
@@ -802,12 +893,148 @@ function smoothScroll(id: string) {
   font-weight: 500;
 }
 .nav .nav-login:hover { color: var(--paper) !important; }
+/* Hamburger button — solo visible en mobile. */
+.nav-burger {
+  display: none;
+  width: 40px;
+  height: 40px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+.nav-burger span {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: var(--paper);
+  border-radius: 1px;
+  margin: 0 auto;
+  transition: opacity 0.15s;
+}
+.nav-burger:hover span { opacity: 0.7; }
+
 @media (max-width: 760px) {
   .nav { padding: 14px 18px; }
-  /* En mobile escondemos los anchors de sección + Ingresar (este último
-     se accede desde el CTA "Ya tengo cuenta" del hero o el footer). */
-  .nav .links a:not(.nav-cta) { display: none; }
+  /* En mobile escondemos toda la nav-row de links y dejamos solo el
+     hamburger — los links viven dentro del panel mobile. */
+  .nav .links { display: none; }
+  .nav-burger { display: flex; }
 }
+
+/* ──── Mobile nav panel ──── */
+.mobile-nav {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--jungle);
+  display: flex;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top) + 18px) 24px calc(env(safe-area-inset-bottom) + 24px);
+}
+.mobile-nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 48px;
+}
+.mobile-nav-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--paper);
+}
+.mobile-nav-header .brand .mark-svg { width: 32px; height: 32px; display: block; }
+.mobile-nav-header .brand .name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--paper);
+  line-height: 1;
+}
+.mobile-nav-header .brand .name .dot { color: var(--honey); }
+.mobile-nav-close {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid rgba(244, 242, 235, 0.18);
+  border-radius: 50%;
+  color: var(--paper);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.mobile-nav-close:hover { border-color: rgba(244, 242, 235, 0.5); }
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+}
+.mobile-nav-links a {
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--paper);
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(244, 242, 235, 0.08);
+  transition: color 0.15s;
+}
+.mobile-nav-links a:hover { color: var(--honey); }
+.mobile-nav-links a:last-child { border-bottom: 0; }
+
+.mobile-nav-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 32px;
+}
+.mobile-nav-btn {
+  display: block;
+  text-align: center;
+  padding: 16px 22px;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  transition: transform 0.2s;
+}
+.mobile-nav-btn:hover { transform: translateY(-1px); }
+.mobile-nav-btn.primary {
+  background: var(--honey);
+  color: var(--moss);
+}
+.mobile-nav-btn.ghost {
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid rgba(244, 242, 235, 0.25);
+}
+
+.mobile-nav-foot {
+  margin-top: 24px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(244, 242, 235, 0.45);
+}
+.mobile-nav-foot a {
+  color: var(--paper);
+  margin: 0 6px;
+}
+.mobile-nav-foot a:hover { color: var(--honey); }
+
+.mobile-nav-transition-enter,
+.mobile-nav-transition-leave {
+  transition: transform 0.28s cubic-bezier(0.32, 0, 0.18, 1), opacity 0.2s;
+}
+.mobile-nav-transition-enter.mobile-nav-transition-enter-from { transform: translateY(-12px); opacity: 0; }
+/* CSS-only safety: hide the panel when not actively mounted (Vue Transition handles it,
+   but ensures no leftover bug from class timing). */
 
 /* ==================== HERO ==================== */
 .hero {
