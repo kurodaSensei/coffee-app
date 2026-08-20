@@ -13,8 +13,8 @@ primer café. Máximo lift por hora invertida.
 - [ ] `pages/register.vue` — registro (fricción de campos)
 - [ ] `pages/login.vue` — login
 - [x] `pages/app/index.vue` — dashboard (primer paisaje post-login) — clarify+onboard+delight+harden
-- [ ] `components/ui/OnboardingWelcome.vue` — welcome sheet primera vez
-- [ ] `components/ui/OnboardingChecklist.vue` — checklist de activación
+- [x] `components/ui/OnboardingWelcome.vue` — welcome sheet primera vez — distill (5→3 slides) + clarify (copy concreta) + harden (skip visible, no persistent)
+- [x] `components/ui/OnboardingChecklist.vue` — checklist de activación — layout (esenciales vs opcionales) + delight (ETAs) + adapt (44px)
 - [ ] `layouts/default.vue` — TabBar + nav shell (dónde está todo)
 
 ## Tier 2 — Core loop (donde vive "complicada")
