@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Coffee, CoffeeInput, CoffeeProcess, PurchaseChannel, RoastLevel, Roaster } from '~/types'
 import type { RoasterValue } from '~/components/roaster/Picker.vue'
 import { PURCHASE_CHANNEL_OPTIONS, PURCHASE_REFERENCE_PLACEHOLDER } from '~/utils/constants'
@@ -24,6 +24,23 @@ const coffeesStore = useCoffeesStore()
 const roastersStore = useRoastersStore()
 const { processOptions, flavorNoteOptions } = useCatalog()
 const { trackEvent } = useAnalytics()
+const { confirm } = useConfirm()
+
+// Descripción corta por proceso — Jordan sin background no distingue
+// washed/natural/honey. Se muestra al elegir uno.
+const PROCESS_DESCRIPTION: Record<string, string> = {
+  washed: 'Fermentado en agua, taza limpia y clara',
+  natural: 'Cereza al sol, más dulce y frutal',
+  honey: 'Mucílago parcial, punto medio entre los dos',
+  anaerobic: 'Sin oxígeno, sabores intensos y experimentales',
+  carbonic: 'CO₂ presurizado, notas vinosas',
+  experimental: 'Métodos innovadores del productor',
+  other: 'Otro método',
+}
+
+const processDescription = computed(() =>
+  process.value ? PROCESS_DESCRIPTION[process.value] || '' : '',
+)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Wizard state
@@ -141,6 +158,120 @@ const referencePlaceholder = computed(() =>
 
 const errors = ref<Record<string, string>>({})
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Autosave a sessionStorage (create mode) — mismo pattern del tasting wizard.
+// ponytail: sessionStorage local, muere con la pestaña; borrador durable
+// solo hasta que el usuario reabra el wizard en la misma sesión.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DRAFT_KEY = 'sorbo:coffee-wizard:draft'
+
+function snapshot() {
+  return {
+    name: name.value,
+    roaster: roaster.value,
+    variety: variety.value,
+    process: process.value,
+    country: country.value,
+    region: region.value,
+    altitude: altitude.value,
+    farm: farm.value,
+    producer: producer.value,
+    flavorNotes: flavorNotes.value.slice(),
+    roastLevel: roastLevel.value,
+    price: price.value,
+    weight: weight.value,
+    scaScore: scaScore.value,
+    purchaseChannel: purchaseChannel.value,
+    purchaseReference: purchaseReference.value,
+    showMoreIdentity: showMoreIdentity.value,
+    showMoreOrigin: showMoreOrigin.value,
+    showSca: showSca.value,
+    showPurchase: showPurchase.value,
+    step: step.value,
+    savedAt: Date.now(),
+  }
+}
+
+const isDirty = computed(() =>
+  !!(
+    name.value.trim()
+    || roaster.value?.name
+    || variety.value.trim()
+    || process.value
+    || country.value
+    || region.value.trim()
+    || altitude.value !== null
+    || farm.value.trim()
+    || producer.value.trim()
+    || flavorNotes.value.length
+    || roastLevel.value
+    || price.value !== null
+    || weight.value !== null
+    || scaScore.value !== null
+    || purchaseChannel.value
+    || purchaseReference.value.trim()
+  ),
+)
+
+onMounted(() => {
+  if (props.mode !== 'create' || props.initialCoffee) return
+  if (typeof window === 'undefined') return
+  try {
+    const raw = window.sessionStorage.getItem(DRAFT_KEY)
+    if (!raw) return
+    const d = JSON.parse(raw)
+    if (!d || Date.now() - d.savedAt > 24 * 60 * 60 * 1000) return
+    name.value = d.name || ''
+    roaster.value = d.roaster || null
+    variety.value = d.variety || ''
+    process.value = d.process || ''
+    country.value = d.country || ''
+    region.value = d.region || ''
+    altitude.value = d.altitude ?? null
+    farm.value = d.farm || ''
+    producer.value = d.producer || ''
+    flavorNotes.value = Array.isArray(d.flavorNotes) ? d.flavorNotes : []
+    roastLevel.value = d.roastLevel || ''
+    price.value = d.price ?? null
+    weight.value = d.weight ?? null
+    scaScore.value = d.scaScore ?? null
+    purchaseChannel.value = d.purchaseChannel || ''
+    purchaseReference.value = d.purchaseReference || ''
+    showMoreIdentity.value = !!d.showMoreIdentity
+    showMoreOrigin.value = !!d.showMoreOrigin
+    showSca.value = !!d.showSca
+    showPurchase.value = !!d.showPurchase
+    step.value = d.step || 1
+  }
+  catch { /* draft corrupto */ }
+})
+
+watch(
+  [name, roaster, variety, process, country, region, altitude, farm, producer,
+    flavorNotes, roastLevel, price, weight, scaScore, purchaseChannel,
+    purchaseReference, showMoreIdentity, showMoreOrigin, showSca, showPurchase, step],
+  () => {
+    if (props.mode !== 'create') return
+    if (typeof window === 'undefined') return
+    if (!isDirty.value) {
+      window.sessionStorage.removeItem(DRAFT_KEY)
+      return
+    }
+    try {
+      window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(snapshot()))
+    }
+    catch { /* quota */ }
+  },
+  { deep: true },
+)
+
+function clearDraft() {
+  if (typeof window === 'undefined') return
+  try { window.sessionStorage.removeItem(DRAFT_KEY) }
+  catch { /* ignore */ }
+}
+
 function validateStep1(): boolean {
   errors.value = {}
   if (!name.value.trim()) errors.value.name = 'El nombre es obligatorio'
@@ -162,7 +293,16 @@ function back() {
   router.back()
 }
 
-function close() {
+async function close() {
+  if (props.mode === 'create' && isDirty.value) {
+    const ok = await confirm({
+      title: '¿Salir sin guardar?',
+      message: 'Tu progreso quedará como borrador y podrás continuar la próxima vez que abras el wizard.',
+      confirmLabel: 'Salir',
+      cancelLabel: 'Seguir aquí',
+    })
+    if (!ok) return
+  }
   if (props.mode === 'edit' && props.coffeeId) {
     router.push(`/app/coffees/${props.coffeeId}`)
   }
@@ -233,6 +373,7 @@ async function submit() {
     }
     else {
       const id = await coffeesStore.create(payload)
+      clearDraft()
       trackEvent('coffee_created', {
         has_sca_score: scaScore.value !== null && scaScore.value !== undefined,
         process: process.value || 'other',
@@ -356,6 +497,14 @@ const submitLabel = computed(() =>
                 {{ p.label }}
               </UiChip>
             </div>
+            <!-- Descripción del proceso elegido — sin vocabulario asumido,
+                 Jordan no distingue washed/natural/honey solo por el label. -->
+            <p
+              v-if="processDescription"
+              class="mt-xxs font-display italic text-[13px] text-moss-soft leading-snug"
+            >
+              {{ processDescription }}
+            </p>
           </div>
         </div>
       </section>
@@ -573,6 +722,9 @@ const submitLabel = computed(() =>
               placeholder="86.5"
               class="w-full bg-transparent border-0 p-0 leading-none text-moss outline-none font-display text-[18px] placeholder:text-moss-ghost placeholder:font-display placeholder:italic"
             >
+            <p class="mt-xxs font-display italic text-[12px] text-moss-soft leading-snug">
+              Sistema profesional de la Specialty Coffee Association. 80+ ya es café de especialidad.
+            </p>
           </div>
 
           <!-- Dónde lo compré (opcional) -->
