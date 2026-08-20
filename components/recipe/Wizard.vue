@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { BrewMethod, GrindSize, Recipe, RecipeInput, RecipeStep } from '~/types'
 import { GRIND_SIZE_OPTIONS } from '~/utils/constants'
 
@@ -19,6 +19,41 @@ const router = useRouter()
 const recipesStore = useRecipesStore()
 const { brewMethodOptions, getBrewMethodLabel } = useCatalog()
 const { trackEvent } = useAnalytics()
+const { confirm } = useConfirm()
+
+// Descripción corta por método — mismo patrón que el tasting wizard.
+// ponytail: duplicado inline; extraer cuando aparezca la 3ª copia.
+const METHOD_DESCRIPTION: Record<BrewMethod, string> = {
+  v60: 'Pour-over cónico, cuerpo limpio y notas claras',
+  chemex: 'Filtro grueso, taza dulce y transparente',
+  kalita: 'Fondo plano, extracción pareja',
+  origami: 'Cónico versátil, sensible al papel',
+  suiren: 'Elegante y contemplativo, extracción lenta',
+  aeropress: 'Presión + inmersión, rápido y cuerpo medio',
+  french_press: 'Inmersión total, cuerpo pleno con aceites',
+  espresso: 'Presión 9 bar, concentrado e intenso',
+  moka_pot: 'Estufa italiana, fuerte y nostálgico',
+  phin: 'Filtro vietnamita, denso y dulce',
+  cold_brew: 'Frío 12h, dulce y baja acidez',
+  other: 'Tu método, tus reglas',
+}
+
+const methodDescription = computed(() =>
+  brewMethod.value ? METHOD_DESCRIPTION[brewMethod.value as BrewMethod] || '' : '',
+)
+
+// Molienda: describe visualmente + para qué método sirve.
+const GRIND_DESCRIPTION: Record<string, string> = {
+  fine: 'Azúcar de mesa — para espresso',
+  medium_fine: 'Sal fina — para AeroPress, moka',
+  medium: 'Sal gruesa — para V60, sifón',
+  medium_coarse: 'Migas de pan — para Chemex, Kalita',
+  coarse: 'Pimienta molida — para prensa francesa, cold brew',
+}
+
+const grindDescription = computed(() =>
+  grindSize.value ? GRIND_DESCRIPTION[grindSize.value] || '' : '',
+)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Wizard state
@@ -45,6 +80,82 @@ const sheetEditingIndex = ref<number | null>(null)
 const stepForm = ref({ time: '', title: '', description: '' })
 
 const errors = ref<Record<string, string>>({})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Autosave sessionStorage (create mode). Mismo patrón de los otros wizards.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DRAFT_KEY = 'sorbo:recipe-wizard:draft'
+
+function snapshot() {
+  return {
+    name: name.value,
+    brewMethod: brewMethod.value,
+    author: author.value,
+    dose: dose.value,
+    water: water.value,
+    waterTemp: waterTemp.value,
+    grindSize: grindSize.value,
+    steps: steps.value.slice(),
+    step: step.value,
+    savedAt: Date.now(),
+  }
+}
+
+const isDirty = computed(() =>
+  !!(
+    name.value.trim()
+    || brewMethod.value
+    || author.value.trim()
+    || dose.value !== null
+    || water.value !== null
+    || waterTemp.value !== null
+    || grindSize.value
+    || steps.value.length
+  ),
+)
+
+onMounted(() => {
+  if (props.mode !== 'create' || props.initialRecipe) return
+  if (typeof window === 'undefined') return
+  try {
+    const raw = window.sessionStorage.getItem(DRAFT_KEY)
+    if (!raw) return
+    const d = JSON.parse(raw)
+    if (!d || Date.now() - d.savedAt > 24 * 60 * 60 * 1000) return
+    name.value = d.name || ''
+    brewMethod.value = (d.brewMethod as BrewMethod) || ''
+    author.value = d.author || ''
+    dose.value = d.dose ?? null
+    water.value = d.water ?? null
+    waterTemp.value = d.waterTemp ?? null
+    grindSize.value = (d.grindSize as GrindSize) || ''
+    steps.value = Array.isArray(d.steps) ? d.steps : []
+    step.value = d.step || 1
+  }
+  catch { /* draft corrupto */ }
+})
+
+watch(
+  [name, brewMethod, author, dose, water, waterTemp, grindSize, steps, step],
+  () => {
+    if (props.mode !== 'create') return
+    if (typeof window === 'undefined') return
+    if (!isDirty.value) {
+      window.sessionStorage.removeItem(DRAFT_KEY)
+      return
+    }
+    try { window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(snapshot())) }
+    catch { /* quota */ }
+  },
+  { deep: true },
+)
+
+function clearDraft() {
+  if (typeof window === 'undefined') return
+  try { window.sessionStorage.removeItem(DRAFT_KEY) }
+  catch { /* ignore */ }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Prefill (edit mode)
@@ -113,7 +224,16 @@ function back() {
   router.back()
 }
 
-function close() {
+async function close() {
+  if (props.mode === 'create' && isDirty.value) {
+    const ok = await confirm({
+      title: '¿Salir sin guardar?',
+      message: 'Tu progreso quedará como borrador y podrás continuar la próxima vez que abras el wizard.',
+      confirmLabel: 'Salir',
+      cancelLabel: 'Seguir aquí',
+    })
+    if (!ok) return
+  }
   if (props.mode === 'edit' && props.recipeId) router.push(`/app/recipes/${props.recipeId}`)
   else router.push('/app/recipes')
 }
@@ -206,6 +326,7 @@ async function submit() {
     }
     else {
       const id = await recipesStore.create(payload)
+      clearDraft()
       trackEvent('recipe_created', {
         has_steps: sortedSteps.value.length > 0,
         step_count: sortedSteps.value.length,
@@ -321,6 +442,12 @@ const nextHint = computed(() => stepTitles[(step.value + 1) as 1 | 2 | 3] || '')
             </UiChip>
           </div>
           <p
+            v-if="methodDescription"
+            class="mt-xs font-display italic text-[13px] text-moss-soft leading-snug"
+          >
+            {{ methodDescription }}
+          </p>
+          <p
             v-if="errors.method"
             class="mt-xxs font-mono text-[10px] font-medium uppercase tracking-eyebrow text-terracotta"
           >
@@ -427,6 +554,14 @@ const nextHint = computed(() => stepTitles[(step.value + 1) as 1 | 2 | 3] || '')
               {{ g.label }}
             </UiChip>
           </div>
+          <!-- Descripción visual + método sugerido. Jordan sin barista
+               background no visualiza 'sal fina' vs 'migas de pan'. -->
+          <p
+            v-if="grindDescription"
+            class="mt-xs font-display italic text-[13px] text-moss-soft leading-snug"
+          >
+            {{ grindDescription }}
+          </p>
         </div>
       </section>
 
