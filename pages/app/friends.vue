@@ -74,14 +74,14 @@ async function onRemove(id: string) {
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"
-        class="inline-flex items-center justify-center size-[40px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
+        class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
         aria-label="Volver"
         @click="router.back()"
       >
         <Icon name="lucide:arrow-left" class="size-5" />
       </button>
       <UiEyebrow>Social</UiEyebrow>
-      <div class="size-[40px]" aria-hidden="true" />
+      <div class="size-[44px]" aria-hidden="true" />
     </header>
 
     <h1 class="mt-md font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px]">
@@ -133,7 +133,7 @@ async function onRemove(id: string) {
           <div class="flex items-center gap-xs shrink-0">
             <button
               type="button"
-              class="inline-flex items-center justify-center size-[36px] rounded-pill bg-olive text-paper hover:bg-olive-dark transition-colors"
+              class="inline-flex items-center justify-center size-[44px] rounded-pill bg-olive text-paper hover:bg-olive-dark transition-colors"
               aria-label="Aceptar"
               @click="onAccept(f.id)"
             >
@@ -141,7 +141,7 @@ async function onRemove(id: string) {
             </button>
             <button
               type="button"
-              class="inline-flex items-center justify-center size-[36px] rounded-pill bg-surface-2 text-moss hover:bg-surface transition-colors"
+              class="inline-flex items-center justify-center size-[44px] rounded-pill bg-surface-2 text-moss hover:bg-surface transition-colors"
               aria-label="Rechazar"
               @click="onReject(f.id)"
             >
@@ -198,7 +198,7 @@ async function onRemove(id: string) {
           </div>
           <button
             type="button"
-            class="inline-flex items-center justify-center size-[36px] rounded-pill text-moss-ghost hover:bg-surface-2/60 transition-colors"
+            class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss-ghost hover:bg-surface-2/60 transition-colors"
             aria-label="Cancelar invitación"
             @click="onReject(f.id)"
           >

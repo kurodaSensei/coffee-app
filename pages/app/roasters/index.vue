@@ -164,7 +164,7 @@ async function deleteRoaster() {
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"
-        class="inline-flex items-center justify-center size-[40px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
+        class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
         aria-label="Volver"
         @click="router.back()"
       >
@@ -173,7 +173,7 @@ async function deleteRoaster() {
       <UiEyebrow>Catálogo</UiEyebrow>
       <button
         type="button"
-        class="inline-flex items-center justify-center size-[40px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
+        class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
         aria-label="Nueva marca"
         @click="openCreate"
       >
