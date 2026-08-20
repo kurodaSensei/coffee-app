@@ -24,6 +24,29 @@ const tastingsStore = useTastingsStore()
 const coffeesStore = useCoffeesStore()
 const { brewMethodOptions, getBrewMethodLabel } = useCatalog()
 const { trackEvent } = useAnalytics()
+const { confirm } = useConfirm()
+
+// Descripción corta por método — Jordan tap ciego cuando ve 12 chips sin
+// contexto. Mostramos una línea debajo cuando eliges uno.
+// ponytail: mapa local; si se necesita en otros wizards, extraer.
+const METHOD_DESCRIPTION: Record<BrewMethod, string> = {
+  v60: 'Pour-over cónico, cuerpo limpio y notas claras',
+  chemex: 'Filtro grueso, taza dulce y transparente',
+  kalita: 'Fondo plano, extracción pareja',
+  origami: 'Cónico versátil, sensible al papel',
+  suiren: 'Elegante y contemplativo, extracción lenta',
+  aeropress: 'Presión + inmersión, rápido y cuerpo medio',
+  french_press: 'Inmersión total, cuerpo pleno con aceites',
+  espresso: 'Presión 9 bar, concentrado e intenso',
+  moka_pot: 'Estufa italiana, fuerte y nostálgico',
+  phin: 'Filtro vietnamita, denso y dulce',
+  cold_brew: 'Frío 12h, dulce y baja acidez',
+  other: 'Tu método, tus reglas',
+}
+
+const methodDescription = computed(() =>
+  brewMethod.value ? METHOD_DESCRIPTION[brewMethod.value as BrewMethod] || '' : '',
+)
 
 onMounted(() => {
   if (!coffeesStore.list.length) coffeesStore.loadAll().catch(() => {})
@@ -54,6 +77,120 @@ const isFavorite = ref(false)
 const wouldBuyAgain = ref(false)
 
 const errors = ref<Record<string, string>>({})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Autosave a sessionStorage — Casey pierde el hilo en una interrupción y no
+// queremos que también pierda la cata. Solo en mode='create'; edit tiene la
+// versión servidor como fuente de verdad.
+// ponytail: sessionStorage, no localStorage; el draft muere al cerrar la pestaña
+// (comportamiento esperado en un wizard efímero).
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DRAFT_KEY = 'sorbo:tasting-wizard:draft'
+
+interface Draft {
+  coffeeId: string
+  brewMethod: string
+  ratingOverall: number | null
+  ratingAroma: number | null
+  ratingAcidity: number | null
+  ratingSweetness: number | null
+  ratingBody: number | null
+  ratingAftertaste: number | null
+  personalNotes: string
+  isFavorite: boolean
+  wouldBuyAgain: boolean
+  step: 1 | 2 | 3
+  savedAt: number
+}
+
+function snapshot(): Draft {
+  return {
+    coffeeId: coffeeId.value,
+    brewMethod: brewMethod.value || '',
+    ratingOverall: ratingOverall.value,
+    ratingAroma: ratingAroma.value,
+    ratingAcidity: ratingAcidity.value,
+    ratingSweetness: ratingSweetness.value,
+    ratingBody: ratingBody.value,
+    ratingAftertaste: ratingAftertaste.value,
+    personalNotes: personalNotes.value,
+    isFavorite: isFavorite.value,
+    wouldBuyAgain: wouldBuyAgain.value,
+    step: step.value,
+    savedAt: Date.now(),
+  }
+}
+
+const isDirty = computed(() => {
+  return !!(
+    coffeeId.value
+    || brewMethod.value
+    || ratingOverall.value !== null
+    || ratingAroma.value !== null
+    || ratingAcidity.value !== null
+    || ratingSweetness.value !== null
+    || ratingBody.value !== null
+    || ratingAftertaste.value !== null
+    || personalNotes.value.trim()
+    || isFavorite.value
+    || wouldBuyAgain.value
+  )
+})
+
+// Restore draft on mount (create mode only, sin initialTasting).
+onMounted(() => {
+  if (props.mode !== 'create' || props.initialTasting) return
+  if (typeof window === 'undefined') return
+  try {
+    const raw = window.sessionStorage.getItem(DRAFT_KEY)
+    if (!raw) return
+    const d = JSON.parse(raw) as Draft
+    // No restaurar drafts de días atrás (sessionStorage muere con la pestaña,
+    // pero por si acaso).
+    if (Date.now() - d.savedAt > 24 * 60 * 60 * 1000) return
+    coffeeId.value = d.coffeeId
+    brewMethod.value = (d.brewMethod as BrewMethod) || ''
+    ratingOverall.value = d.ratingOverall
+    ratingAroma.value = d.ratingAroma
+    ratingAcidity.value = d.ratingAcidity
+    ratingSweetness.value = d.ratingSweetness
+    ratingBody.value = d.ratingBody
+    ratingAftertaste.value = d.ratingAftertaste
+    personalNotes.value = d.personalNotes
+    isFavorite.value = d.isFavorite
+    wouldBuyAgain.value = d.wouldBuyAgain
+    step.value = d.step
+  }
+  catch { /* draft corrupto, ignora */ }
+})
+
+// Autosave con watch profundo sobre todo el snapshot. No debounce (state
+// cambia lento en un wizard humano; el costo de escribir es despreciable).
+watch(
+  [coffeeId, brewMethod, ratingOverall, ratingAroma, ratingAcidity,
+    ratingSweetness, ratingBody, ratingAftertaste, personalNotes,
+    isFavorite, wouldBuyAgain, step],
+  () => {
+    if (props.mode !== 'create') return
+    if (typeof window === 'undefined') return
+    if (!isDirty.value) {
+      window.sessionStorage.removeItem(DRAFT_KEY)
+      return
+    }
+    try {
+      window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(snapshot()))
+    }
+    catch { /* quota o disabled, no bloqueamos */ }
+  },
+  { deep: false },
+)
+
+function clearDraft() {
+  if (typeof window === 'undefined') return
+  try { window.sessionStorage.removeItem(DRAFT_KEY) }
+  catch { /* ignore */ }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Prefill (edit mode)
@@ -139,7 +276,19 @@ function back() {
   router.back()
 }
 
-function close() {
+async function close() {
+  // Confirm si hay datos sin guardar en create mode. En edit los cambios
+  // sin guardar son intencionales del usuario; router.back cubre eso.
+  if (props.mode === 'create' && isDirty.value) {
+    const ok = await confirm({
+      title: '¿Salir sin guardar?',
+      message: 'Tu progreso quedará como borrador y podrás continuar la próxima vez que abras el wizard.',
+      confirmLabel: 'Salir',
+      cancelLabel: 'Seguir aquí',
+    })
+    if (!ok) return
+    // No borramos el draft — se restaura al reabrir el wizard.
+  }
   if (props.mode === 'edit' && props.tastingId) {
     router.push(`/app/tastings/${props.tastingId}`)
   }
@@ -186,6 +335,7 @@ async function submit() {
     }
     else {
       const id = await tastingsStore.create(payload)
+      clearDraft()
       trackEvent('tasting_created', {
         has_attributes: ratingAroma.value !== null
           || ratingAcidity.value !== null
@@ -293,6 +443,14 @@ const submitLabel = computed(() =>
               {{ m.label }}
             </UiChip>
           </div>
+          <!-- Descripción del método elegido — evita el tap ciego cuando ves
+               12 chips sin explicación. -->
+          <p
+            v-if="methodDescription"
+            class="mt-xs font-display italic text-[13px] text-moss-soft leading-snug"
+          >
+            {{ methodDescription }}
+          </p>
           <p
             v-if="errors.method"
             class="mt-xxs font-mono text-[10px] font-medium uppercase tracking-eyebrow text-terracotta"
@@ -319,6 +477,11 @@ const submitLabel = computed(() =>
         >
           <template #info>
             <UiInfoTrigger :info="TASTING_ATTRIBUTE_INFO.overall" />
+          </template>
+          <template #trailing>
+            <span class="font-mono text-[9px] uppercase tracking-eyebrow text-honey">
+              obligatorio
+            </span>
           </template>
         </UiRatingBar>
         <p
@@ -389,7 +552,12 @@ const submitLabel = computed(() =>
             "
             @click="isFavorite = !isFavorite"
           >
-            <span aria-hidden="true">{{ isFavorite ? '❤️' : '🤍' }}</span>
+            <Icon
+              name="lucide:heart"
+              class="size-4"
+              :class="isFavorite ? 'fill-current' : ''"
+              aria-hidden="true"
+            />
             Favorito
           </button>
           <button
