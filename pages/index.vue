@@ -896,8 +896,8 @@ function mobileScrollAndClose(id: string) {
 /* Hamburger button — solo visible en mobile. */
 .nav-burger {
   display: none;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   flex-direction: column;
   justify-content: center;
   gap: 5px;
@@ -956,8 +956,8 @@ function mobileScrollAndClose(id: string) {
 }
 .mobile-nav-header .brand .name .dot { color: var(--honey); }
 .mobile-nav-close {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: transparent;
   border: 1px solid rgba(244, 242, 235, 0.18);
   border-radius: 50%;
@@ -1287,7 +1287,7 @@ function mobileScrollAndClose(id: string) {
   position: relative;
   border-radius: 18px;
   padding: 18px 16px 16px;
-  background: linear-gradient(135deg, #E4E3D2, #EBE9DC);
+  background: linear-gradient(135deg, var(--surface), var(--surface-2));
   overflow: hidden;
   margin-top: 16px;
 }
@@ -1676,7 +1676,7 @@ function mobileScrollAndClose(id: string) {
 
 .v-mem {
   width: 100%;
-  background: linear-gradient(135deg, #E4E3D2, #EBE9DC);
+  background: linear-gradient(135deg, var(--surface), var(--surface-2));
   border-radius: 14px;
   padding: 18px;
   position: relative;
