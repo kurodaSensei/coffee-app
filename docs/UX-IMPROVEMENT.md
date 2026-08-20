@@ -38,18 +38,18 @@ demasiados campos, no queda claro qué es requerido vs opcional.
 
 ## Tier 4 — Secundarias
 
-- [ ] `pages/app/wishlist.vue`
-- [ ] `pages/app/roasters/index.vue`
-- [ ] `pages/app/friends.vue`
-- [ ] `pages/app/profile.vue`
-- [ ] `pages/app/settings.vue`
+- [x] `pages/app/wishlist.vue` — search por café/marca + empty state filtro
+- [x] `pages/app/roasters/index.vue` — search retrofit al átomo UiListSearch
+- [x] `pages/app/friends.vue` — search en accepted (solo cuando >5 amigos)
+- [ ] `pages/app/profile.vue` — bajo lift; sin cambios en esta ronda
+- [x] `pages/app/settings.vue` — ya recibió rename "Tostadores"→"Marcas" en tier 1
 
 ## Tier 5 — Catálogos (baja frecuencia, dejar para el final)
 
-- [ ] `pages/app/methods.vue`
-- [ ] `pages/app/varieties.vue`
-- [ ] `pages/app/processes.vue`
-- [ ] `pages/app/notes.vue`
+- [—] `pages/app/methods.vue` — pattern activo/inactivo funciona, sin cambios
+- [—] `pages/app/varieties.vue` — ídem
+- [—] `pages/app/processes.vue` — ídem
+- [—] `pages/app/notes.vue` — ídem
 
 ---
 
