@@ -15,7 +15,7 @@ primer café. Máximo lift por hora invertida.
 - [x] `pages/app/index.vue` — dashboard (primer paisaje post-login) — clarify+onboard+delight+harden
 - [x] `components/ui/OnboardingWelcome.vue` — welcome sheet primera vez — distill (5→3 slides) + clarify (copy concreta) + harden (skip visible, no persistent)
 - [x] `components/ui/OnboardingChecklist.vue` — checklist de activación — layout (esenciales vs opcionales) + delight (ETAs) + adapt (44px)
-- [ ] `layouts/default.vue` — TabBar + nav shell (dónde está todo)
+- [x] `layouts/default.vue` — TabBar + nav shell — legibilidad TabBar (fs 10→11, moss-ghost→moss-soft, touch 44) + sidebar 'Tostadores'→'Marcas'
 
 ## Tier 2 — Core loop (donde vive "complicada")
 
