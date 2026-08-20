@@ -8,6 +8,15 @@ import {
 export const useCatalog = () => {
   const settings = useSettingsStore()
 
+  // Asegura que settings.prefs esté hidratado en cliente. Sin esto, si un
+  // wizard se abre en frío (hard refresh a /app/coffees/new, deep link, etc.)
+  // sin haber pasado antes por una página que llame settings.load(), los
+  // customs (variedades, procesos, métodos, notas) no aparecen — solo los
+  // defaults. Idempotente: si ya está cargado o cargando, no hace nada.
+  if (import.meta.client && !settings.prefs && !settings.loading) {
+    settings.load().catch(() => {})
+  }
+
   const varieties = computed<string[]>(() => {
     const disabled = settings.prefs?.disabledVarieties ?? []
     const custom = settings.prefs?.customVarieties ?? []
