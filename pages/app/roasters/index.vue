@@ -190,15 +190,7 @@ async function deleteRoaster() {
 
     <!-- Search -->
     <div class="mt-lg">
-      <div class="flex items-center gap-sm rounded-pill bg-surface-2 px-md py-sm">
-        <Icon name="lucide:search" class="size-4 text-moss-ghost shrink-0" />
-        <input
-          v-model="search"
-          type="search"
-          placeholder="Buscar marca…"
-          class="flex-1 bg-transparent border-0 p-0 outline-none font-mono text-[12px] uppercase tracking-eyebrow text-moss placeholder:text-moss-ghost"
-        >
-      </div>
+      <UiListSearch v-model="search" placeholder="Buscar marca…" />
     </div>
 
     <!-- Empty state — solo después de la primera carga (o si hay búsqueda activa). -->

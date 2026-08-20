@@ -31,6 +31,7 @@ const userName = computed(() =>
 )
 
 const tab = ref<'mine' | 'shared'>('mine')
+const search = ref('')
 
 const mineCount = computed(() => recipesStore.list.length)
 const sharedCount = computed(() => recipesStore.sharedList.length)
@@ -44,7 +45,15 @@ const items = computed<Recipe[]>(() => {
   const source = tab.value === 'mine'
     ? (recipesStore.list as Recipe[])
     : (recipesStore.sharedList as Recipe[])
-  return [...(source || [])].sort((a, b) => {
+  const q = search.value.trim().toLowerCase()
+  const searched = q
+    ? (source || []).filter(r =>
+        (r.name || '').toLowerCase().includes(q)
+        || (r.author || '').toLowerCase().includes(q)
+        || getBrewMethodLabel(r.brewMethod).toLowerCase().includes(q),
+      )
+    : (source || [])
+  return [...searched].sort((a, b) => {
     const ta = a.createdAt?.toMillis?.() ?? 0
     const tb = b.createdAt?.toMillis?.() ?? 0
     return tb - ta
@@ -137,6 +146,8 @@ function openSheet(r: Recipe) {
         </UiButton>
       </div>
     </div>
+
+    <UiListSearch v-model="search" placeholder="Buscar por nombre, autor o método…" class="mt-md" />
 
     <!-- Empty — solo después de la primera carga. -->
     <!-- Skeletons mientras carga -->

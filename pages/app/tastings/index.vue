@@ -34,6 +34,7 @@ const userName = computed(() =>
 )
 
 const tab = ref<'mine' | 'shared'>('mine')
+const search = ref('')
 
 const mineCount = computed(() => tastingsStore.list.length)
 const sharedCount = computed(() => tastingsStore.sharedList.length)
@@ -47,7 +48,14 @@ const items = computed<Tasting[]>(() => {
   const source = tab.value === 'mine'
     ? (tastingsStore.list as Tasting[])
     : (tastingsStore.sharedList as Tasting[])
-  return [...(source || [])].sort((a, b) => {
+  const q = search.value.trim().toLowerCase()
+  const searched = q
+    ? (source || []).filter(t =>
+        (t.coffeeName || '').toLowerCase().includes(q)
+        || (t.roasterName || '').toLowerCase().includes(q),
+      )
+    : (source || [])
+  return [...searched].sort((a, b) => {
     const ta = tsMillis(a.brewDate) || tsMillis(a.createdAt)
     const tb = tsMillis(b.brewDate) || tsMillis(b.createdAt)
     return tb - ta
@@ -136,6 +144,8 @@ const activeCoffee = computed<Coffee | null>(() => {
         </UiButton>
       </div>
     </div>
+
+    <UiListSearch v-model="search" placeholder="Buscar por café o marca…" class="mt-md" />
 
     <!-- Skeletons mientras carga -->
     <div
