@@ -143,7 +143,7 @@ async function onDelete() {
       <div class="lg:hidden inline-flex items-center gap-sm">
         <NuxtLink
           to="/app/wishlist"
-          class="inline-flex items-center justify-center size-[32px] rounded-pill bg-surface-2 text-moss hover:bg-surface transition-colors"
+          class="inline-flex items-center justify-center size-[44px] rounded-pill bg-surface-2 text-moss hover:bg-surface transition-colors"
           aria-label="Wishlist"
         >
           <Icon name="lucide:bookmark" class="size-4" />
@@ -170,7 +170,7 @@ async function onDelete() {
         <UiSegmented v-model="tab" :items="segments" />
         <button
           type="button"
-          class="relative inline-flex items-center justify-center size-[40px] rounded-pill text-moss bg-surface-2 hover:bg-surface transition-colors"
+          class="relative inline-flex items-center justify-center size-[44px] rounded-pill text-moss bg-surface-2 hover:bg-surface transition-colors"
           aria-label="Filtros y vista"
           @click="filtersOpen = true"
         >

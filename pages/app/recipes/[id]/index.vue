@@ -76,7 +76,7 @@ async function onDelete() {
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"
-        class="inline-flex items-center justify-center size-[40px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
+        class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
         aria-label="Volver"
         @click="router.back()"
       >
@@ -94,7 +94,7 @@ async function onDelete() {
           Eliminar
         </UiActionMenuItem>
       </UiActionMenu>
-      <div v-else class="size-[40px]" aria-hidden="true" />
+      <div v-else class="size-[44px]" aria-hidden="true" />
     </header>
 
     <div class="mt-lg max-w-[640px] mx-auto">
