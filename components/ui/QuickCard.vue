@@ -4,6 +4,9 @@ import { cn } from '~/lib/utils'
 defineProps<{
   eyebrow?: string
   label?: string
+  /** Micro-hint bajo el label. Define en ≤1 línea qué hace la acción para
+   * usuarios nuevos que no reconocen el vocabulario ("cata", "método", etc). */
+  hint?: string
   to?: string
   href?: string
   class?: string
@@ -22,24 +25,33 @@ const baseClass = cn(
     <UiEyebrow>
       <slot name="eyebrow">{{ eyebrow }}</slot>
     </UiEyebrow>
-    <span class="font-display text-[18px] sm:text-[20px] leading-none tracking-tight text-moss">
-      <slot>{{ label }}</slot>
-    </span>
+    <div class="flex flex-col gap-xxs">
+      <span class="font-display text-[18px] sm:text-[20px] leading-none tracking-tight text-moss">
+        <slot>{{ label }}</slot>
+      </span>
+      <span v-if="hint" class="font-display italic text-[12px] leading-snug text-moss-soft">{{ hint }}</span>
+    </div>
   </NuxtLink>
   <a v-else-if="href" :href="href" :class="cn(baseClass, $props.class)">
     <UiEyebrow>
       <slot name="eyebrow">{{ eyebrow }}</slot>
     </UiEyebrow>
-    <span class="font-display text-[18px] sm:text-[20px] leading-none tracking-tight text-moss">
-      <slot>{{ label }}</slot>
-    </span>
+    <div class="flex flex-col gap-xxs">
+      <span class="font-display text-[18px] sm:text-[20px] leading-none tracking-tight text-moss">
+        <slot>{{ label }}</slot>
+      </span>
+      <span v-if="hint" class="font-display italic text-[12px] leading-snug text-moss-soft">{{ hint }}</span>
+    </div>
   </a>
   <button v-else type="button" :class="cn(baseClass, $props.class)">
     <UiEyebrow>
       <slot name="eyebrow">{{ eyebrow }}</slot>
     </UiEyebrow>
-    <span class="font-display text-[18px] sm:text-[20px] leading-none tracking-tight text-moss">
-      <slot>{{ label }}</slot>
-    </span>
+    <div class="flex flex-col gap-xxs">
+      <span class="font-display text-[18px] sm:text-[20px] leading-none tracking-tight text-moss">
+        <slot>{{ label }}</slot>
+      </span>
+      <span v-if="hint" class="font-display italic text-[12px] leading-snug text-moss-soft">{{ hint }}</span>
+    </div>
   </button>
 </template>

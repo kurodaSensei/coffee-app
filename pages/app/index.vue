@@ -49,9 +49,23 @@ const showOnboardingChecklist = computed(() => {
   return !!prefs && prefs.hasSeenWelcome === true && prefs.hideOnboardingChecklist !== true
 })
 
+const { confirm } = useConfirm()
+
 async function dismissChecklist() {
+  const ok = await confirm({
+    title: '¿Ocultar la guía?',
+    message: 'La checklist te ayuda con los primeros pasos. Puedes traerla de vuelta desde Ajustes.',
+    confirmLabel: 'Ocultar',
+    cancelLabel: 'Mantener',
+  })
+  if (!ok) return
   await settingsStore.dismissOnboardingChecklist().catch(() => {})
 }
+
+// Guía próximos pasos cuando el usuario aún no tiene datos suficientes.
+// Prioridad: (1) sin cafés → agregar café · (2) tiene cafés pero no catas
+// → catar el primero · (3) tiene catas → mostrar última.
+const coffeesCount = computed(() => (coffeesStore.list as Coffee[]).length)
 
 const userName = computed(() => {
   const u = currentUser.value
@@ -177,12 +191,36 @@ const stats = computed(() => {
       de {{ lastTastingLine.roasterName
       }}<template v-if="lastTastingLine.score !== null">, con {{ lastTastingLine.score }} puntos</template>.
     </p>
-    <p
-      v-else-if="tastingsReady"
-      class="mt-md font-display italic text-[14px] lg:text-[18px] text-moss-soft max-w-prose"
+    <!-- Empty states escalonados: guiar al siguiente paso concreto en vez
+         de preguntar "¿empezamos hoy?" sin dirección. -->
+    <div
+      v-else-if="tastingsReady && coffeesCount === 0"
+      class="mt-md flex flex-col gap-xs max-w-prose"
     >
-      Aún no has registrado ninguna cata. ¿Empezamos hoy?
-    </p>
+      <p class="font-display italic text-[14px] lg:text-[18px] text-moss-soft">
+        Todavía no tienes cafés guardados. Empieza por agregar el que tienes en casa.
+      </p>
+      <NuxtLink
+        to="/app/coffees/new"
+        class="inline-flex items-center gap-xxs font-mono text-[11px] uppercase tracking-eyebrow text-olive hover:text-olive-dark transition-colors"
+      >
+        + Agregar mi primer café
+      </NuxtLink>
+    </div>
+    <div
+      v-else-if="tastingsReady"
+      class="mt-md flex flex-col gap-xs max-w-prose"
+    >
+      <p class="font-display italic text-[14px] lg:text-[18px] text-moss-soft">
+        Aún no has puntuado ningún café. Prueba uno y anota qué te pareció.
+      </p>
+      <NuxtLink
+        to="/app/tastings/new"
+        class="inline-flex items-center gap-xxs font-mono text-[11px] uppercase tracking-eyebrow text-olive hover:text-olive-dark transition-colors"
+      >
+        Puntuar mi primer café
+      </NuxtLink>
+    </div>
 
     <!-- PWA install banner (Android/desktop nativo + iOS con instrucciones) -->
     <UiPwaInstallBanner class="mt-xl" />
@@ -194,17 +232,39 @@ const stats = computed(() => {
       @dismiss="dismissChecklist"
     />
 
-    <!-- Hero + quick actions -->
+    <!-- Hero + quick actions
+         · HeroCard explica qué es una cata en la subtitle (visible mobile)
+         · QuickCards con hint editorial que define el vocabulario
+         · Cuando hay última cata, mostramos "Repetir" como acelerador para
+           usuarios recurrentes (una de las quejas del audit UX). -->
     <section class="mt-xl grid grid-cols-2 lg:grid-cols-3 gap-sm lg:gap-md">
       <UiHeroCard
         eyebrow="Hoy"
         title="¿Preparas café?"
-        subtitle="Inicia una cata o registra una preparación."
+        subtitle="Puntúa la taza y guarda notas. Tarda unos 2 minutos."
         to="/app/tastings/new"
         class="col-span-2 lg:row-span-2"
       />
-      <UiQuickCard eyebrow="Rápido" label="Nueva cata" to="/app/tastings/new" />
-      <UiQuickCard eyebrow="Rápido" label="Nuevo café" to="/app/coffees/new" />
+      <UiQuickCard
+        v-if="lastTasting"
+        eyebrow="Acelerador"
+        label="Repetir última cata"
+        :hint="`Volver a probar ${lastTasting.coffeeName}`"
+        :to="`/app/tastings/new?coffeeId=${lastTasting.coffeeId}`"
+      />
+      <UiQuickCard
+        eyebrow="Rápido"
+        label="Nueva cata"
+        hint="Puntúa un café que ya tienes"
+        to="/app/tastings/new"
+      />
+      <UiQuickCard
+        v-if="!lastTasting"
+        eyebrow="Rápido"
+        label="Nuevo café"
+        hint="Guarda origen, tueste y precio"
+        to="/app/coffees/new"
+      />
     </section>
 
     <!-- Stats -->
