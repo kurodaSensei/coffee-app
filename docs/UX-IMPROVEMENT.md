@@ -31,10 +31,10 @@ demasiados campos, no queda claro qué es requerido vs opcional.
 
 ## Tier 3 — Navegación + listas
 
-- [ ] `pages/app/coffees/index.vue` — lista cafés
-- [ ] `pages/app/tastings/index.vue` — lista catas
-- [ ] `pages/app/recipes/index.vue` — lista recetas
-- [ ] `pages/app/explore.vue` — feed comunidad
+- [x] `pages/app/coffees/index.vue` — lista cafés — search por nombre/marca
+- [x] `pages/app/tastings/index.vue` — lista catas — search por café/marca
+- [x] `pages/app/recipes/index.vue` — lista recetas — search por nombre/autor/método
+- [x] `pages/app/explore.vue` — feed comunidad — segmented filter suficiente (feed query capado, no lleva search)
 
 ## Tier 4 — Secundarias
 
