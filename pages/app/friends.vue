@@ -35,7 +35,20 @@ async function sendInvite() {
   }
 }
 
-const accepted = computed(() => friendsStore.accepted)
+const search = ref('')
+
+const accepted = computed(() => {
+  const list = friendsStore.accepted
+  const q = search.value.trim().toLowerCase()
+  if (!q) return list
+  return list.filter((f) => {
+    const u = friendsStore.getOtherUser(f)
+    return (
+      (u?.displayName || '').toLowerCase().includes(q)
+      || (u?.email || '').toLowerCase().includes(q)
+    )
+  })
+})
 const pendingIncoming = computed(() => friendsStore.pendingIncoming)
 const pendingOutgoing = computed(() => friendsStore.pendingOutgoing)
 
@@ -155,6 +168,12 @@ async function onRemove(id: string) {
     <!-- Accepted -->
     <section class="mt-xl">
       <UiEyebrow>{{ accepted.length }} {{ accepted.length === 1 ? 'amigo' : 'amigos' }}</UiEyebrow>
+      <UiListSearch
+        v-if="friendsStore.accepted.length > 5"
+        v-model="search"
+        placeholder="Buscar amigo…"
+        class="mt-sm"
+      />
       <ul v-if="accepted.length > 0" class="mt-sm flex flex-col">
         <li
           v-for="f in accepted"
