@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import type { BrewMethod, GrindSize, Recipe, RecipeInput, RecipeStep } from '~/types'
-import { GRIND_SIZE_OPTIONS } from '~/utils/constants'
+import { BREW_METHOD_DESCRIPTION, GRIND_SIZE_OPTIONS } from '~/utils/constants'
 
 const props = withDefaults(
   defineProps<{
@@ -21,25 +21,8 @@ const { brewMethodOptions, getBrewMethodLabel } = useCatalog()
 const { trackEvent } = useAnalytics()
 const { confirm } = useConfirm()
 
-// Descripción corta por método — mismo patrón que el tasting wizard.
-// ponytail: duplicado inline; extraer cuando aparezca la 3ª copia.
-const METHOD_DESCRIPTION: Record<BrewMethod, string> = {
-  v60: 'Pour-over cónico, cuerpo limpio y notas claras',
-  chemex: 'Filtro grueso, taza dulce y transparente',
-  kalita: 'Fondo plano, extracción pareja',
-  origami: 'Cónico versátil, sensible al papel',
-  suiren: 'Elegante y contemplativo, extracción lenta',
-  aeropress: 'Presión + inmersión, rápido y cuerpo medio',
-  french_press: 'Inmersión total, cuerpo pleno con aceites',
-  espresso: 'Presión 9 bar, concentrado e intenso',
-  moka_pot: 'Estufa italiana, fuerte y nostálgico',
-  phin: 'Filtro vietnamita, denso y dulce',
-  cold_brew: 'Frío 12h, dulce y baja acidez',
-  other: 'Tu método, tus reglas',
-}
-
 const methodDescription = computed(() =>
-  brewMethod.value ? METHOD_DESCRIPTION[brewMethod.value as BrewMethod] || '' : '',
+  brewMethod.value ? BREW_METHOD_DESCRIPTION[brewMethod.value] || '' : '',
 )
 
 // Molienda: describe visualmente + para qué método sirve.

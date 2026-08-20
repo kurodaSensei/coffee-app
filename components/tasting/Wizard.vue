@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import type { BrewMethod, Coffee, Tasting, TastingInput } from '~/types'
-import { TASTING_ATTRIBUTE_INFO } from '~/utils/constants'
+import { BREW_METHOD_DESCRIPTION, TASTING_ATTRIBUTE_INFO } from '~/utils/constants'
 
 const props = withDefaults(
   defineProps<{
@@ -26,26 +26,8 @@ const { brewMethodOptions, getBrewMethodLabel } = useCatalog()
 const { trackEvent } = useAnalytics()
 const { confirm } = useConfirm()
 
-// Descripción corta por método — Jordan tap ciego cuando ve 12 chips sin
-// contexto. Mostramos una línea debajo cuando eliges uno.
-// ponytail: mapa local; si se necesita en otros wizards, extraer.
-const METHOD_DESCRIPTION: Record<BrewMethod, string> = {
-  v60: 'Pour-over cónico, cuerpo limpio y notas claras',
-  chemex: 'Filtro grueso, taza dulce y transparente',
-  kalita: 'Fondo plano, extracción pareja',
-  origami: 'Cónico versátil, sensible al papel',
-  suiren: 'Elegante y contemplativo, extracción lenta',
-  aeropress: 'Presión + inmersión, rápido y cuerpo medio',
-  french_press: 'Inmersión total, cuerpo pleno con aceites',
-  espresso: 'Presión 9 bar, concentrado e intenso',
-  moka_pot: 'Estufa italiana, fuerte y nostálgico',
-  phin: 'Filtro vietnamita, denso y dulce',
-  cold_brew: 'Frío 12h, dulce y baja acidez',
-  other: 'Tu método, tus reglas',
-}
-
 const methodDescription = computed(() =>
-  brewMethod.value ? METHOD_DESCRIPTION[brewMethod.value as BrewMethod] || '' : '',
+  brewMethod.value ? BREW_METHOD_DESCRIPTION[brewMethod.value] || '' : '',
 )
 
 onMounted(() => {

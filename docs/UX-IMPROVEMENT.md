@@ -12,7 +12,7 @@ primer café. Máximo lift por hora invertida.
 - [ ] `pages/index.vue` — landing (persuade → registro)
 - [ ] `pages/register.vue` — registro (fricción de campos)
 - [ ] `pages/login.vue` — login
-- [ ] `pages/app/index.vue` — dashboard (primer paisaje post-login)
+- [x] `pages/app/index.vue` — dashboard (primer paisaje post-login) — clarify+onboard+delight+harden
 - [ ] `components/ui/OnboardingWelcome.vue` — welcome sheet primera vez
 - [ ] `components/ui/OnboardingChecklist.vue` — checklist de activación
 - [ ] `layouts/default.vue` — TabBar + nav shell (dónde está todo)
@@ -22,9 +22,9 @@ primer café. Máximo lift por hora invertida.
 Los 3 wizards de creación son el sospechoso más probable del feedback:
 demasiados campos, no queda claro qué es requerido vs opcional.
 
-- [ ] `components/coffee/Wizard.vue` — nuevo café (3 pasos)
-- [ ] `components/tasting/Wizard.vue` — **nueva cata** (acción más frecuente)
-- [ ] `components/recipe/Wizard.vue` — nueva receta
+- [x] `components/coffee/Wizard.vue` — nuevo café (3 pasos) — harden+clarify (proceso, SCA)
+- [x] `components/tasting/Wizard.vue` — **nueva cata** — harden+clarify (método, "obligatorio")+polish (heart icon)
+- [x] `components/recipe/Wizard.vue` — nueva receta — harden+clarify (método, molienda)
 - [ ] `pages/app/coffees/[id]/index.vue` — detalle café
 - [ ] `pages/app/tastings/[id]/index.vue` — detalle cata
 - [ ] `pages/app/recipes/[id]/index.vue` — detalle receta

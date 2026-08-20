@@ -188,3 +188,23 @@ export const WISHLIST_STATUS_OPTIONS = [
   { value: 'purchased', label: 'Comprado', color: 'green' },
   { value: 'unavailable', label: 'No disponible', color: 'gray' },
 ]
+
+/**
+ * Descripción corta por método de extracción — usada en los wizards de cata
+ * y receta para explicar cada opción a usuarios sin background barista.
+ * Una línea, sin jerga, con el rasgo dominante (cuerpo/velocidad/estilo).
+ */
+export const BREW_METHOD_DESCRIPTION: Record<string, string> = {
+  v60: 'Pour-over cónico, cuerpo limpio y notas claras',
+  chemex: 'Filtro grueso, taza dulce y transparente',
+  kalita: 'Fondo plano, extracción pareja',
+  origami: 'Cónico versátil, sensible al papel',
+  suiren: 'Elegante y contemplativo, extracción lenta',
+  aeropress: 'Presión + inmersión, rápido y cuerpo medio',
+  french_press: 'Inmersión total, cuerpo pleno con aceites',
+  espresso: 'Presión 9 bar, concentrado e intenso',
+  moka_pot: 'Estufa italiana, fuerte y nostálgico',
+  phin: 'Filtro vietnamita, denso y dulce',
+  cold_brew: 'Frío 12h, dulce y baja acidez',
+  other: 'Tu método, tus reglas',
+}
