@@ -18,36 +18,28 @@ interface Slide {
   body: string
 }
 
+// 3 slides · comprimido de 5. Los usuarios que dicen "es complicada"
+// se estancan en walkthroughs largos. La activación real ocurre cuando
+// el usuario registra su primer café — el welcome solo tiene que darle
+// contexto suficiente para saber qué hacer.
 const slides: Slide[] = [
   {
     eyebrow: 'Hola',
     title: 'Tu diario de',
     italicWord: 'café',
-    body: 'Sorbo es la memoria de cada taza que vale la pena recordar. Cataloga, prueba, comparte.',
+    body: 'Guarda cada café que pruebes, puntúa la taza y anota qué te supo. Sin tecnicismos.',
   },
   {
-    eyebrow: 'Paso 1 · Cafés',
-    title: 'Registra cada',
-    italicWord: 'descubrimiento',
-    body: 'Anota la marca, el origen, el método. Construye tu colección, taza por taza.',
+    eyebrow: 'Empieza aquí',
+    title: 'Registra un',
+    italicWord: 'café',
+    body: 'El que tienes ahora en la cafetera o el que compraste ayer. Solo el nombre es obligatorio — 30 segundos.',
   },
   {
-    eyebrow: 'Paso 2 · Catas',
-    title: 'Anota cómo te',
-    italicWord: 'supo',
-    body: 'Notas de cata sin tecnicismos. Frutal, dulce, brutal — como lo digas tú.',
-  },
-  {
-    eyebrow: 'Paso 3 · Amigos',
-    title: 'Comparte con tu',
-    italicWord: 'tribu',
-    body: 'Invita a otros cafeteros y comparte directamente lo que estás tomando. Tu gente, sin intermediarios.',
-  },
-  {
-    eyebrow: 'Paso 4 · Comunidad',
-    title: 'Descubre lo que otros',
-    italicWord: 'toman',
-    body: 'En Explora encuentras cafés, catas y recetas que la comunidad comparte. Para inspirarte, no para seguirte.',
+    eyebrow: 'Cuando quieras',
+    title: 'Descubre a la',
+    italicWord: 'comunidad',
+    body: 'En Explora aparece lo que otros cafeteros comparten. Invita amigos o guarda un café que te llamó la atención.',
   },
 ]
 
@@ -78,9 +70,20 @@ function finish(skipped = false) {
 </script>
 
 <template>
-  <UiBottomSheet :model-value="modelValue" persistent @update:model-value="emit('update:modelValue', $event)">
+  <UiBottomSheet :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)">
     <div class="flex flex-col gap-md min-h-[60svh] lg:min-h-0">
-      <UiEyebrow>{{ currentSlide.eyebrow }}</UiEyebrow>
+      <div class="flex items-center justify-between gap-md">
+        <UiEyebrow>{{ currentSlide.eyebrow }}</UiEyebrow>
+        <!-- Skip prominente arriba — Jordan que ya conoce productos similares
+             no debería tener que taps 3 veces para salir. -->
+        <button
+          type="button"
+          class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-soft hover:text-moss transition-colors"
+          @click="finish(true)"
+        >
+          Saltar
+        </button>
+      </div>
 
       <h2 class="font-display tracking-[-0.02em] leading-[1.02] text-moss text-[40px] sm:text-[48px]">
         <template v-if="index === 0 && userName">
@@ -107,7 +110,7 @@ function finish(skipped = false) {
         />
       </div>
 
-      <!-- Actions -->
+      <!-- Actions — sin Skip duplicado (ya está arriba). Atrás + Siguiente. -->
       <div class="flex items-center gap-xs pt-md mt-auto">
         <UiButton
           v-if="index > 0"
@@ -118,13 +121,6 @@ function finish(skipped = false) {
           Atrás
         </UiButton>
         <div class="flex-1" />
-        <UiButton
-          variant="ghost"
-          :block="false"
-          @click="finish(true)"
-        >
-          <span class="text-moss-soft">Saltar</span>
-        </UiButton>
         <UiButton
           variant="primary"
           :block="false"
