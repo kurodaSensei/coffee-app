@@ -553,6 +553,52 @@ function mobileScrollAndClose(id: string) {
       </div>
     </section>
 
+    <!-- ============ SOCIAL PROOF / TESTIMONIALES ============
+         Placeholder editable — cambia las 3 quotes por reseñas reales
+         cuando estén. Cada quote es <blockquote> con <cite> para que los
+         crawlers los reconozcan como testimonio. -->
+    <section class="voices">
+      <div class="voices-inner">
+        <div class="eyebrow">— Lo que dicen</div>
+        <h2>Voces de la <em>comunidad</em></h2>
+        <div class="voices-grid">
+          <figure class="voice">
+            <blockquote>"Por fin dejé la hoja de Excel. Registrar una cata se siente como escribir en mi cuaderno favorito."</blockquote>
+            <figcaption>
+              <cite>Ana M.</cite> · Bogotá
+            </figcaption>
+          </figure>
+          <figure class="voice">
+            <blockquote>"Lo que más uso: puedo repetir la última cata con dos taps. Encontré mi ritmo."</blockquote>
+            <figcaption>
+              <cite>Diego R.</cite> · Medellín
+            </figcaption>
+          </figure>
+          <figure class="voice">
+            <blockquote>"Explora es la parte que me hace volver. Descubro cafés que jamás habría pedido."</blockquote>
+            <figcaption>
+              <cite>Mariana V.</cite> · Ciudad de México
+            </figcaption>
+          </figure>
+        </div>
+        <p class="voices-note">
+          Placeholder — los testimonios se actualizarán con quotes reales conforme lleguen.
+        </p>
+
+        <!-- Imagen real para crawlers (el resto de la landing es CSS
+             mockup y los bots no lo indexan como imagen). Usamos el
+             mismo OG image ya renderizado; el alt describe el producto. -->
+        <img
+          src="/og-image.png"
+          alt="Sorbo — un diario para cada sorbo de café · pour-over, dulzura editorial y comunidad"
+          width="1200"
+          height="630"
+          loading="lazy"
+          class="voices-image"
+        >
+      </div>
+    </section>
+
     <!-- ============ POR QUÉ SORBO ============ -->
     <section id="por-que" class="why">
       <div class="why-inner">
@@ -1799,6 +1845,86 @@ function mobileScrollAndClose(id: string) {
 }
 @media (max-width: 560px) {
   .why { padding: 80px 18px; }
+}
+
+/* ==================== VOICES / TESTIMONIALES ==================== */
+.voices {
+  background: var(--surface);
+  padding: 100px 32px;
+}
+.voices-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.voices h2 {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 4.5vw, 60px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--moss);
+  margin-top: 14px;
+  font-weight: 400;
+}
+.voices h2 em { font-style: italic; color: var(--olive); }
+.voices-grid {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.voice {
+  padding: 28px;
+  background: var(--paper);
+  border: 1px solid rgba(47, 53, 40, 0.08);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 0;
+}
+.voice blockquote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.45;
+  color: var(--moss);
+  margin: 0;
+}
+.voice figcaption {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--moss-soft);
+}
+.voice figcaption cite {
+  color: var(--olive);
+  font-style: normal;
+  font-weight: 500;
+}
+.voices-note {
+  margin-top: 32px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--moss-ghost);
+  text-align: center;
+}
+.voices-image {
+  display: block;
+  margin: 48px auto 0;
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(20, 23, 18, 0.12);
+}
+@media (max-width: 880px) {
+  .voices-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .voices { padding: 72px 18px; }
 }
 
 /* ==================== FAQ ====================
