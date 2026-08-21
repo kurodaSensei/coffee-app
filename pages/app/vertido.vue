@@ -102,19 +102,21 @@ const restoreHintClass = computed(() =>
       @done="onTransitionDone"
     />
 
-    <!-- Top bar: back/exit sin dots. El fondo es el progreso. -->
+    <!-- Top bar: back/exit sin dots. El fondo es el progreso.
+         Chrome mono unificado a 10px/0.2em — la jerarquía la hace el color,
+         no un 1px de diferencia. -->
     <header class="relative z-20 flex items-center justify-between px-6 py-5">
       <button
         type="button"
-        class="font-mono text-[10px] uppercase tracking-[0.25em] transition-colors"
+        class="font-mono text-[10px] uppercase tracking-[0.2em] transition-colors"
         :class="exitColorClass"
         @click="goBack"
       >
         ← {{ stageIndex === 0 ? 'salir' : 'atrás' }}
       </button>
       <span
-        class="font-mono text-[9px] uppercase tracking-[0.2em] opacity-50 hidden sm:inline"
-        :class="isPaperStage ? 'text-moss/40' : 'text-paper/40'"
+        class="font-mono text-[10px] uppercase tracking-[0.2em] hidden sm:inline"
+        :class="isPaperStage ? 'text-moss/35' : 'text-paper/35'"
       >
         Esc para volver
       </span>
@@ -126,13 +128,15 @@ const restoreHintClass = computed(() =>
       class="relative z-20 mx-auto max-w-[480px] lg:max-w-[640px] w-full px-6"
     >
       <div
-        class="flex items-center justify-between gap-md rounded-full px-4 py-2 text-[11px]"
+        class="flex items-center justify-between gap-md rounded-full px-4 py-2"
         :class="restoreHintClass"
       >
-        <span class="font-display italic">Continuas donde ibas.</span>
+        <!-- Display italic a 13px: DM Serif Display necesita ≥12px para
+             leerse como serif de personalidad, no como serif genérico. -->
+        <span class="font-display italic text-[13px] leading-none">Continuas donde ibas.</span>
         <button
           type="button"
-          class="font-mono uppercase tracking-[0.2em] text-[10px] opacity-70 hover:opacity-100 transition-opacity"
+          class="font-mono uppercase tracking-[0.2em] text-[10px] opacity-65 hover:opacity-100 transition-opacity"
           @click="discardDraft"
         >
           empezar de cero
