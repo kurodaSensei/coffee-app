@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { Coffee, CoffeeInput, CoffeeProcess, PurchaseChannel, RoastLevel, Roaster } from '~/types'
 import type { RoasterValue } from '~/components/roaster/Picker.vue'
 import { PURCHASE_CHANNEL_OPTIONS, PURCHASE_REFERENCE_PLACEHOLDER } from '~/utils/constants'
@@ -22,6 +22,7 @@ const props = withDefaults(
 const router = useRouter()
 const coffeesStore = useCoffeesStore()
 const roastersStore = useRoastersStore()
+const settingsStore = useSettingsStore()
 const { processOptions, flavorNoteOptions } = useCatalog()
 const { trackEvent } = useAnalytics()
 const { confirm } = useConfirm()
@@ -214,7 +215,12 @@ const isDirty = computed(() =>
   ),
 )
 
-onMounted(() => {
+onMounted(async () => {
+  // Belt-and-suspenders: aunque useCatalog dispara settings.load internamente,
+  // aquí lo esperamos explícito para que los chips de proceso/nota estén
+  // renderizados con los customs desde el primer paint del wizard.
+  await settingsStore.load()
+
   if (props.mode !== 'create' || props.initialCoffee) return
   if (typeof window === 'undefined') return
   try {
@@ -321,9 +327,24 @@ function toggleFlavor(note: string) {
   else flavorNotes.value.splice(idx, 1)
 }
 
+const customNoteInputRef = ref<HTMLInputElement | null>(null)
+
+// Cuando se abre el input "+ propia", enfocar en el siguiente tick.
+// autofocus HTML no dispara en toggles dinámicos (solo en carga inicial
+// del documento).
+watch(showCustomNoteInput, (open) => {
+  if (open) nextTick(() => customNoteInputRef.value?.focus())
+})
+
 function commitCustomNote() {
   const v = customNote.value.trim()
-  if (v && !flavorNotes.value.includes(v)) flavorNotes.value.push(v)
+  if (v && !flavorNotes.value.includes(v)) {
+    flavorNotes.value.push(v)
+    // Además, persistir en el catálogo del usuario para que esté disponible
+    // en el siguiente café sin tener que re-tipearla. Fire-and-forget:
+    // si Firestore falla, el chip queda ad-hoc en esta cata solo.
+    settingsStore.addFlavorNote(v).catch(() => {})
+  }
   customNote.value = ''
   showCustomNoteInput.value = false
 }
@@ -646,11 +667,11 @@ const submitLabel = computed(() =>
             </template>
             <template v-else>
               <input
+                ref="customNoteInputRef"
                 v-model="customNote"
                 type="text"
                 placeholder="Nota personalizada"
                 class="rounded-pill bg-surface-2 px-md h-[25px] font-mono text-[11px] uppercase tracking-eyebrow text-moss outline-none focus:bg-paper border border-moss/20"
-                autofocus
                 @keydown.enter.prevent="commitCustomNote"
                 @blur="commitCustomNote"
               >
