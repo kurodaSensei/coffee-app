@@ -8,11 +8,22 @@ const props = withDefaults(
     title?: string
     /** Disables click-outside-to-close. */
     persistent?: boolean
+    /**
+     * Nivel de apilado. Default 'base' (z-50) para sheets normales.
+     * 'overlay' (z-[60]) para sheets que deben apilarse por encima de otros
+     * sheets — típicamente el Confirm del sistema cuando se dispara desde
+     * dentro de otro sheet abierto (ej. ShareSheet → aviso de comunidad).
+     */
+    layer?: 'base' | 'overlay'
   }>(),
   {
     persistent: false,
+    layer: 'base',
   },
 )
+
+const backdropZ = computed(() => props.layer === 'overlay' ? 'z-[60]' : 'z-50')
+const sheetZ = computed(() => props.layer === 'overlay' ? 'z-[60]' : 'z-50')
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
@@ -129,7 +140,7 @@ function onDragEnd(e: PointerEvent) {
     >
       <div
         v-if="modelValue"
-        class="fixed inset-0 z-50 bg-[rgba(20,23,18,0.55)] backdrop-blur-[2px]"
+        :class="['fixed inset-0 bg-[rgba(20,23,18,0.55)] backdrop-blur-[2px]', backdropZ]"
         @click="close"
       />
     </Transition>
@@ -148,7 +159,8 @@ function onDragEnd(e: PointerEvent) {
         :aria-label="title"
         :style="isMobile && dragY > 0 ? { transform: `translate3d(0, ${dragY}px, 0)` } : undefined"
         :class="[
-          'fixed inset-x-0 bottom-0 z-50 max-h-[88svh] flex flex-col rounded-t-sheet bg-paper text-moss',
+          'fixed inset-x-0 bottom-0 max-h-[88svh] flex flex-col rounded-t-sheet bg-paper text-moss',
+          sheetZ,
           'shadow-[0_-12px_40px_rgba(20,23,18,0.18)]',
           'lg:inset-auto lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-full lg:max-w-[440px] lg:rounded-card-lg lg:max-h-[80vh] lg:shadow-[0_24px_60px_rgba(20,23,18,0.24)]',
           // Mientras el usuario arrastra desactivamos transición para que la
