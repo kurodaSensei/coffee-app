@@ -97,15 +97,25 @@ const segments = computed(() => {
 
 function isActive(key: string) { return phase.value === key }
 
+// Cuando el timer alcanza totalMs, congelamos el display en el tiempo
+// exacto de la receta y dejamos running=true — el botón se queda en
+// "Terminar" (con label "Cerrar" via `done`), no vuelve a "Iniciar".
+// El bug anterior forzaba reiniciar-y-terminar para poder avanzar.
 function tick() {
-  elapsed.value = performance.now() - startedAt
-  tickTimer(elapsed.value)
-  if (elapsed.value < phases.value.totalMs) {
-    rafId = requestAnimationFrame(tick)
-  } else {
-    running.value = false
+  const t = performance.now() - startedAt
+  if (t >= phases.value.totalMs) {
+    elapsed.value = phases.value.totalMs
+    tickTimer(elapsed.value)
+    return
   }
+  elapsed.value = t
+  tickTimer(elapsed.value)
+  rafId = requestAnimationFrame(tick)
 }
+
+const done = computed(() =>
+  running.value && elapsed.value >= phases.value.totalMs,
+)
 
 function start() {
   startedAt = performance.now()
@@ -136,8 +146,11 @@ onBeforeUnmount(() => {
       >
         {{ phase.toUpperCase() }}
       </span>
-      <span class="font-mono uppercase tracking-[0.16em] text-paper/25 text-[9px]">
-        {{ remaining }} rest.
+      <span
+        class="font-mono uppercase tracking-[0.16em] text-[9px] transition-colors"
+        :class="done ? 'text-honey' : 'text-paper/25'"
+      >
+        {{ done ? 'listo' : `${remaining} rest.` }}
       </span>
     </div>
 
@@ -208,10 +221,13 @@ onBeforeUnmount(() => {
       <button
         v-else
         type="button"
-        class="w-full py-3.5 rounded-[11px] border border-paper/30 text-paper font-mono uppercase tracking-[0.25em] text-[11px] hover:border-paper transition-colors"
+        class="w-full py-3.5 rounded-[11px] font-mono uppercase tracking-[0.25em] text-[11px] transition-colors"
+        :class="done
+          ? 'bg-honey text-jungle font-semibold border border-honey'
+          : 'border border-paper/30 text-paper hover:border-paper'"
         @click="finish"
       >
-        Terminar
+        {{ done ? 'Cerrar' : 'Terminar' }}
       </button>
     </div>
   </section>
