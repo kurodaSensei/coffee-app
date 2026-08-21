@@ -35,7 +35,20 @@ async function sendInvite() {
   }
 }
 
-const accepted = computed(() => friendsStore.accepted)
+const search = ref('')
+
+const accepted = computed(() => {
+  const list = friendsStore.accepted
+  const q = search.value.trim().toLowerCase()
+  if (!q) return list
+  return list.filter((f) => {
+    const u = friendsStore.getOtherUser(f)
+    return (
+      (u?.displayName || '').toLowerCase().includes(q)
+      || (u?.email || '').toLowerCase().includes(q)
+    )
+  })
+})
 const pendingIncoming = computed(() => friendsStore.pendingIncoming)
 const pendingOutgoing = computed(() => friendsStore.pendingOutgoing)
 
@@ -74,14 +87,14 @@ async function onRemove(id: string) {
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"
-        class="inline-flex items-center justify-center size-[40px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
+        class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
         aria-label="Volver"
         @click="router.back()"
       >
         <Icon name="lucide:arrow-left" class="size-5" />
       </button>
       <UiEyebrow>Social</UiEyebrow>
-      <div class="size-[40px]" aria-hidden="true" />
+      <div class="size-[44px]" aria-hidden="true" />
     </header>
 
     <h1 class="mt-md font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px]">
@@ -133,7 +146,7 @@ async function onRemove(id: string) {
           <div class="flex items-center gap-xs shrink-0">
             <button
               type="button"
-              class="inline-flex items-center justify-center size-[36px] rounded-pill bg-olive text-paper hover:bg-olive-dark transition-colors"
+              class="inline-flex items-center justify-center size-[44px] rounded-pill bg-olive text-paper hover:bg-olive-dark transition-colors"
               aria-label="Aceptar"
               @click="onAccept(f.id)"
             >
@@ -141,7 +154,7 @@ async function onRemove(id: string) {
             </button>
             <button
               type="button"
-              class="inline-flex items-center justify-center size-[36px] rounded-pill bg-surface-2 text-moss hover:bg-surface transition-colors"
+              class="inline-flex items-center justify-center size-[44px] rounded-pill bg-surface-2 text-moss hover:bg-surface transition-colors"
               aria-label="Rechazar"
               @click="onReject(f.id)"
             >
@@ -155,6 +168,12 @@ async function onRemove(id: string) {
     <!-- Accepted -->
     <section class="mt-xl">
       <UiEyebrow>{{ accepted.length }} {{ accepted.length === 1 ? 'amigo' : 'amigos' }}</UiEyebrow>
+      <UiListSearch
+        v-if="friendsStore.accepted.length > 5"
+        v-model="search"
+        placeholder="Buscar amigo…"
+        class="mt-sm"
+      />
       <ul v-if="accepted.length > 0" class="mt-sm flex flex-col">
         <li
           v-for="f in accepted"
@@ -198,7 +217,7 @@ async function onRemove(id: string) {
           </div>
           <button
             type="button"
-            class="inline-flex items-center justify-center size-[36px] rounded-pill text-moss-ghost hover:bg-surface-2/60 transition-colors"
+            class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss-ghost hover:bg-surface-2/60 transition-colors"
             aria-label="Cancelar invitación"
             @click="onReject(f.id)"
           >

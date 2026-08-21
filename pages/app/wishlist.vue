@@ -42,7 +42,22 @@ const items = computed<WishlistItem[]>(() => {
     })
 })
 
+const search = ref('')
+
 const isEmpty = computed(() => items.value.length === 0)
+
+// Búsqueda por nombre del café o marca (roasterName) — mismo pattern
+// que las 3 listas del tier 3.
+const filteredItems = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  if (!q) return items.value
+  return items.value.filter(i =>
+    (i.coffeeName || '').toLowerCase().includes(q)
+    || (i.roasterName || '').toLowerCase().includes(q),
+  )
+})
+
+const isFilteredEmpty = computed(() => !isEmpty.value && filteredItems.value.length === 0)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Priority bucketing (5-level numeric in storage → 3-level UI: alta/media/baja)
@@ -281,9 +296,24 @@ async function deleteItem() {
       </UiButton>
     </div>
 
+    <!-- Search (solo cuando hay items) -->
+    <UiListSearch
+      v-if="!isEmpty"
+      v-model="search"
+      placeholder="Buscar por café o marca…"
+      class="mt-md"
+    />
+
+    <!-- Empty por filtro -->
+    <div v-if="isFilteredEmpty" class="mt-xl text-center">
+      <p class="font-display italic text-[14px] text-moss-soft">
+        Nada coincide con "{{ search }}".
+      </p>
+    </div>
+
     <!-- List -->
     <ul v-else class="mt-lg flex flex-col gap-sm lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-md">
-      <li v-for="i in items" :key="i.id">
+      <li v-for="i in filteredItems" :key="i.id">
         <button
           type="button"
           class="w-full text-left rounded-card-lg bg-surface-2 p-md transition-colors duration-150 ease-sorbo hover:bg-surface"
@@ -399,7 +429,7 @@ async function deleteItem() {
           />
           <UiInput
             v-model="form.roasterName"
-            label="Tostador / origen"
+            label="Marca / origen"
             placeholder="Hartmann, Panamá"
           />
 

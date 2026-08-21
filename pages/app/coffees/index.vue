@@ -28,6 +28,7 @@ async function refresh() {
 }
 
 const tab = ref<'mine' | 'shared'>('mine')
+const search = ref('')
 
 const mineCount = computed(() => coffeesStore.list.length)
 const sharedCount = computed(() => coffeesStore.sharedList.length)
@@ -39,18 +40,27 @@ const rawItems = computed(() =>
 const items = computed<Coffee[]>(() => {
   const list = [...(rawItems.value as Coffee[])]
 
+  // Search por nombre o marca — case-insensitive substring. Aplica siempre.
+  const q = search.value.trim().toLowerCase()
+  const searched = q
+    ? list.filter(c =>
+        (c.name || '').toLowerCase().includes(q)
+        || (c.roasterName || '').toLowerCase().includes(q),
+      )
+    : list
+
   // Filtros (sólo se aplican a la pestaña Míos; en Compartidos los datos vienen
   // de fuentes que el usuario no posee y filtrarlos rompería la intuición).
   const f = view.state
   const filtered = tab.value === 'mine'
-    ? list.filter((c) => {
+    ? searched.filter((c) => {
         if (f.process && c.process !== f.process) return false
         if (f.variety && c.variety !== f.variety) return false
         if (f.roasterId && c.roasterId !== f.roasterId) return false
         if (f.country && c.originCountry !== f.country) return false
         return true
       })
-    : list
+    : searched
 
   switch (f.sortBy) {
     case 'nameAsc':
@@ -143,7 +153,7 @@ async function onDelete() {
       <div class="lg:hidden inline-flex items-center gap-sm">
         <NuxtLink
           to="/app/wishlist"
-          class="inline-flex items-center justify-center size-[32px] rounded-pill bg-surface-2 text-moss hover:bg-surface transition-colors"
+          class="inline-flex items-center justify-center size-[44px] rounded-pill bg-surface-2 text-moss hover:bg-surface transition-colors"
           aria-label="Wishlist"
         >
           <Icon name="lucide:bookmark" class="size-4" />
@@ -170,7 +180,7 @@ async function onDelete() {
         <UiSegmented v-model="tab" :items="segments" />
         <button
           type="button"
-          class="relative inline-flex items-center justify-center size-[40px] rounded-pill text-moss bg-surface-2 hover:bg-surface transition-colors"
+          class="relative inline-flex items-center justify-center size-[44px] rounded-pill text-moss bg-surface-2 hover:bg-surface transition-colors"
           aria-label="Filtros y vista"
           @click="filtersOpen = true"
         >
@@ -194,6 +204,8 @@ async function onDelete() {
         </UiButton>
       </div>
     </div>
+
+    <UiListSearch v-model="search" placeholder="Buscar por nombre o marca…" class="mt-md" />
 
     <!-- Skeletons mientras carga — evita el flash empty antes de que llegue data. -->
     <div

@@ -1,0 +1,48 @@
+# Sorbo
+
+> Sorbo es un diario digital para café de especialidad. Es una PWA gratuita disponible en Web, iOS y Android, sin publicidad ni paywall.
+
+Sorbo permite registrar cafés con detalle (origen, variedad, proceso, puntuación SCA, notas en taza), realizar catas guiadas con scoring estándar, guardar y ejecutar recetas con temporizador integrado para 12 métodos de extracción (V60, Chemex, AeroPress, Kalita, Origami, Prensa francesa, Espresso, Moka, Phin, Cold brew, entre otros), gestionar una wishlist de cafés que aún no has comprado, y explorar una comunidad pública de cafeteros que comparten sus catas y recetas con visibilidad granular.
+
+Hecho desde Colombia por KurodaCafe. Inspirado en la idea de que el café de especialidad merece una herramienta que combine la precisión del cuaderno de barista con la calidez de un diario personal.
+
+## Identidad
+
+- Nombre: Sorbo
+- URL: https://sorbo.app/
+- Idioma: Español
+- Precio: Gratuito (sin tarjeta de crédito)
+- Plataformas: Web, PWA instalable en iOS, Android, macOS y Windows
+- Creador: KurodaCafe
+- Contacto: info@sorbo.app
+- Instagram: https://instagram.com/kurodacafe
+- Año de lanzamiento: 2026
+
+## Categorización
+
+Sorbo NO es:
+- Una red social de café
+- Una app para baristas profesionales
+- Una hoja de cálculo dressed-up
+
+Sorbo SÍ es:
+- Un diario personal de café de especialidad
+- Una herramienta editorial para registrar catas y recetas
+- Una comunidad opcional para cafeteros que quieran compartir
+
+## Sistema de scoring
+
+Sorbo usa el estándar SCA (Specialty Coffee Association) para puntuación de cafés (0-100 puntos) y un sistema editorial propio para catas (0-10 puntos en aroma, dulzor, acidez, cuerpo, acabado y un score overall).
+
+## Páginas indexables
+
+- [Inicio](https://sorbo.app/) — Landing principal con registro inline
+- [Sobre el creador](https://sorbo.app/about) — Bio y filosofía del proyecto
+- [Iniciar sesión](https://sorbo.app/login) — Auth con email o Google
+- [Crear cuenta](https://sorbo.app/register) — Registro nuevo
+- [Términos de uso](https://sorbo.app/terms)
+- [Política de privacidad](https://sorbo.app/privacy)
+
+## Tecnología
+
+Construido con Nuxt 3 (Vue 3 + TypeScript), Tailwind CSS con sistema de tokens propio, Firebase (Firestore + Auth + Storage) en tier gratuito, y desplegado en Vercel. PWA installable con @vite-pwa/nuxt. Observabilidad con Sentry y Google Analytics 4.

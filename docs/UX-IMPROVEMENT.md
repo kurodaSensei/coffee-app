@@ -1,0 +1,83 @@
+# UX Improvement Map · Sorbo
+
+> Objetivo: reducir el "es complicada". Trabajo pantalla por pantalla,
+> priorizado por impacto en los primeros 5 minutos + fricción crónica.
+> Marca [x] cuando `/impeccable critique` + fixes queden hechos.
+
+## Tier 1 — Primeros 5 minutos (bloqueadores de activación)
+
+Si estas pantallas son confusas, el usuario bounce antes de crear su
+primer café. Máximo lift por hora invertida.
+
+- [ ] `pages/index.vue` — landing (persuade → registro)
+- [ ] `pages/register.vue` — registro (fricción de campos)
+- [ ] `pages/login.vue` — login
+- [x] `pages/app/index.vue` — dashboard (primer paisaje post-login) — clarify+onboard+delight+harden
+- [x] `components/ui/OnboardingWelcome.vue` — welcome sheet primera vez — distill (5→3 slides) + clarify (copy concreta) + harden (skip visible, no persistent)
+- [x] `components/ui/OnboardingChecklist.vue` — checklist de activación — layout (esenciales vs opcionales) + delight (ETAs) + adapt (44px)
+- [x] `layouts/default.vue` — TabBar + nav shell — legibilidad TabBar (fs 10→11, moss-ghost→moss-soft, touch 44) + sidebar 'Tostadores'→'Marcas'
+
+## Tier 2 — Core loop (donde vive "complicada")
+
+Los 3 wizards de creación son el sospechoso más probable del feedback:
+demasiados campos, no queda claro qué es requerido vs opcional.
+
+- [x] `components/coffee/Wizard.vue` — nuevo café (3 pasos) — harden+clarify (proceso, SCA)
+- [x] `components/tasting/Wizard.vue` — **nueva cata** — harden+clarify (método, "obligatorio")+polish (heart icon)
+- [x] `components/recipe/Wizard.vue` — nueva receta — harden+clarify (método, molienda)
+- [x] `pages/app/coffees/[id]/index.vue` — detalle café — CTA "Cata este café" ya existente
+- [x] `pages/app/tastings/[id]/index.vue` — detalle cata — sección Siguiente (repetir cata + ver café)
+- [x] `pages/app/recipes/[id]/index.vue` — detalle receta — sección Siguiente (cata con receta + otras)
+
+## Tier 3 — Navegación + listas
+
+- [x] `pages/app/coffees/index.vue` — lista cafés — search por nombre/marca
+- [x] `pages/app/tastings/index.vue` — lista catas — search por café/marca
+- [x] `pages/app/recipes/index.vue` — lista recetas — search por nombre/autor/método
+- [x] `pages/app/explore.vue` — feed comunidad — segmented filter suficiente (feed query capado, no lleva search)
+
+## Tier 4 — Secundarias
+
+- [x] `pages/app/wishlist.vue` — search por café/marca + empty state filtro
+- [x] `pages/app/roasters/index.vue` — search retrofit al átomo UiListSearch
+- [x] `pages/app/friends.vue` — search en accepted (solo cuando >5 amigos)
+- [ ] `pages/app/profile.vue` — bajo lift; sin cambios en esta ronda
+- [x] `pages/app/settings.vue` — ya recibió rename "Tostadores"→"Marcas" en tier 1
+
+## Tier 5 — Catálogos (baja frecuencia, dejar para el final)
+
+- [—] `pages/app/methods.vue` — pattern activo/inactivo funciona, sin cambios
+- [—] `pages/app/varieties.vue` — ídem
+- [—] `pages/app/processes.vue` — ídem
+- [—] `pages/app/notes.vue` — ídem
+
+---
+
+## Plan de ataque
+
+1. **Corre `/impeccable critique <target>` sobre un archivo del tier 1**
+2. Revisa hallazgos, ejecuta el fix command que critique recomiende
+   (`clarify`, `distill`, `onboard`, `adapt`, etc.)
+3. Marca [x] el item, pasa al siguiente
+4. Al terminar el tier, re-audit y sigue con el próximo tier
+
+Empezar por: **`pages/app/index.vue`** (dashboard) → **`components/tasting/Wizard.vue`** (nueva cata, la acción más frecuente) → seguir el orden del tier 1.
+
+## Hipótesis a validar en cada crítica
+
+Cuando el feedback dice "complicada", suele ser una de estas:
+
+- **Vocabulario asumido** — SCA, cata, extracción, tueste sin explicación
+- **Campos opcionales que se leen como obligatorios** — el helper no lo dice claro
+- **Sin acción clara siguiente** — el usuario mira la pantalla y no sabe qué hacer
+- **Demasiadas opciones a la vez** — 12 métodos, 8 procesos, N tostadores en el primer paso
+- **Empty states sin gancho** — "aún no tienes catas" sin invitar a hacer la primera
+- **Terminología inconsistente** — "marca" en un lado, "tostador" en otro (ya arreglado)
+
+Apunta cuál aplica al ejecutar critique.
+
+## Métrica de éxito (informal)
+
+- Un usuario nuevo llega a la primera cata guardada en < 3 minutos
+- No pregunta "¿esto es obligatorio?" en ningún campo
+- No hay más de una pantalla del flujo que requiera texto de ayuda

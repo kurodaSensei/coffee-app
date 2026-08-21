@@ -62,7 +62,7 @@ function onSelect(item: TabItem) {
           v-if="item.to"
           :to="item.to"
           :aria-current="isActive(item) ? 'page' : undefined"
-          class="inline-flex items-center gap-xxs px-xs py-xs whitespace-nowrap"
+          class="inline-flex items-center gap-xxs px-xs py-sm whitespace-nowrap min-h-[44px]"
           @click="onSelect(item)"
         >
           <template v-if="isActive(item)">
@@ -72,7 +72,7 @@ function onSelect(item: TabItem) {
             </span>
           </template>
           <template v-else>
-            <span class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-ghost">
+            <span class="font-mono text-[11px] font-medium uppercase tracking-eyebrow text-moss-soft">
               {{ item.label }}
             </span>
           </template>
@@ -81,7 +81,7 @@ function onSelect(item: TabItem) {
           v-else
           type="button"
           :aria-current="isActive(item) ? 'page' : undefined"
-          class="inline-flex items-center gap-xxs px-xs py-xs whitespace-nowrap"
+          class="inline-flex items-center gap-xxs px-xs py-sm whitespace-nowrap min-h-[44px]"
           @click="onSelect(item)"
         >
           <template v-if="isActive(item)">
@@ -91,7 +91,7 @@ function onSelect(item: TabItem) {
             </span>
           </template>
           <template v-else>
-            <span class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-ghost">
+            <span class="font-mono text-[11px] font-medium uppercase tracking-eyebrow text-moss-soft">
               {{ item.label }}
             </span>
           </template>

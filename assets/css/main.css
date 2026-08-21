@@ -85,6 +85,27 @@
     background: var(--olive-light);
     color: var(--jungle);
   }
+
+  /* Focus visible — WCAG 2.4.7. Solo aparece con navegación por teclado
+     (:focus-visible, no :focus), así los usuarios de mouse no ven halos. */
+  :focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible {
+    outline-offset: 3px;
+  }
+  /* Inputs y textareas: el outline choca con su border. Usamos ring
+     interior vía box-shadow para no romper el layout. */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--olive);
+  }
 }
 
 @layer components {

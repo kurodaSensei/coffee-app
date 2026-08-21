@@ -75,6 +75,14 @@ export interface Roaster {
   country: string
   notes?: string
   rating?: number
+  /**
+   * Esta entidad tuesta su propio café. Default `true` cuando es undefined
+   * (la gran mayoría de marcas guardadas históricamente son tostadores).
+   * Se marca `false` para resellers, cafés tienda, marcas de supermercado.
+   * Solo afecta la UI (badge "Tuesta su café"); el resto de la lógica
+   * trata a la entidad como una marca cualquiera.
+   */
+  roasts?: boolean
   createdAt: Timestamp
   updatedAt: Timestamp
 }

@@ -61,6 +61,10 @@ const form = ref({
   website: '',
   instagram: '',
   rating: null as number | null,
+  // `roasts` default true para que las marcas históricas (la mayoría sí
+  // tuestan) no se vean afectadas. Solo se marca false explícitamente
+  // cuando es reseller / café tienda / marca de supermercado.
+  roasts: true,
 })
 
 const formErrors = ref<{ name?: string; country?: string }>({})
@@ -75,6 +79,7 @@ function openCreate() {
     website: '',
     instagram: '',
     rating: null,
+    roasts: true,
   }
   formErrors.value = {}
   sheetOpen.value = true
@@ -89,6 +94,8 @@ function openEdit(r: Roaster) {
     website: r.website || '',
     instagram: r.instagram || '',
     rating: r.rating ?? null,
+    // undefined se trata como true (compat con documentos existentes).
+    roasts: r.roasts !== false,
   }
   formErrors.value = {}
   sheetOpen.value = true
@@ -112,6 +119,9 @@ async function save() {
       website: form.value.website.trim() || undefined,
       instagram: form.value.instagram.trim() || undefined,
       rating: form.value.rating ?? undefined,
+      // Solo persistimos `roasts` cuando es false — true es el default
+      // implícito (documentos sin el campo ya cuentan como "tuesta").
+      roasts: form.value.roasts ? undefined : false,
     } as RoasterInput
 
     if (editingId.value) {
@@ -133,7 +143,7 @@ async function save() {
 async function deleteRoaster() {
   if (!editingId.value) return
   const ok = await confirm({
-    title: 'Eliminar tostador',
+    title: 'Eliminar marca',
     message: 'Los cafés asociados conservarán su nombre actual.',
     confirmLabel: 'Eliminar',
     destructive: true,
@@ -154,7 +164,7 @@ async function deleteRoaster() {
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"
-        class="inline-flex items-center justify-center size-[40px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
+        class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
         aria-label="Volver"
         @click="router.back()"
       >
@@ -163,8 +173,8 @@ async function deleteRoaster() {
       <UiEyebrow>Catálogo</UiEyebrow>
       <button
         type="button"
-        class="inline-flex items-center justify-center size-[40px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
-        aria-label="Nuevo tostador"
+        class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
+        aria-label="Nueva marca"
         @click="openCreate"
       >
         <Icon name="lucide:plus" class="size-5" />
@@ -172,33 +182,25 @@ async function deleteRoaster() {
     </header>
 
     <h1 class="mt-md font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px]">
-      Tus <span class="italic text-olive">tostadores</span>
+      Tus <span class="italic text-olive">marcas</span>
     </h1>
     <p class="subtitle-italic mt-xs">
-      De dónde viene tu taza.
+      Tostadores, tiendas, o lo que diga la bolsa.
     </p>
 
     <!-- Search -->
     <div class="mt-lg">
-      <div class="flex items-center gap-sm rounded-pill bg-surface-2 px-md py-sm">
-        <Icon name="lucide:search" class="size-4 text-moss-ghost shrink-0" />
-        <input
-          v-model="search"
-          type="search"
-          placeholder="Buscar tostador…"
-          class="flex-1 bg-transparent border-0 p-0 outline-none font-mono text-[12px] uppercase tracking-eyebrow text-moss placeholder:text-moss-ghost"
-        >
-      </div>
+      <UiListSearch v-model="search" placeholder="Buscar marca…" />
     </div>
 
     <!-- Empty state — solo después de la primera carga (o si hay búsqueda activa). -->
     <div v-if="filtered.length === 0 && (ready || search)" class="mt-2xl flex flex-col items-center gap-lg">
       <p class="font-display italic text-[15px] text-moss-soft text-center max-w-[280px]">
-        <template v-if="search">No encontramos tostadores con ese nombre.</template>
-        <template v-else>"Detrás de cada taza hay un tostador. Empecemos por el primero."</template>
+        <template v-if="search">No encontramos marcas con ese nombre.</template>
+        <template v-else>"Detrás de cada taza hay una marca. Empecemos por la primera."</template>
       </p>
       <UiButton v-if="!search" variant="dark" :block="false" @click="openCreate">
-        + Nuevo tostador
+        + Nueva marca
       </UiButton>
     </div>
 
@@ -216,6 +218,17 @@ async function deleteRoaster() {
             <UiEyebrow class="mt-xxs">
               {{ [r.city, r.country].filter(Boolean).join(' · ') || '—' }}
             </UiEyebrow>
+            <!-- Badge sutil: solo aparece cuando la marca explícitamente
+                 tuesta. Documentos sin el campo (la mayoría históricos) NO
+                 muestran badge — el usuario decidirá si los flagea con
+                 el toggle del sheet. -->
+            <span
+              v-if="r.roasts === true"
+              class="mt-xxs inline-flex items-center gap-xxs font-mono text-[9px] font-medium uppercase tracking-eyebrow text-olive"
+            >
+              <span class="inline-block w-1 h-1 rounded-full bg-olive" aria-hidden="true" />
+              Tuesta su café
+            </span>
           </div>
           <div class="flex flex-col items-end gap-xxs shrink-0">
             <span v-if="r.rating !== undefined && r.rating !== null" class="font-display text-[18px] leading-none text-moss">
@@ -230,13 +243,48 @@ async function deleteRoaster() {
     </ul>
 
     <!-- Bottom sheet form -->
-    <UiBottomSheet v-model="sheetOpen" :title="editingId ? 'Editar tostador' : 'Nuevo tostador'">
+    <UiBottomSheet v-model="sheetOpen" :title="editingId ? 'Editar marca' : 'Nueva marca'">
       <div class="flex flex-col gap-xs pt-xs">
         <UiInput v-model="form.name" label="Nombre" placeholder="Libertario" :error="formErrors.name" />
         <UiInput v-model="form.country" label="País" placeholder="Colombia" :error="formErrors.country" />
         <UiInput v-model="form.city" label="Ciudad" placeholder="Bogotá" />
         <UiInput v-model="form.website" label="Sitio web" placeholder="libertario.co" type="url" />
         <UiInput v-model="form.instagram" label="Instagram" placeholder="@libertario" />
+
+        <!-- Toggle "Tuesta su café" — checkbox custom alineado al estilo
+             del resto de campos. Default ON al crear. -->
+        <label
+          class="flex flex-col gap-xs pt-[14px] pb-[13px] border-b border-moss/10 cursor-pointer"
+        >
+          <span class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-soft">
+            <span aria-hidden="true">— </span>Tipo
+          </span>
+          <span class="flex items-center justify-between gap-md">
+            <span class="flex flex-col gap-xxs">
+              <span class="font-display text-[16px] text-moss leading-none">
+                Tuesta su café
+              </span>
+              <span class="font-display italic text-[12px] text-moss-soft leading-tight">
+                Desmárcalo si es tienda, reseller o marca que no tuesta.
+              </span>
+            </span>
+            <span
+              class="relative inline-flex shrink-0 w-[44px] h-[26px] rounded-full transition-colors"
+              :class="form.roasts ? 'bg-olive' : 'bg-moss/15'"
+            >
+              <input
+                v-model="form.roasts"
+                type="checkbox"
+                class="absolute inset-0 opacity-0 cursor-pointer"
+                aria-label="Esta marca tuesta su café"
+              >
+              <span
+                class="absolute top-[3px] w-[20px] h-[20px] rounded-full bg-paper shadow-[0_1px_2px_rgba(47,53,40,0.25)] transition-all"
+                :class="form.roasts ? 'left-[21px]' : 'left-[3px]'"
+              />
+            </span>
+          </span>
+        </label>
 
         <div class="flex flex-col gap-xs pt-[14px] pb-[13px] border-b border-moss/10">
           <div class="flex items-baseline justify-between gap-md">
@@ -262,10 +310,10 @@ async function deleteRoaster() {
 
       <div class="mt-xl flex flex-col gap-sm">
         <UiButton variant="primary" :loading="submitting" @click="save">
-          {{ editingId ? 'Guardar cambios' : 'Crear tostador' }}
+          {{ editingId ? 'Guardar cambios' : 'Crear marca' }}
         </UiButton>
         <UiButton v-if="editingId" variant="ghost" @click="deleteRoaster">
-          <span class="text-terracotta">Eliminar tostador</span>
+          <span class="text-terracotta">Eliminar marca</span>
         </UiButton>
       </div>
     </UiBottomSheet>

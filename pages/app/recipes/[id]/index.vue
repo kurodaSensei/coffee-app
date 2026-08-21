@@ -76,7 +76,7 @@ async function onDelete() {
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"
-        class="inline-flex items-center justify-center size-[40px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
+        class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
         aria-label="Volver"
         @click="router.back()"
       >
@@ -94,7 +94,7 @@ async function onDelete() {
           Eliminar
         </UiActionMenuItem>
       </UiActionMenu>
-      <div v-else class="size-[40px]" aria-hidden="true" />
+      <div v-else class="size-[44px]" aria-hidden="true" />
     </header>
 
     <div class="mt-lg max-w-[640px] mx-auto">
@@ -112,6 +112,30 @@ async function onDelete() {
       </div>
 
       <RecipeDetail v-else-if="recipe" :recipe="recipe" />
+
+      <!-- Related actions — cierra el "vi esta receta, ¿ahora qué?".
+           Cata usando esta receta lleva al wizard sin prefill de método
+           (el wizard no lo soporta hoy) — user la selecciona. -->
+      <section
+        v-if="recipe && !loading && !notFound && isOwner"
+        class="mt-2xl border-t border-moss/10 pt-lg"
+      >
+        <UiEyebrow>Siguiente</UiEyebrow>
+        <div class="mt-sm grid grid-cols-1 sm:grid-cols-2 gap-sm">
+          <UiQuickCard
+            eyebrow="Prueba"
+            label="Cata con esta receta"
+            :hint="`Método: ${getBrewMethodLabel(recipe.brewMethod)}`"
+            to="/app/tastings/new"
+          />
+          <UiQuickCard
+            eyebrow="Explora"
+            label="Otras recetas"
+            hint="Volver a mi colección"
+            to="/app/recipes"
+          />
+        </div>
+      </section>
     </div>
 
     <UiShareSheet

@@ -20,6 +20,9 @@ export const useSettingsStore = defineStore('settings', () => {
   const loading = ref(false)
 
   async function load() {
+    // Idempotente: si ya está cargado o cargándose, no dispara otra lectura.
+    // Deja que otros consumidores esperen el mismo prefs.value reactivo.
+    if (prefs.value || loading.value) return
     const { $db } = useNuxtApp()
     const { userId } = useAuth()
     if (!userId.value) return

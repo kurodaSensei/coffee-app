@@ -97,7 +97,7 @@ async function toggleFavorite() {
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"
-        class="inline-flex items-center justify-center size-[40px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
+        class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
         aria-label="Volver"
         @click="router.back()"
       >
@@ -118,7 +118,7 @@ async function toggleFavorite() {
           Eliminar
         </UiActionMenuItem>
       </UiActionMenu>
-      <div v-else class="size-[40px]" aria-hidden="true" />
+      <div v-else class="size-[44px]" aria-hidden="true" />
     </header>
 
     <div class="mt-lg max-w-[640px] mx-auto">
@@ -136,6 +136,32 @@ async function toggleFavorite() {
       </div>
 
       <TastingDetail v-else-if="tasting" :tasting="tasting" :coffee="coffee" />
+
+      <!-- Related actions — cierra el "acabo de ver esta cata, ¿ahora
+           qué?". Repetir la cata (prefill coffeeId) o saltar al detalle
+           del café. Solo cuando el usuario es dueño (visitantes usan la
+           navegación externa). -->
+      <section
+        v-if="tasting && !loading && !notFound && isOwner"
+        class="mt-2xl border-t border-moss/10 pt-lg"
+      >
+        <UiEyebrow>Siguiente</UiEyebrow>
+        <div class="mt-sm grid grid-cols-1 sm:grid-cols-2 gap-sm">
+          <UiQuickCard
+            eyebrow="Acelerador"
+            label="Repetir esta cata"
+            hint="Nueva cata del mismo café"
+            :to="`/app/tastings/new?coffeeId=${tasting.coffeeId}`"
+          />
+          <UiQuickCard
+            v-if="coffee"
+            eyebrow="Contexto"
+            label="Ver este café"
+            hint="Detalle + histórico"
+            :to="`/app/coffees/${coffee.id}`"
+          />
+        </div>
+      </section>
     </div>
 
     <UiShareSheet

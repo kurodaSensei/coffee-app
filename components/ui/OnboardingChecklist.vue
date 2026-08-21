@@ -23,40 +23,56 @@ interface Step {
   key: 'coffee' | 'tasting' | 'recipe' | 'friend'
   label: string
   hint: string
+  eta: string
   to: string
   done: boolean
+  /** true = "empieza aquí"; false = "cuando quieras" (agrupación visual). */
+  essential: boolean
 }
 
+// Reordenado: los 2 esenciales (café + cata) primero, los 2 opcionales
+// (amigos + receta) después. Casey/Jordan estiman antes tiempo por paso.
 const steps = computed<Step[]>(() => [
   {
     key: 'coffee',
     label: 'Registra tu primer café',
     hint: 'El que tienes ahora en la cafetera.',
+    eta: '~30 seg',
     to: '/app/coffees/new',
     done: coffeesStore.list.length > 0,
+    essential: true,
   },
   {
     key: 'tasting',
     label: 'Haz tu primera cata',
     hint: '¿Cómo te supo? Sin tecnicismos.',
+    eta: '~2 min',
     to: '/app/tastings/new',
     done: tastingsStore.list.length > 0,
-  },
-  {
-    key: 'recipe',
-    label: 'Guarda una receta',
-    hint: 'La preparación que te quedó perfecta.',
-    to: '/app/recipes/new',
-    done: recipesStore.list.length > 0,
+    essential: true,
   },
   {
     key: 'friend',
     label: 'Agrega un amigo cafetero',
     hint: 'Comparte cafés y catas con tu gente.',
+    eta: '~1 min',
     to: '/app/friends',
     done: friendsStore.accepted.length > 0,
+    essential: false,
+  },
+  {
+    key: 'recipe',
+    label: 'Guarda una receta',
+    hint: 'La preparación que te quedó perfecta.',
+    eta: '~3 min',
+    to: '/app/recipes/new',
+    done: recipesStore.list.length > 0,
+    essential: false,
   },
 ])
+
+const essentialSteps = computed(() => steps.value.filter(s => s.essential))
+const optionalSteps = computed(() => steps.value.filter(s => !s.essential))
 
 const completedCount = computed(() => steps.value.filter(s => s.done).length)
 const allDone = computed(() => completedCount.value === steps.value.length)
@@ -82,7 +98,7 @@ const progressPct = computed(() => Math.round((completedCount.value / steps.valu
       </div>
       <button
         type="button"
-        class="inline-flex size-[32px] shrink-0 items-center justify-center rounded-pill text-moss-soft hover:bg-surface hover:text-moss transition-colors duration-150 ease-sorbo"
+        class="inline-flex size-[44px] shrink-0 items-center justify-center rounded-pill text-moss-soft hover:bg-surface hover:text-moss transition-colors duration-150 ease-sorbo"
         aria-label="Ocultar primeros pasos"
         @click="emit('dismiss')"
       >
@@ -98,25 +114,20 @@ const progressPct = computed(() => Math.round((completedCount.value / steps.valu
       />
     </div>
 
-    <!-- Steps -->
+    <!-- Esenciales — "empieza aquí" -->
     <ul class="flex flex-col gap-xs">
-      <li v-for="step in steps" :key="step.key">
+      <li v-for="step in essentialSteps" :key="step.key">
         <NuxtLink
           :to="step.to"
           :class="[
             'group flex items-center gap-sm rounded-card-sm p-sm transition-colors duration-150 ease-sorbo',
-            step.done
-              ? 'bg-transparent hover:bg-paper/60'
-              : 'bg-paper hover:bg-paper/80',
+            step.done ? 'bg-transparent hover:bg-paper/60' : 'bg-paper hover:bg-paper/80',
           ]"
         >
-          <!-- Check indicator -->
           <span
             :class="[
               'inline-flex size-[28px] shrink-0 items-center justify-center rounded-pill transition-colors duration-150 ease-sorbo',
-              step.done
-                ? 'bg-olive text-paper'
-                : 'bg-surface border border-moss/15 text-moss-ghost',
+              step.done ? 'bg-olive text-paper' : 'bg-surface border border-moss/15 text-moss-ghost',
             ]"
             aria-hidden="true"
           >
@@ -125,14 +136,86 @@ const progressPct = computed(() => Math.round((completedCount.value / steps.valu
           </span>
 
           <div class="flex flex-col min-w-0 flex-1">
+            <div class="flex items-baseline gap-xs">
+              <span
+                :class="[
+                  'font-sans text-label text-moss truncate',
+                  step.done && 'line-through text-moss-soft',
+                ]"
+              >
+                {{ step.label }}
+              </span>
+              <span
+                v-if="!step.done"
+                class="font-mono text-[10px] uppercase tracking-eyebrow text-moss-ghost shrink-0"
+              >
+                {{ step.eta }}
+              </span>
+            </div>
             <span
-              :class="[
-                'font-sans text-label text-moss truncate',
-                step.done && 'line-through text-moss-soft',
-              ]"
+              v-if="!step.done"
+              class="font-display italic text-[13px] text-moss-soft truncate"
             >
-              {{ step.label }}
+              {{ step.hint }}
             </span>
+          </div>
+
+          <Icon
+            v-if="!step.done"
+            name="lucide:arrow-right"
+            class="size-4 shrink-0 text-moss-ghost group-hover:text-moss transition-colors"
+            aria-hidden="true"
+          />
+        </NuxtLink>
+      </li>
+    </ul>
+
+    <!-- Opcionales — "cuando quieras", separados visualmente -->
+    <div class="flex items-center gap-sm pt-xs">
+      <span aria-hidden="true" class="h-px flex-1 bg-moss/10" />
+      <span class="font-mono text-[9px] uppercase tracking-eyebrow text-moss-ghost">
+        cuando quieras
+      </span>
+      <span aria-hidden="true" class="h-px flex-1 bg-moss/10" />
+    </div>
+
+    <ul class="flex flex-col gap-xs">
+      <li v-for="step in optionalSteps" :key="step.key">
+        <NuxtLink
+          :to="step.to"
+          :class="[
+            'group flex items-center gap-sm rounded-card-sm p-sm transition-colors duration-150 ease-sorbo',
+            step.done ? 'bg-transparent hover:bg-paper/60' : 'bg-paper/50 hover:bg-paper/80',
+          ]"
+        >
+          <span
+            :class="[
+              'inline-flex size-[28px] shrink-0 items-center justify-center rounded-pill transition-colors duration-150 ease-sorbo',
+              step.done ? 'bg-olive text-paper' : 'bg-surface border border-moss/10 text-moss-ghost',
+            ]"
+            aria-hidden="true"
+          >
+            <Icon v-if="step.done" name="lucide:check" class="size-4" />
+            <span v-else class="font-mono text-[11px] leading-none">{{ steps.indexOf(step) + 1 }}</span>
+          </span>
+
+          <div class="flex flex-col min-w-0 flex-1">
+            <div class="flex items-baseline gap-xs">
+              <span
+                :class="[
+                  'font-sans text-label text-moss-soft truncate',
+                  step.done && 'line-through',
+                ]"
+              >
+                {{ step.label }}
+              </span>
+              <span
+                v-if="!step.done"
+                class="font-mono text-[10px] uppercase tracking-eyebrow text-moss-ghost shrink-0"
+              >
+                {{ step.eta }}
+              </span>
+            </div>
             <span
               v-if="!step.done"
               class="font-display italic text-[13px] text-moss-soft truncate"

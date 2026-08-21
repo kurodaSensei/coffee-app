@@ -43,7 +43,7 @@ const sidebarSections = [
   {
     title: 'Catálogo',
     items: [
-      { key: 'roasters', label: 'Tostadores', to: '/app/roasters' },
+      { key: 'roasters', label: 'Marcas', to: '/app/roasters' },
       { key: 'varieties', label: 'Variedades', to: '/app/varieties' },
       { key: 'methods', label: 'Métodos', to: '/app/methods' },
       { key: 'processes', label: 'Procesos', to: '/app/processes' },

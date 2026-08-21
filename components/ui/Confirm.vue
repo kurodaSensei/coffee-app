@@ -41,6 +41,7 @@ function onOpenChange(v: boolean) {
   <UiBottomSheet
     :model-value="open"
     :title="options?.title || ''"
+    layer="overlay"
     @update:model-value="onOpenChange"
   >
     <div class="flex flex-col gap-lg pt-xs">

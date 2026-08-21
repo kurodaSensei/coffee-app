@@ -12,7 +12,7 @@ const props = withDefaults(
      * Modo de presentación:
      *  - detailed: SCA + meta (precio · peso) + 3 notas (default)
      *  - medium:   sin SCA, sin meta, 3 notas
-     *  - compact:  título + tostador + 2 notas (más denso)
+     *  - compact:  título + marca + 2 notas (más denso)
      */
     mode?: CoffeeViewMode
   }>(),

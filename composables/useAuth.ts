@@ -27,7 +27,11 @@ export const useAuth = () => {
   const { $auth } = useNuxtApp()
   const router = useRouter()
 
-  if (!_initialized) {
+  // Solo iniciamos el listener en cliente — durante prerender (Nuxt
+  // static build de páginas públicas) $auth no existe porque el plugin
+  // de Firebase es .client.ts. currentUser permanece null en el HTML
+  // generado y la hidratación lo actualiza al cargar en el browser.
+  if (import.meta.client && !_initialized) {
     _initialized = true
     onAuthStateChanged($auth, async (user) => {
       currentUser.value = user
@@ -126,7 +130,7 @@ export const useAuth = () => {
   /**
    * Elimina la cuenta del usuario actual de forma permanente:
    *  1. Borra todos sus documentos en Firestore (cafés, catas, recetas,
-   *     wishlist, tostadores) por query userId.
+   *     wishlist, marcas) por query userId.
    *  2. Borra friendships donde aparece.
    *  3. Borra users/{uid} y userPreferences/{uid}.
    *  4. Borra la cuenta de Firebase Auth.

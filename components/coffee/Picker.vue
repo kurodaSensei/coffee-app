@@ -14,7 +14,7 @@ const props = withDefaults(
     class?: string
   }>(),
   {
-    placeholder: 'Busca por nombre o tostador…',
+    placeholder: 'Busca por nombre o marca…',
   },
 )
 

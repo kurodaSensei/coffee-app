@@ -28,7 +28,7 @@ const baseClass = cn(
         <h2 class="font-display tracking-[-0.01em] leading-[1.05] text-[28px] sm:text-[32px] lg:text-[44px] xl:text-[52px] text-paper">
           <slot>{{ title }}</slot>
         </h2>
-        <p v-if="subtitle || $slots.subtitle" class="hidden lg:block font-display italic text-[14px] lg:text-[16px] text-paper/70 mt-xs">
+        <p v-if="subtitle || $slots.subtitle" class="block font-display italic text-[13px] sm:text-[14px] lg:text-[16px] text-paper/70 mt-xs">
           <slot name="subtitle">{{ subtitle }}</slot>
         </p>
       </div>
@@ -46,7 +46,7 @@ const baseClass = cn(
         <h2 class="font-display tracking-[-0.01em] leading-[1.05] text-[28px] sm:text-[32px] lg:text-[44px] xl:text-[52px] text-paper">
           <slot>{{ title }}</slot>
         </h2>
-        <p v-if="subtitle || $slots.subtitle" class="hidden lg:block font-display italic text-[14px] lg:text-[16px] text-paper/70 mt-xs">
+        <p v-if="subtitle || $slots.subtitle" class="block font-display italic text-[13px] sm:text-[14px] lg:text-[16px] text-paper/70 mt-xs">
           <slot name="subtitle">{{ subtitle }}</slot>
         </p>
       </div>
@@ -64,7 +64,7 @@ const baseClass = cn(
         <h2 class="font-display tracking-[-0.01em] leading-[1.05] text-[28px] sm:text-[32px] lg:text-[44px] xl:text-[52px] text-paper">
           <slot>{{ title }}</slot>
         </h2>
-        <p v-if="subtitle || $slots.subtitle" class="hidden lg:block font-display italic text-[14px] lg:text-[16px] text-paper/70 mt-xs">
+        <p v-if="subtitle || $slots.subtitle" class="block font-display italic text-[13px] sm:text-[14px] lg:text-[16px] text-paper/70 mt-xs">
           <slot name="subtitle">{{ subtitle }}</slot>
         </p>
       </div>

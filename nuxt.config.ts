@@ -10,7 +10,27 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@vite-pwa/nuxt',
     '@sentry/nuxt/module',
+    '@nuxtjs/sitemap',
   ],
+
+  site: {
+    url: 'https://sorbo.app',
+    name: 'Sorbo',
+  },
+
+  sitemap: {
+    // Páginas públicas indexables. Excluimos /app/** (autenticadas, SPA)
+    // y rutas de dev/preview. El módulo genera /sitemap.xml en build.
+    exclude: ['/app/**', '/dev/**'],
+    urls: [
+      { loc: '/', changefreq: 'weekly', priority: 1.0 },
+      { loc: '/about', changefreq: 'monthly', priority: 0.8 },
+      { loc: '/login', changefreq: 'yearly', priority: 0.3 },
+      { loc: '/register', changefreq: 'yearly', priority: 0.5 },
+      { loc: '/terms', changefreq: 'yearly', priority: 0.2 },
+      { loc: '/privacy', changefreq: 'yearly', priority: 0.2 },
+    ],
+  },
 
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
@@ -97,7 +117,9 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'Sorbo',
+      // Fallback usado por páginas internas sin useHead propio. Cada
+      // página pública con SEO crítico (/, /about) override este título.
+      title: 'Sorbo — Diario de café de especialidad',
       meta: [
         { name: 'description', content: 'Un diario para cada sorbo' },
         // viewport-fit=cover → habilita safe-area-inset-* en iPhone con notch.
@@ -141,9 +163,31 @@ export default defineNuxtConfig({
     layoutTransition: { name: 'layout', mode: 'out-in' },
   },
 
-  ssr: false,
+  // SSR encendido para que las páginas públicas (landing, /about, legal)
+  // entreguen HTML completo en el primer byte. Crítico para crawlers de
+  // Google/Bing y para AI engines (GPTBot, ClaudeBot, PerplexityBot) que
+  // no ejecutan JavaScript. La app autenticada (/app/**) sigue como SPA
+  // — declarada abajo en routeRules.
+  ssr: true,
 
   routeRules: {
+    // Páginas públicas: prerender en build (HTML estático completo).
+    '/': { prerender: true },
+    '/about': { prerender: true },
+    '/terms': { prerender: true },
+    '/privacy': { prerender: true },
+
+    // Auth pages: SPA. Usan Firebase Auth client — no se pueden
+    // prerender sin tocar el SDK desde Node, lo cual rompería el build.
+    '/login': { ssr: false },
+    '/register': { ssr: false },
+
+    // App autenticada: SPA. Toda la lógica vive del lado del cliente
+    // (Firebase Auth + Firestore), no hay nada útil que prerender.
+    '/app/**': { ssr: false },
+
+    // Headers de seguridad para todas las rutas (mantiene la config
+    // original — no rompe nada).
     '/**': {
       headers: {
         'X-Content-Type-Options': 'nosniff',

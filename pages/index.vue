@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 definePageMeta({ layout: false, auth: false })
 
@@ -44,25 +44,73 @@ useHead({
   script: [
     {
       type: 'application/ld+json',
+      // @graph: une 3 entidades (SoftwareApplication + WebSite + Org)
+      // bajo @ids cruzados, dándole a Google/AI engines un modelo
+      // coherente del producto y su autoría. SoftwareApplication es
+      // elegible para Rich Results (a diferencia de WebApplication).
       innerHTML: JSON.stringify({
         '@context': 'https://schema.org',
-        '@type': 'WebApplication',
-        'name': 'Sorbo',
-        'description': DESCRIPTION,
-        'url': `${SITE_URL}/`,
-        'applicationCategory': 'LifestyleApplication',
-        'operatingSystem': 'Web',
-        'inLanguage': 'es',
-        'offers': {
-          '@type': 'Offer',
-          'price': '0',
-          'priceCurrency': 'USD',
-        },
-        'creator': {
-          '@type': 'Organization',
-          'name': 'KurodaCafe',
-          'url': 'https://instagram.com/kurodacafe',
-        },
+        '@graph': [
+          {
+            '@type': 'SoftwareApplication',
+            '@id': `${SITE_URL}/#software`,
+            'name': 'Sorbo',
+            'alternateName': 'Sorbo App',
+            'description': DESCRIPTION,
+            'disambiguatingDescription': 'Aplicación web progresiva (PWA) para registro de cafés de especialidad, catas SCA y recetas de extracción. No confundir con la palabra común "sorbo" (sip).',
+            'url': `${SITE_URL}/`,
+            'applicationCategory': 'LifestyleApplication',
+            'operatingSystem': 'Web, iOS, Android',
+            'inLanguage': 'es',
+            'datePublished': '2026-06-15',
+            'dateModified': new Date().toISOString().split('T')[0],
+            'featureList': [
+              'Registro de cafés de especialidad con detalle (origen, variedad, proceso, SCA score)',
+              'Catas guiadas con scoring estándar SCA',
+              'Recetas con temporizador integrado para 12 métodos de extracción',
+              'Wishlist de cafés que aún no compras',
+              'Feed comunitario con visibilidad granular (privado, amigos, comunidad)',
+              'Catálogo de marcas y tostadores',
+              'PWA instalable en iOS, Android, macOS y Windows',
+            ],
+            'offers': {
+              '@type': 'Offer',
+              'name': 'Plan gratuito',
+              'price': '0',
+              'priceCurrency': 'USD',
+              'availability': 'https://schema.org/InStock',
+              'seller': { '@id': `${SITE_URL}/#organization` },
+            },
+            'creator': { '@id': `${SITE_URL}/#organization` },
+            'publisher': { '@id': `${SITE_URL}/#organization` },
+            'image': OG_IMAGE,
+          },
+          {
+            '@type': 'WebSite',
+            '@id': `${SITE_URL}/#website`,
+            'url': `${SITE_URL}/`,
+            'name': 'Sorbo',
+            'description': DESCRIPTION,
+            'inLanguage': 'es',
+            'publisher': { '@id': `${SITE_URL}/#organization` },
+          },
+          {
+            '@type': 'Organization',
+            '@id': `${SITE_URL}/#organization`,
+            'name': 'KurodaCafe',
+            'url': `${SITE_URL}/`,
+            'email': 'info@sorbo.app',
+            'logo': {
+              '@type': 'ImageObject',
+              'url': `${SITE_URL}/icons/icon-512.png`,
+              'width': 512,
+              'height': 512,
+            },
+            'sameAs': [
+              'https://instagram.com/kurodacafe',
+            ],
+          },
+        ],
       }),
     },
   ],
@@ -71,40 +119,101 @@ useHead({
   },
 })
 
-const email = ref('')
-const submitting = ref(false)
-const subscribed = ref(false)
-const formError = ref<string | null>(null)
+// ─────────────────────────────────────────────────────────────────────────────
+// Registro inline en la landing — reemplaza la waitlist.
+// El producto ya está disponible: pedir email "para avisar cuando salga"
+// era contradictorio. Mantenemos el diseño de la sección, cambia el flujo.
+// ─────────────────────────────────────────────────────────────────────────────
 
-const { subscribe } = useWaitlist()
+const { register, loginWithGoogle, currentUser } = useAuth()
 const { trackEvent } = useAnalytics()
+const router = useRouter()
 
-async function onSubmit() {
-  if (!email.value.trim() || submitting.value) return
-  submitting.value = true
-  formError.value = null
-  const result = await subscribe(email.value, 'landing')
-  submitting.value = false
+const isLoggedIn = computed(() => !!currentUser.value)
 
-  if (result.status === 'success' || result.status === 'duplicate') {
-    subscribed.value = true
-    email.value = ''
-    // Solo trackeamos altas reales, no re-envíos del mismo email.
-    if (result.status === 'success') {
-      trackEvent('waitlist_signup', { source: 'landing' })
-    }
+const name = ref('')
+const email = ref('')
+const password = ref('')
+const acceptedTerms = ref(false)
+
+const errors = ref<{ name?: string; email?: string; password?: string; terms?: string; general?: string }>({})
+const loading = ref(false)
+const loadingGoogle = ref(false)
+
+function validate(): boolean {
+  errors.value = {}
+  if (!name.value.trim()) errors.value.name = 'Cuéntanos tu nombre'
+  if (!email.value) errors.value.email = 'Correo requerido'
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) errors.value.email = 'Correo no válido'
+  if (!password.value) errors.value.password = 'Contraseña requerida'
+  else if (password.value.length < 8) errors.value.password = 'Mínimo 8 caracteres'
+  if (!acceptedTerms.value) errors.value.terms = 'Debes aceptar los términos para continuar'
+  return Object.keys(errors.value).length === 0
+}
+
+async function onRegister(e: Event) {
+  e.preventDefault()
+  if (!validate()) return
+  loading.value = true
+  try {
+    await register(email.value.trim(), password.value, name.value.trim())
+    trackEvent('signup_success', { method: 'email', source: 'landing' })
+    router.replace('/app')
   }
-  else if (result.status === 'invalid') {
-    formError.value = 'Ingresa un correo válido.'
+  catch (err: any) {
+    errors.value = { general: mapAuthError(err?.code) }
   }
-  else {
-    formError.value = 'No pudimos guardar tu correo. Inténtalo de nuevo.'
+  finally {
+    loading.value = false
+  }
+}
+
+async function onGoogle() {
+  errors.value = {}
+  if (!acceptedTerms.value) {
+    errors.value = { terms: 'Debes aceptar los términos para continuar' }
+    return
+  }
+  loadingGoogle.value = true
+  try {
+    await loginWithGoogle()
+    trackEvent('signup_success', { method: 'google', source: 'landing' })
+    router.replace('/app')
+  }
+  catch (err: any) {
+    errors.value = { general: err?.message || mapAuthError(err?.code) }
+  }
+  finally {
+    loadingGoogle.value = false
+  }
+}
+
+function mapAuthError(code?: string): string {
+  switch (code) {
+    case 'auth/invalid-email': return 'Correo no válido'
+    case 'auth/email-already-in-use': return 'Ese correo ya tiene cuenta. Inicia sesión.'
+    case 'auth/weak-password': return 'Contraseña muy débil. Mínimo 8 caracteres.'
+    case 'auth/network-request-failed': return 'Sin conexión. Revisa tu red.'
+    case 'auth/popup-closed-by-user': return 'Cancelaste el registro con Google'
+    default: return 'No pudimos crear tu cuenta. Inténtalo otra vez.'
   }
 }
 
 function smoothScroll(id: string) {
   const el = document.getElementById(id)
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+// ─── Mobile nav ───
+const mobileNavOpen = ref(false)
+
+function openMobileNav() { mobileNavOpen.value = true }
+function closeMobileNav() { mobileNavOpen.value = false }
+
+function mobileScrollAndClose(id: string) {
+  closeMobileNav()
+  // pequeño delay para que el panel se cierre antes del scroll
+  setTimeout(() => smoothScroll(id), 200)
 }
 </script>
 
@@ -122,9 +231,94 @@ function smoothScroll(id: string) {
         <a href="#features" @click.prevent="smoothScroll('features')">Features</a>
         <a href="#como" @click.prevent="smoothScroll('como')">Cómo funciona</a>
         <a href="#por-que" @click.prevent="smoothScroll('por-que')">Por qué Sorbo</a>
-        <a href="#waitlist" class="nav-cta" @click.prevent="smoothScroll('waitlist')">Waitlist</a>
+        <template v-if="isLoggedIn">
+          <NuxtLink to="/app" class="nav-cta">Ir a la app →</NuxtLink>
+        </template>
+        <template v-else>
+          <NuxtLink to="/login" class="nav-login">Ingresar</NuxtLink>
+          <a href="#registro" class="nav-cta" @click.prevent="smoothScroll('registro')">Crear cuenta</a>
+        </template>
       </div>
+
+      <!-- Hamburger (solo <760px) — abre panel con todos los links. -->
+      <button
+        type="button"
+        class="nav-burger"
+        :aria-expanded="mobileNavOpen"
+        aria-label="Abrir menú"
+        aria-controls="mobile-nav-panel"
+        @click="openMobileNav"
+      >
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+      </button>
     </nav>
+
+    <!-- ============ MOBILE NAV PANEL ============ -->
+    <Transition
+      enter-active-class="mobile-nav-transition-enter"
+      leave-active-class="mobile-nav-transition-leave"
+    >
+      <div
+        v-if="mobileNavOpen"
+        id="mobile-nav-panel"
+        class="mobile-nav"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menú principal"
+        @keydown.esc="closeMobileNav"
+      >
+        <div class="mobile-nav-header">
+          <NuxtLink to="/" class="brand" aria-label="Sorbo · Inicio" @click="closeMobileNav">
+            <img src="/sorbo.svg" alt="" aria-hidden="true" class="mark-svg">
+            <div class="name">Sorbo<span class="dot">.</span></div>
+          </NuxtLink>
+          <button
+            type="button"
+            class="mobile-nav-close"
+            aria-label="Cerrar menú"
+            @click="closeMobileNav"
+          >
+            ×
+          </button>
+        </div>
+
+        <nav class="mobile-nav-links" aria-label="Navegación principal móvil">
+          <a href="#features" @click.prevent="mobileScrollAndClose('features')">Features</a>
+          <a href="#como" @click.prevent="mobileScrollAndClose('como')">Cómo funciona</a>
+          <a href="#por-que" @click.prevent="mobileScrollAndClose('por-que')">Por qué Sorbo</a>
+          <a href="#faq" @click.prevent="mobileScrollAndClose('faq')">Preguntas frecuentes</a>
+          <NuxtLink to="/about" @click="closeMobileNav">Sobre el proyecto</NuxtLink>
+        </nav>
+
+        <div class="mobile-nav-cta">
+          <template v-if="isLoggedIn">
+            <NuxtLink to="/app" class="mobile-nav-btn primary" @click="closeMobileNav">
+              Ir a la app →
+            </NuxtLink>
+          </template>
+          <template v-else>
+            <a
+              href="#registro"
+              class="mobile-nav-btn primary"
+              @click.prevent="mobileScrollAndClose('registro')"
+            >
+              Crear cuenta
+            </a>
+            <NuxtLink to="/login" class="mobile-nav-btn ghost" @click="closeMobileNav">
+              Ya tengo cuenta
+            </NuxtLink>
+          </template>
+        </div>
+
+        <p class="mobile-nav-foot">
+          <a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener">@kurodacafe</a>
+          ·
+          <a href="mailto:info@sorbo.app">info@sorbo.app</a>
+        </p>
+      </div>
+    </Transition>
 
     <!-- ============ HERO ============ -->
     <section class="hero">
@@ -132,7 +326,7 @@ function smoothScroll(id: string) {
         <div>
           <div class="hero-eyebrow">
             <span class="dot-live" aria-hidden="true" />
-            <span class="label">Beta privada · 2026</span>
+            <span class="label">En vivo · gratis</span>
           </div>
           <h1>
             Un diario<br>
@@ -144,12 +338,22 @@ function smoothScroll(id: string) {
           </p>
 
           <div class="hero-cta">
-            <a href="#waitlist" class="btn-primary" @click.prevent="smoothScroll('waitlist')">
-              Únete a la waitlist →
-            </a>
-            <a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener" class="btn-ghost-light">
-              Sígueme en Instagram
-            </a>
+            <template v-if="isLoggedIn">
+              <NuxtLink to="/app" class="btn-primary">
+                Ir a la app →
+              </NuxtLink>
+              <a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener" class="btn-ghost-light">
+                Sígueme en Instagram
+              </a>
+            </template>
+            <template v-else>
+              <a href="#registro" class="btn-primary" @click.prevent="smoothScroll('registro')">
+                Empieza tu diario →
+              </a>
+              <NuxtLink to="/login" class="btn-ghost-light">
+                Ya tengo cuenta
+              </NuxtLink>
+            </template>
           </div>
 
           <div class="hero-meta">
@@ -163,7 +367,7 @@ function smoothScroll(id: string) {
             </div>
             <div class="hero-meta-item">
               <div class="num"><em>0</em>$</div>
-              <div class="lbl">en beta privada</div>
+              <div class="lbl">para siempre</div>
             </div>
           </div>
         </div>
@@ -307,13 +511,13 @@ function smoothScroll(id: string) {
           <div class="step">
             <div class="step-num">— 01 / Agrega</div>
             <h3>Registra el <em>café</em></h3>
-            <p>Nombre, tostador, origen. Solo lo esencial — los detalles son opcionales.</p>
+            <p>Nombre, marca, origen. Solo lo esencial — los detalles son opcionales.</p>
             <div class="visual">
               <div class="v-add">
                 <div class="lbl">— Nombre</div>
                 <div class="val">Gold natural</div>
                 <div class="sep" />
-                <div class="lbl">— Tostador</div>
+                <div class="lbl">— Marca</div>
                 <div class="val olive">KurodaCafe</div>
               </div>
             </div>
@@ -349,6 +553,52 @@ function smoothScroll(id: string) {
       </div>
     </section>
 
+    <!-- ============ SOCIAL PROOF / TESTIMONIALES ============
+         Placeholder editable — cambia las 3 quotes por reseñas reales
+         cuando estén. Cada quote es <blockquote> con <cite> para que los
+         crawlers los reconozcan como testimonio. -->
+    <section class="voices">
+      <div class="voices-inner">
+        <div class="eyebrow">— Lo que dicen</div>
+        <h2>Voces de la <em>comunidad</em></h2>
+        <div class="voices-grid">
+          <figure class="voice">
+            <blockquote>"Por fin dejé la hoja de Excel. Registrar una cata se siente como escribir en mi cuaderno favorito."</blockquote>
+            <figcaption>
+              <cite>Ana M.</cite> · Bogotá
+            </figcaption>
+          </figure>
+          <figure class="voice">
+            <blockquote>"Lo que más uso: puedo repetir la última cata con dos taps. Encontré mi ritmo."</blockquote>
+            <figcaption>
+              <cite>Diego R.</cite> · Medellín
+            </figcaption>
+          </figure>
+          <figure class="voice">
+            <blockquote>"Explora es la parte que me hace volver. Descubro cafés que jamás habría pedido."</blockquote>
+            <figcaption>
+              <cite>Mariana V.</cite> · Ciudad de México
+            </figcaption>
+          </figure>
+        </div>
+        <p class="voices-note">
+          Placeholder — los testimonios se actualizarán con quotes reales conforme lleguen.
+        </p>
+
+        <!-- Imagen real para crawlers (el resto de la landing es CSS
+             mockup y los bots no lo indexan como imagen). Usamos el
+             mismo OG image ya renderizado; el alt describe el producto. -->
+        <img
+          src="/og-image.png"
+          alt="Sorbo — un diario para cada sorbo de café · pour-over, dulzura editorial y comunidad"
+          width="1200"
+          height="630"
+          loading="lazy"
+          class="voices-image"
+        >
+      </div>
+    </section>
+
     <!-- ============ POR QUÉ SORBO ============ -->
     <section id="por-que" class="why">
       <div class="why-inner">
@@ -377,47 +627,183 @@ function smoothScroll(id: string) {
       </div>
     </section>
 
-    <!-- ============ WAITLIST ============ -->
-    <section id="waitlist" class="waitlist">
-      <div class="waitlist-inner">
-        <div class="eyebrow">— Beta privada · cupos limitados</div>
-        <h2>Sé de los <em>primeros</em><br>en sorber</h2>
-        <p>Te avisamos en cuanto se abra el acceso. Sin spam — solo cuando estemos listos.</p>
+    <!-- ============ FAQ ============
+         Headings tipo pregunta + respuesta directa al inicio de cada
+         bloque, optimizado para extracción por AI engines y para que
+         Google muestre People Also Ask. -->
+    <section id="faq" class="faq">
+      <div class="faq-inner">
+        <div class="eyebrow">— Preguntas frecuentes</div>
+        <h2>Lo que <em>quieres saber</em></h2>
 
-        <form class="waitlist-form" novalidate @submit.prevent="onSubmit">
-          <input
-            v-model="email"
-            type="email"
-            placeholder="tucorreo@ejemplo.com"
-            autocomplete="email"
-            inputmode="email"
-            required
-            :disabled="subscribed"
-          >
-          <button type="submit" :disabled="submitting || subscribed" :class="{ done: subscribed }">
-            <template v-if="subscribed">✓ Estás dentro</template>
-            <template v-else-if="submitting">Enviando…</template>
-            <template v-else>Únete →</template>
-          </button>
-        </form>
+        <div class="faq-list">
+          <article class="faq-item">
+            <h3>¿Qué es Sorbo?</h3>
+            <p>
+              Sorbo es un diario digital para café de especialidad. Es una PWA gratuita —
+              Web, iOS y Android — donde registras cafés, haces catas con scoring SCA,
+              guardas recetas con temporizador y, opcionalmente, exploras una comunidad de
+              cafeteros. No es una red social ni una hoja de cálculo: es un cuaderno editorial.
+            </p>
+          </article>
 
-        <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
+          <article class="faq-item">
+            <h3>¿Cuánto cuesta?</h3>
+            <p>
+              Sorbo es gratuito y sin tarjeta. No hay versión "Pro" ni paywall escondido. El
+              proyecto vive en el tier gratuito de Firebase y Vercel, lo cual nos permite
+              ofrecer todas las funciones sin cobrar.
+            </p>
+          </article>
 
-        <div class="meta">
-          <span>Sin tarjeta</span>
-          <span>Cancela cuando quieras</span>
-          <span>PWA en iOS · Android · Web</span>
+          <article class="faq-item">
+            <h3>¿Qué métodos de extracción soporta?</h3>
+            <p>
+              12 métodos: V60, Chemex, Kalita, Origami, Suiren, AeroPress, Prensa francesa,
+              Espresso, Moka, Phin, Cold brew, y un genérico "otro". Cada método tiene una
+              receta estándar incorporada (dosis, agua, temperatura, tiempos) que puedes usar
+              tal cual o personalizar.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>¿Mis catas son privadas?</h3>
+            <p>
+              Sí, por defecto. Cada café, cata y receta nace en modo privado — solo tú las ves.
+              Tienes tres niveles de visibilidad por item: privado, amigos (UIDs que tú eliges),
+              o comunidad (feed público en Explora). Tú decides ítem por ítem.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>¿Sorbo funciona sin internet?</h3>
+            <p>
+              Parcialmente. Como PWA puedes instalarla en tu teléfono y abrirla sin conexión —
+              verás los datos que ya cargaste. Los registros nuevos requieren conexión para
+              sincronizar con Firestore.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>¿Usa el sistema de scoring SCA?</h3>
+            <p>
+              Sí. La puntuación de cafés sigue el estándar de la Specialty Coffee Association
+              (0-100 puntos). Para catas usamos un sistema editorial complementario de 0-10
+              puntos en aroma, dulzor, acidez, cuerpo, acabado y un score overall.
+            </p>
+          </article>
         </div>
+      </div>
+    </section>
 
-        <p class="waitlist-fineprint">
-          Al unirte aceptas nuestra
-          <NuxtLink to="/privacy">Política de Privacidad</NuxtLink>.
-        </p>
+    <!-- ============ REGISTRO ============ -->
+    <section id="registro" class="waitlist">
+      <div class="waitlist-inner">
+        <template v-if="isLoggedIn">
+          <div class="eyebrow">— Ya estás dentro</div>
+          <h2>Tu <em>diario</em><br>te espera</h2>
+          <p>Continúa donde lo dejaste.</p>
+          <NuxtLink to="/app" class="btn-primary signup-cta-go">
+            Ir a tu diario →
+          </NuxtLink>
+        </template>
 
-        <!-- <div class="login-link">
-          <span>¿Ya tienes cuenta?</span>
-          <NuxtLink to="/login">Inicia sesión</NuxtLink>
-        </div> -->
+        <template v-else>
+          <div class="eyebrow">— Crea tu cuenta · es gratis</div>
+          <h2>Empieza tu <em>diario</em><br>en menos de un minuto</h2>
+          <p>Sin tarjeta, sin trial. Solo tú y tu memoria de taza.</p>
+
+          <form class="signup-form" novalidate @submit="onRegister">
+            <div class="field">
+              <label for="su-name">— Nombre</label>
+              <input
+                id="su-name"
+                v-model="name"
+                type="text"
+                autocomplete="name"
+                placeholder="Cómo te llamas"
+                :aria-invalid="!!errors.name || undefined"
+              >
+              <p v-if="errors.name" class="field-error">{{ errors.name }}</p>
+            </div>
+            <div class="field">
+              <label for="su-email">— Correo</label>
+              <input
+                id="su-email"
+                v-model="email"
+                type="email"
+                autocomplete="email"
+                inputmode="email"
+                placeholder="tucorreo@ejemplo.com"
+                :aria-invalid="!!errors.email || undefined"
+              >
+              <p v-if="errors.email" class="field-error">{{ errors.email }}</p>
+            </div>
+            <div class="field">
+              <label for="su-password">— Contraseña</label>
+              <input
+                id="su-password"
+                v-model="password"
+                type="password"
+                autocomplete="new-password"
+                placeholder="Mínimo 8 caracteres"
+                :aria-invalid="!!errors.password || undefined"
+              >
+              <p v-if="errors.password" class="field-error">{{ errors.password }}</p>
+            </div>
+
+            <label class="terms">
+              <input v-model="acceptedTerms" type="checkbox">
+              <span>
+                He leído y acepto los
+                <NuxtLink to="/terms" target="_blank">Términos</NuxtLink>
+                y la
+                <NuxtLink to="/privacy" target="_blank">Política de Privacidad</NuxtLink>.
+              </span>
+            </label>
+            <p v-if="errors.terms" class="field-error terms-error">{{ errors.terms }}</p>
+
+            <p v-if="errors.general" class="form-error" role="alert">{{ errors.general }}</p>
+
+            <button type="submit" :disabled="loading || loadingGoogle" class="signup-submit">
+              <template v-if="loading">Creando…</template>
+              <template v-else>Crear cuenta →</template>
+            </button>
+          </form>
+
+          <div class="signup-divider">
+            <span class="line" aria-hidden="true" />
+            <span class="lbl">o</span>
+            <span class="line" aria-hidden="true" />
+          </div>
+
+          <button
+            type="button"
+            class="btn-google"
+            :disabled="loading || loadingGoogle"
+            @click="onGoogle"
+          >
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />
+              <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853" />
+              <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05" />
+              <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335" />
+            </svg>
+            <template v-if="loadingGoogle">Conectando…</template>
+            <template v-else>Continuar con Google</template>
+          </button>
+
+          <div class="meta">
+            <span>Sin tarjeta</span>
+            <span>Cancela cuando quieras</span>
+            <span>PWA en iOS · Android · Web</span>
+          </div>
+
+          <div class="login-link">
+            <span>¿Ya tienes cuenta?</span>
+            <NuxtLink to="/login">Inicia sesión</NuxtLink>
+          </div>
+        </template>
       </div>
     </section>
 
@@ -441,7 +827,11 @@ function smoothScroll(id: string) {
               <li><a href="#features" @click.prevent="smoothScroll('features')">Features</a></li>
               <li><a href="#como" @click.prevent="smoothScroll('como')">Cómo funciona</a></li>
               <li><a href="#por-que" @click.prevent="smoothScroll('por-que')">Por qué Sorbo</a></li>
-              <li><a href="#waitlist" @click.prevent="smoothScroll('waitlist')">Waitlist</a></li>
+              <li v-if="isLoggedIn"><NuxtLink to="/app">Ir a la app</NuxtLink></li>
+              <li v-else><a href="#registro" @click.prevent="smoothScroll('registro')">Crear cuenta</a></li>
+              <li v-if="!isLoggedIn"><NuxtLink to="/login">Iniciar sesión</NuxtLink></li>
+              <li><a href="#faq" @click.prevent="smoothScroll('faq')">FAQ</a></li>
+              <li><NuxtLink to="/about">Sobre el proyecto</NuxtLink></li>
               <li><a href="https://instagram.com/kurodacafe" target="_blank" rel="noopener">Instagram</a></li>
               <li><a href="mailto:info@sorbo.app">Contacto</a></li>
             </ul>
@@ -538,10 +928,159 @@ function smoothScroll(id: string) {
   transition: transform 0.2s;
 }
 .nav .nav-cta:hover { transform: translateY(-1px); color: var(--moss); }
+/* Subtle text link, slightly heavier than the section links so el ojo
+   lo separa del scroll-nav y lo lee como acción. */
+.nav .nav-login {
+  font-family: var(--font-sans) !important;
+  text-transform: none !important;
+  font-size: 13px !important;
+  letter-spacing: 0 !important;
+  color: rgba(244, 242, 235, 0.85) !important;
+  font-weight: 500;
+}
+.nav .nav-login:hover { color: var(--paper) !important; }
+/* Hamburger button — solo visible en mobile. */
+.nav-burger {
+  display: none;
+  width: 44px;
+  height: 44px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+.nav-burger span {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: var(--paper);
+  border-radius: 1px;
+  margin: 0 auto;
+  transition: opacity 0.15s;
+}
+.nav-burger:hover span { opacity: 0.7; }
+
 @media (max-width: 760px) {
   .nav { padding: 14px 18px; }
-  .nav .links a:not(.nav-cta) { display: none; }
+  /* En mobile escondemos toda la nav-row de links y dejamos solo el
+     hamburger — los links viven dentro del panel mobile. */
+  .nav .links { display: none; }
+  .nav-burger { display: flex; }
 }
+
+/* ──── Mobile nav panel ──── */
+.mobile-nav {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--jungle);
+  display: flex;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top) + 18px) 24px calc(env(safe-area-inset-bottom) + 24px);
+}
+.mobile-nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 48px;
+}
+.mobile-nav-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--paper);
+}
+.mobile-nav-header .brand .mark-svg { width: 32px; height: 32px; display: block; }
+.mobile-nav-header .brand .name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--paper);
+  line-height: 1;
+}
+.mobile-nav-header .brand .name .dot { color: var(--honey); }
+.mobile-nav-close {
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: 1px solid rgba(244, 242, 235, 0.18);
+  border-radius: 50%;
+  color: var(--paper);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.mobile-nav-close:hover { border-color: rgba(244, 242, 235, 0.5); }
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+}
+.mobile-nav-links a {
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--paper);
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(244, 242, 235, 0.08);
+  transition: color 0.15s;
+}
+.mobile-nav-links a:hover { color: var(--honey); }
+.mobile-nav-links a:last-child { border-bottom: 0; }
+
+.mobile-nav-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 32px;
+}
+.mobile-nav-btn {
+  display: block;
+  text-align: center;
+  padding: 16px 22px;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  transition: transform 0.2s;
+}
+.mobile-nav-btn:hover { transform: translateY(-1px); }
+.mobile-nav-btn.primary {
+  background: var(--honey);
+  color: var(--moss);
+}
+.mobile-nav-btn.ghost {
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid rgba(244, 242, 235, 0.25);
+}
+
+.mobile-nav-foot {
+  margin-top: 24px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(244, 242, 235, 0.45);
+}
+.mobile-nav-foot a {
+  color: var(--paper);
+  margin: 0 6px;
+}
+.mobile-nav-foot a:hover { color: var(--honey); }
+
+.mobile-nav-transition-enter,
+.mobile-nav-transition-leave {
+  transition: transform 0.28s cubic-bezier(0.32, 0, 0.18, 1), opacity 0.2s;
+}
+.mobile-nav-transition-enter.mobile-nav-transition-enter-from { transform: translateY(-12px); opacity: 0; }
+/* CSS-only safety: hide the panel when not actively mounted (Vue Transition handles it,
+   but ensures no leftover bug from class timing). */
 
 /* ==================== HERO ==================== */
 .hero {
@@ -794,7 +1333,7 @@ function smoothScroll(id: string) {
   position: relative;
   border-radius: 18px;
   padding: 18px 16px 16px;
-  background: linear-gradient(135deg, #E4E3D2, #EBE9DC);
+  background: linear-gradient(135deg, var(--surface), var(--surface-2));
   overflow: hidden;
   margin-top: 16px;
 }
@@ -1183,7 +1722,7 @@ function smoothScroll(id: string) {
 
 .v-mem {
   width: 100%;
-  background: linear-gradient(135deg, #E4E3D2, #EBE9DC);
+  background: linear-gradient(135deg, var(--surface), var(--surface-2));
   border-radius: 14px;
   padding: 18px;
   position: relative;
@@ -1308,6 +1847,147 @@ function smoothScroll(id: string) {
   .why { padding: 80px 18px; }
 }
 
+/* ==================== VOICES / TESTIMONIALES ==================== */
+.voices {
+  background: var(--surface);
+  padding: 100px 32px;
+}
+.voices-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.voices h2 {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 4.5vw, 60px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--moss);
+  margin-top: 14px;
+  font-weight: 400;
+}
+.voices h2 em { font-style: italic; color: var(--olive); }
+.voices-grid {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.voice {
+  padding: 28px;
+  background: var(--paper);
+  border: 1px solid rgba(47, 53, 40, 0.08);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 0;
+}
+.voice blockquote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.45;
+  color: var(--moss);
+  margin: 0;
+}
+.voice figcaption {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--moss-soft);
+}
+.voice figcaption cite {
+  color: var(--olive);
+  font-style: normal;
+  font-weight: 500;
+}
+.voices-note {
+  margin-top: 32px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--moss-ghost);
+  text-align: center;
+}
+.voices-image {
+  display: block;
+  margin: 48px auto 0;
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(20, 23, 18, 0.12);
+}
+@media (max-width: 880px) {
+  .voices-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .voices { padding: 72px 18px; }
+}
+
+/* ==================== FAQ ====================
+   Lista vertical de Q/A. Cada pregunta es H3 con tipo serif italic;
+   la respuesta arranca con la frase clave para extracción por AI
+   engines (primera oración debe poder citarse sola). */
+.faq {
+  background: var(--paper);
+  padding: 120px 32px;
+}
+.faq-inner {
+  max-width: 920px;
+  margin: 0 auto;
+}
+.faq h2 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--moss);
+  margin-top: 18px;
+  font-weight: 400;
+}
+.faq h2 em { font-style: italic; color: var(--olive); }
+.faq-list {
+  margin-top: 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.faq-item {
+  padding: 32px 0;
+  border-top: 1px solid rgba(47, 53, 40, 0.10);
+}
+.faq-item:last-child {
+  border-bottom: 1px solid rgba(47, 53, 40, 0.10);
+}
+.faq-item h3 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--moss);
+  font-weight: 400;
+  margin-bottom: 14px;
+}
+.faq-item h3::before {
+  content: '— ';
+  color: var(--olive);
+  font-style: normal;
+}
+.faq-item p {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--moss-soft);
+  max-width: 720px;
+}
+@media (max-width: 560px) {
+  .faq { padding: 80px 18px; }
+  .faq-item h3 { font-size: 20px; }
+  .faq-item p { font-size: 14px; }
+}
+
 /* ==================== WAITLIST ==================== */
 .waitlist {
   background: var(--surface-2);
@@ -1426,6 +2106,166 @@ function smoothScroll(id: string) {
   font-weight: 500;
 }
 .waitlist-fineprint a:hover { text-decoration: underline; }
+
+/* ───── Registro inline (reemplaza al waitlist-form) ───── */
+.signup-form {
+  margin: 40px auto 0;
+  max-width: 420px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.signup-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px 8px;
+  background: var(--paper);
+  border: 1px solid rgba(47, 53, 40, 0.10);
+  border-radius: 12px;
+  transition: border-color 0.15s;
+}
+.signup-form .field:focus-within {
+  border-color: rgba(85, 107, 58, 0.5);
+}
+.signup-form .field label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--moss-soft);
+}
+.signup-form .field input {
+  background: transparent;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--moss);
+  width: 100%;
+}
+.signup-form .field input::placeholder {
+  color: var(--moss-ghost);
+  font-style: italic;
+  font-family: var(--font-display);
+  font-size: 14px;
+}
+.signup-form .field-error {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--terracotta);
+  margin-top: -4px;
+}
+.signup-form .terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 4px;
+  cursor: pointer;
+}
+.signup-form .terms input[type="checkbox"] {
+  margin-top: 3px;
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  accent-color: var(--olive);
+  cursor: pointer;
+}
+.signup-form .terms span {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--moss-soft);
+  line-height: 1.5;
+  text-align: left;
+}
+.signup-form .terms a {
+  color: var(--olive);
+  font-weight: 500;
+}
+.signup-form .terms a:hover { text-decoration: underline; }
+.signup-form .terms-error {
+  margin-top: 0;
+  text-align: left;
+}
+.signup-form .signup-submit {
+  margin-top: 10px;
+  background: var(--moss);
+  color: var(--paper);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 14px 22px;
+  border-radius: 12px;
+  border: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.signup-form .signup-submit:hover:not(:disabled) {
+  background: var(--jungle);
+  transform: translateY(-1px);
+}
+.signup-form .signup-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ───── Divider "o" ───── */
+.signup-divider {
+  margin: 24px auto 18px;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.signup-divider .line {
+  flex: 1;
+  height: 1px;
+  background: rgba(47, 53, 40, 0.15);
+}
+.signup-divider .lbl {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--moss-soft);
+}
+
+/* ───── Google button ───── */
+.btn-google {
+  margin: 0 auto;
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--paper);
+  color: var(--moss);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 13px 22px;
+  border-radius: 12px;
+  border: 1px solid rgba(47, 53, 40, 0.15);
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.btn-google:hover:not(:disabled) {
+  border-color: rgba(47, 53, 40, 0.35);
+  transform: translateY(-1px);
+}
+.btn-google:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ───── CTA logged-in state (Ir a tu diario) ───── */
+.signup-cta-go {
+  margin: 40px auto 0;
+  display: inline-block;
+}
+
 @media (max-width: 560px) {
   .waitlist { padding: 80px 18px; }
   .waitlist-form { flex-direction: column; }
