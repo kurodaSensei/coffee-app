@@ -1,6 +1,6 @@
 # Sorbo — Roadmap
 
-> Documento vivo. Última actualización: 22 jun 2026.
+> Documento vivo. Última actualización: 25 jun 2026.
 > Producto en producción: [sorbo.app](https://sorbo.app)
 
 ---
@@ -106,16 +106,37 @@
 
 ## En qué vamos
 
-Acabamos de cerrar el **Tier 0 de SEO** (los blockers sev-5/4 del audit):
+Acabamos de cerrar una **ronda completa de UX / a11y** para atacar el
+feedback recurrente "es complicada". Estado por tier del
+[`UX-IMPROVEMENT.md`](docs/UX-IMPROVEMENT.md):
 
-- `ssr:false` → `ssr:true` con routeRules selectivos
-- JSON-LD @graph completo
-- llms.txt + robots.txt + sitemap
-- FAQ + /about con Person schema
-- OG image corregida
-- Mobile nav
+- **Tier 1 activación** ✅ dashboard · welcome · checklist · TabBar/layout
+- **Tier 2 core loop** ✅ los 3 wizards (coffee · tasting · recipe) — ⏳ 3 detalle pages
+- **Tier 3 listas** ✅ 4 pantallas con `UiListSearch`
+- **Tier 4 secundarias** ✅ wishlist · roasters · friends (búsqueda condicional)
+- **Tier 5 catálogos** — mantenidos, pattern activo/inactivo funciona
 
-Esperamos que el próximo audit suba los scores de F (38/32) a B+ aproximadamente.
+**A11y score**: 18/20 Excellent (post `/impeccable audit`). Focus-visible
+global, touch targets ≥44px en toda la app, gradientes tokenizados.
+
+**Bugs recientes cerrados**:
+- ShareSheet + Confirm ya no compitiendo por z-50 (Confirm ahora `layer="overlay"` = z-60)
+- Notas custom del wizard ahora se persisten al catálogo (`settings.addFlavorNote`)
+- Input "+ propia" ahora recibe focus al abrir (ref + nextTick, no HTML autofocus)
+- `useCatalog` hidrata `settings.prefs` automáticamente en cliente
+
+**Nuevos átomos** salidos de la ronda:
+- `UiListSearch` (usado en 4 pantallas)
+- `QuickCard.hint` prop
+- `HeroCard.subtitle` visible en mobile
+- `UiBottomSheet.layer` prop ('base'/'overlay')
+- `BREW_METHOD_DESCRIPTION` en `utils/constants`
+
+### Ronda anterior (SEO)
+
+Cerrado el 22 jun. `ssr:true` con routeRules, JSON-LD `@graph`, sitemap,
+llms.txt, robots.txt con AI bots, FAQ, /about con Person schema, OG
+image corregida, hamburger mobile.
 
 ---
 
@@ -123,6 +144,7 @@ Esperamos que el próximo audit suba los scores de F (38/32) a B+ aproximadament
 
 ### Próximos 7 días — quick wins
 
+- [ ] **Detalle pages (tier 2)** — `coffees/[id]`, `tastings/[id]`, `recipes/[id]`. Ahí vive el "acabo de guardar mi cata, ¿ahora qué?" — sin next action clara, sin editar rápido.
 - [ ] **Re-auditar SEO** con `/claude-seo-ai:audit` para confirmar el salto
 - [ ] **Screenshots reales** de la app (dashboard, explora, detalle café) como `<img>` con alt descriptivo. Reemplazaría los mockups CSS de la landing en al menos un sitio para que crawlers vean imágenes.
 - [ ] **Testimoniales** — 2-3 quotes reales de usuarios para social proof
