@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import VertidoBackground from '~/components/vertido/Background.vue'
 import VertidoParticles from '~/components/vertido/Particles.vue'
 import VertidoTransition from '~/components/vertido/Transition.vue'
@@ -23,13 +23,6 @@ const { fetchById: fetchRecipeById } = useRecipes()
 // y hay draft <15min, retomamos donde ibas. Mostramos un hint sutil
 // arriba con la opción "empezar de cero".
 const restored = ref(false)
-
-onMounted(async () => {
-  restored.value = await restoreDraft({
-    fetchCoffee: fetchCoffeeById,
-    fetchRecipe: fetchRecipeById,
-  })
-})
 
 function discardDraft() {
   reset()
@@ -60,15 +53,29 @@ function goBack() {
 }
 
 // ─── Keyboard nav — Alex ──────────────────────────────────────────────
-// Esc = atrás (o salir si estamos en el primer stage). Rango simple —
-// avanzar con teclado requiere validación por stage, prefiero cero
-// magia que un shortcut inconsistente.
+// Esc = atrás (o salir si estamos en el primer stage). Attached a window
+// para funcionar en cold load — el shell no recibe focus por sí solo.
+// Ignoramos cuando el user está escribiendo: Esc en input tiene
+// semántica nativa (limpiar/blur) y no debemos secuestrarla.
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') {
-    e.preventDefault()
-    goBack()
-  }
+  if (e.key !== 'Escape') return
+  const t = e.target as HTMLElement | null
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return
+  e.preventDefault()
+  goBack()
 }
+
+onMounted(async () => {
+  window.addEventListener('keydown', onKeydown)
+  restored.value = await restoreDraft({
+    fetchCoffee: fetchCoffeeById,
+    fetchRecipe: fetchRecipeById,
+  })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
 
 // Particles solo en pour
 const particlesActive = computed(() => state.stage === 'pour')
@@ -88,11 +95,10 @@ const restoreHintClass = computed(() =>
 </script>
 
 <template>
-  <div
-    class="relative min-h-screen overflow-x-hidden bg-jungle"
-    tabindex="-1"
-    @keydown="onKeydown"
-  >
+  <!-- Flex column con svh: el chrome fluye naturalmente y sobrevive al
+       URL-bar collapse de mobile Safari. pb en main respeta safe-area
+       inset del home indicator (iPhone standalone PWA). -->
+  <div class="relative flex min-h-[100svh] flex-col overflow-x-hidden bg-jungle">
     <VertidoBackground :stage="state.stage" />
     <VertidoParticles :active="particlesActive" />
     <VertidoTransition
@@ -105,7 +111,7 @@ const restoreHintClass = computed(() =>
     <!-- Top bar: back/exit sin dots. El fondo es el progreso.
          Chrome mono unificado a 10px/0.2em — la jerarquía la hace el color,
          no un 1px de diferencia. -->
-    <header class="relative z-20 flex items-center justify-between px-6 py-5">
+    <header class="relative z-20 flex flex-shrink-0 items-center justify-between px-6 py-5">
       <button
         type="button"
         class="font-mono text-[10px] uppercase tracking-[0.2em] transition-colors"
@@ -125,7 +131,9 @@ const restoreHintClass = computed(() =>
     <!-- Restauración hint (solo cuando se restaura draft) -->
     <div
       v-if="restored"
-      class="relative z-20 mx-auto max-w-[480px] lg:max-w-[640px] w-full px-6"
+      class="relative z-20 mx-auto flex-shrink-0 w-full max-w-[480px] px-6 lg:max-w-[640px]"
+      role="status"
+      aria-live="polite"
     >
       <div
         class="flex items-center justify-between gap-md rounded-full px-4 py-2"
@@ -144,11 +152,8 @@ const restoreHintClass = computed(() =>
       </div>
     </div>
 
-    <main class="relative z-10 pb-md">
-      <div
-        class="mx-auto max-w-[480px] lg:max-w-[640px] w-full"
-        style="min-height: calc(100vh - 80px);"
-      >
+    <main class="relative z-10 flex flex-1 flex-col pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <div class="mx-auto flex w-full max-w-[480px] flex-1 flex-col lg:max-w-[640px]">
         <Transition name="stage" mode="out-in">
           <StageCoffee v-if="state.stage === 'coffee'" key="coffee" @advance="onAdvance" />
           <StageMethod v-else-if="state.stage === 'method'" key="method" @advance="onAdvance" />
