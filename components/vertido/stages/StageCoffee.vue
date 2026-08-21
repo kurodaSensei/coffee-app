@@ -14,7 +14,7 @@ onMounted(() => {
   }
 })
 
-// Búsqueda — typeahead por nombre o tostador. Sin query: lista corta
+// Búsqueda — typeahead por nombre o marca. Sin query: lista corta
 // editorial. Con query: hasta 30 matches (suficiente para no abrumar
 // pero permitir desambiguar entre cafés homónimos de distintos tostadores).
 const query = ref('')
@@ -83,7 +83,7 @@ function confirm(e: MouseEvent) {
         <input
           v-model="query"
           type="search"
-          placeholder="busca por nombre o tostador"
+          placeholder="busca por nombre o marca"
           autocomplete="off"
           class="w-full bg-transparent py-2.5 pr-8 font-sans text-paper placeholder:text-paper/30 focus:outline-none"
           style="font-size: 14px;"
@@ -123,7 +123,7 @@ function confirm(e: MouseEvent) {
                 :class="selected?.id === c.id ? 'text-honey' : 'text-paper/30'"
                 style="font-size: 9px;"
               >
-                {{ c.roasterName || 'sin tostador' }}
+                {{ c.roasterName || 'sin marca' }}
               </p>
             </div>
             <span
