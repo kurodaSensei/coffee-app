@@ -9,6 +9,8 @@ import StageCoffee from '~/components/vertido/stages/StageCoffee.vue'
 import StageMethod from '~/components/vertido/stages/StageMethod.vue'
 import StagePour from '~/components/vertido/stages/StagePour.vue'
 import StageRecipe from '~/components/vertido/stages/StageRecipe.vue'
+import { useCoffees } from '~/composables/useCoffees'
+import { useRecipes } from '~/composables/useRecipes'
 import { useVertidoSession } from '~/composables/useVertidoSession'
 
 definePageMeta({ layout: false })
@@ -95,10 +97,10 @@ const restoreHintClass = computed(() =>
 </script>
 
 <template>
-  <!-- Flex column con svh: el chrome fluye naturalmente y sobrevive al
-       URL-bar collapse de mobile Safari. pb en main respeta safe-area
-       inset del home indicator (iPhone standalone PWA). -->
   <div class="relative flex min-h-[100svh] flex-col overflow-x-hidden bg-jungle">
+    <!-- Flex column con svh: el chrome fluye naturalmente y sobrevive al
+         URL-bar collapse de mobile Safari. pb en main respeta safe-area
+         inset del home indicator (iPhone standalone PWA). -->
     <VertidoBackground :stage="state.stage" />
     <VertidoParticles :active="particlesActive" />
     <VertidoTransition
@@ -153,7 +155,10 @@ const restoreHintClass = computed(() =>
     </div>
 
     <main class="relative z-10 flex flex-1 flex-col pb-[max(1rem,env(safe-area-inset-bottom))]">
-      <div class="mx-auto flex w-full max-w-[480px] flex-1 flex-col lg:max-w-[640px]">
+      <!-- [&>*]:flex-1 hace que el <section> hijo (stage) crezca dentro
+           del flex-column. Preserva el h-full interno de cada stage y
+           evita tener que tocar los 6 archivos. -->
+      <div class="mx-auto flex w-full max-w-[480px] flex-1 flex-col lg:max-w-[640px] [&>*]:flex-1">
         <Transition name="stage" mode="out-in">
           <StageCoffee v-if="state.stage === 'coffee'" key="coffee" @advance="onAdvance" />
           <StageMethod v-else-if="state.stage === 'method'" key="method" @advance="onAdvance" />
