@@ -241,8 +241,8 @@ const stats = computed(() => {
       <UiHeroCard
         eyebrow="Hoy"
         title="¿Preparas café?"
-        subtitle="Puntúa la taza y guarda notas. Tarda unos 2 minutos."
-        to="/app/tastings/new"
+        subtitle="Café, método, receta, taza — el flow completo en ~3 minutos."
+        to="/app/vertido"
         class="col-span-2 lg:row-span-2"
       />
       <UiQuickCard

@@ -11,20 +11,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        paper: 'var(--paper)',
+        paper: 'rgb(var(--paper-rgb) / <alpha-value>)',
         'surface-2': 'var(--surface-2)',
         surface: 'var(--surface)',
-        jungle: 'var(--jungle)',
+        jungle: 'rgb(var(--jungle-rgb) / <alpha-value>)',
 
         olive: {
           DEFAULT: 'var(--olive)',
           dark: 'var(--olive-dark)',
           light: 'var(--olive-light)',
         },
-        honey: 'var(--honey)',
+        honey: 'rgb(var(--honey-rgb) / <alpha-value>)',
 
         moss: {
-          DEFAULT: 'var(--moss)',
+          DEFAULT: 'rgb(var(--moss-rgb) / <alpha-value>)',
           soft: 'var(--moss-soft)',
           ghost: 'var(--moss-ghost)',
         },

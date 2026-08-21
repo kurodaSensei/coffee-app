@@ -6,6 +6,10 @@
   :root {
     /* Surfaces */
     --paper: #f4f2eb;
+    --paper-rgb: 244 242 235;
+    --jungle-rgb: 20 23 18;
+    --honey-rgb: 229 184 75;
+    --moss-rgb: 47 53 40;
     --surface-2: #ebe9dc;
     --surface: #e4e3d2;
     --jungle: #141712;
