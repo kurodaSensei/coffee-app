@@ -25,9 +25,9 @@ demasiados campos, no queda claro qué es requerido vs opcional.
 - [x] `components/coffee/Wizard.vue` — nuevo café (3 pasos) — harden+clarify (proceso, SCA)
 - [x] `components/tasting/Wizard.vue` — **nueva cata** — harden+clarify (método, "obligatorio")+polish (heart icon)
 - [x] `components/recipe/Wizard.vue` — nueva receta — harden+clarify (método, molienda)
-- [ ] `pages/app/coffees/[id]/index.vue` — detalle café
-- [ ] `pages/app/tastings/[id]/index.vue` — detalle cata
-- [ ] `pages/app/recipes/[id]/index.vue` — detalle receta
+- [x] `pages/app/coffees/[id]/index.vue` — detalle café — CTA "Cata este café" ya existente
+- [x] `pages/app/tastings/[id]/index.vue` — detalle cata — sección Siguiente (repetir cata + ver café)
+- [x] `pages/app/recipes/[id]/index.vue` — detalle receta — sección Siguiente (cata con receta + otras)
 
 ## Tier 3 — Navegación + listas
 

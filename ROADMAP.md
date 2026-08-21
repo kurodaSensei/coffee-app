@@ -111,7 +111,7 @@ feedback recurrente "es complicada". Estado por tier del
 [`UX-IMPROVEMENT.md`](docs/UX-IMPROVEMENT.md):
 
 - **Tier 1 activación** ✅ dashboard · welcome · checklist · TabBar/layout
-- **Tier 2 core loop** ✅ los 3 wizards (coffee · tasting · recipe) — ⏳ 3 detalle pages
+- **Tier 2 core loop** ✅ los 3 wizards (coffee · tasting · recipe) + los 3 detalle pages
 - **Tier 3 listas** ✅ 4 pantallas con `UiListSearch`
 - **Tier 4 secundarias** ✅ wishlist · roasters · friends (búsqueda condicional)
 - **Tier 5 catálogos** — mantenidos, pattern activo/inactivo funciona
@@ -144,12 +144,13 @@ image corregida, hamburger mobile.
 
 ### Próximos 7 días — quick wins
 
-- [ ] **Detalle pages (tier 2)** — `coffees/[id]`, `tastings/[id]`, `recipes/[id]`. Ahí vive el "acabo de guardar mi cata, ¿ahora qué?" — sin next action clara, sin editar rápido.
-- [ ] **Re-auditar SEO** con `/claude-seo-ai:audit` para confirmar el salto
-- [ ] **Screenshots reales** de la app (dashboard, explora, detalle café) como `<img>` con alt descriptivo. Reemplazaría los mockups CSS de la landing en al menos un sitio para que crawlers vean imágenes.
-- [ ] **Testimoniales** — 2-3 quotes reales de usuarios para social proof
-- [ ] **Bio definitiva** en `/about` (hoy es placeholder editable)
-- [ ] **GBP / Google Search Console** — verificar dominio y enviar sitemap
+- [x] **Detalle pages (tier 2)** — `tastings/[id]` y `recipes/[id]` con sección "Siguiente" (repetir cata / cata con receta / ver café). Coffee detail ya tenía "Cata este café".
+- [x] **Landing con imagen real** — `<img>` con OG image + alt descriptivo en la sección Voices. Ataca el hallazgo del audit SEO sobre CSS mockups.
+- [x] **Testimoniales** — sección Voices con 3 quotes placeholder. Editar directo en `pages/index.vue` cuando lleguen reales.
+- [x] **Re-check SEO en producción** — SoftwareApplication + WebSite + Organization JSON-LD, disambiguatingDescription, FAQ, OG, twitter card, headings (2×h1, 6×h2) confirmados post-deploy.
+- [ ] **Bio definitiva en `/about`** — placeholder actual describe a "Alfredo Romero · Bogotá · cafetero & dev". Editar directo cuando el creador ajuste su bio.
+- [ ] **GBP / Google Search Console** — verificar dominio y enviar sitemap (requiere acción manual del owner).
+- [ ] **Screenshots reales del app** (dashboard, explora, detalle) — pendiente captura desde entorno real del owner con datos representativos.
 
 ### Próximas 2-4 semanas — Vertido (descongelar la rama)
 
