@@ -4,6 +4,7 @@ import Stamp from '../Stamp.vue'
 import StageHeader from '../StageHeader.vue'
 import { useVertidoSession } from '~/composables/useVertidoSession'
 import type { BrewMethod } from '~/types'
+import { BREW_METHOD_DESCRIPTION } from '~/utils/constants'
 
 const { state, setMethod } = useVertidoSession()
 const emit = defineEmits<{ advance: [origin: { x: number; y: number }] }>()
@@ -23,22 +24,6 @@ const METHOD_LABEL: Record<BrewMethod, string> = {
   other: 'Otro',
 }
 
-// Guía italic corta y evocadora por método — invita a experimentar.
-const METHOD_NOTE: Record<BrewMethod, string> = {
-  v60:          'limpia y elegante, ideal para café lavado',
-  chemex:       'filtro grueso, taza limpia y dulce',
-  aeropress:    'extracción rápida, cuerpo medio',
-  french_press: 'cuerpo pleno, aceites en la superficie',
-  kalita:       'extracción pareja, fondo plano',
-  origami:      'control de flujo según el papel',
-  suiren:       'elegante, contemplativo',
-  espresso:     'concentrado, intenso',
-  moka_pot:     'tradicional, fuerte y nostálgico',
-  phin:         'vietnamita, denso y dulce',
-  cold_brew:    'frío, dulce, baja acidez',
-  other:        'tu método, tus reglas',
-}
-
 // Orden visual de las pills — los de pour-over primero, luego inmersión,
 // luego espresso family, luego otros. Más útil que orden alfabético.
 const METHOD_ORDER: BrewMethod[] = [
@@ -55,7 +40,9 @@ const suggested: BrewMethod = 'v60'
 const current = ref<BrewMethod>(state.method ?? suggested)
 
 const isSuggestedCurrent = computed(() => current.value === suggested)
-const note = computed(() => METHOD_NOTE[current.value])
+// Descripción compartida con los wizards de tasting/recipe (BREW_METHOD_DESCRIPTION
+// vive en constants). Jordan ve el mismo vocabulario en todos los surface.
+const note = computed(() => BREW_METHOD_DESCRIPTION[current.value] || '')
 const eyebrowLabel = computed(() =>
   isSuggestedCurrent.value ? '— te sugerimos' : '— experimentas',
 )

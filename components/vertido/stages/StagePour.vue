@@ -131,12 +131,12 @@ onBeforeUnmount(() => {
     <!-- Header: fase activa + tiempo restante -->
     <div class="flex justify-between items-center pt-xs pb-2">
       <span
-        class="font-mono uppercase tracking-[0.2em] font-medium text-honey"
-        style="font-size: 9px;"
+        class="font-mono uppercase tracking-[0.2em] font-medium text-honey text-[9px]"
+        aria-live="polite"
       >
         {{ phase.toUpperCase() }}
       </span>
-      <span class="font-mono uppercase tracking-[0.16em] text-paper/25" style="font-size: 9px;">
+      <span class="font-mono uppercase tracking-[0.16em] text-paper/25 text-[9px]">
         {{ remaining }} rest.
       </span>
     </div>
@@ -153,10 +153,16 @@ onBeforeUnmount(() => {
 
     <!-- El corazón: el tiempo a 98px (Alt A tipográfico) -->
     <div class="flex-1 flex flex-col justify-center items-center">
-      <div class="flex items-baseline leading-[0.88] tracking-[-0.04em]">
-        <span class="font-display text-paper" style="font-size: 98px;">{{ mm }}</span>
-        <span class="font-display text-honey" style="font-size: 70px;">:</span>
-        <span class="font-display text-paper" style="font-size: 98px;">{{ ss }}</span>
+      <div
+        class="flex items-baseline leading-[0.88] tracking-[-0.04em]"
+        role="timer"
+        aria-live="polite"
+        aria-atomic="true"
+        :aria-label="`${mm} minutos ${ss} segundos`"
+      >
+        <span class="font-display text-paper text-[98px]">{{ mm }}</span>
+        <span class="font-display text-honey text-[70px]">:</span>
+        <span class="font-display text-paper text-[98px]">{{ ss }}</span>
       </div>
 
       <!-- Gradient hairline separador -->
@@ -165,10 +171,7 @@ onBeforeUnmount(() => {
         style="background: linear-gradient(#e5b84b, transparent);"
       />
 
-      <p
-        class="font-display italic text-paper/35 text-center"
-        style="font-size: 17px;"
-      >
+      <p class="font-display italic text-paper/35 text-center text-[17px]">
         {{ phaseLabel }}
       </p>
     </div>
@@ -184,9 +187,8 @@ onBeforeUnmount(() => {
           : 'bg-paper/[0.03] border-paper/[0.06]'"
       >
         <p
-          class="font-mono uppercase tracking-[0.12em]"
+          class="font-mono uppercase tracking-[0.12em] text-[8px]"
           :class="isActive(seg.key) ? 'text-honey' : 'text-paper/28'"
-          style="font-size: 8px;"
         >
           {{ seg.key }}
         </p>
@@ -198,8 +200,7 @@ onBeforeUnmount(() => {
       <button
         v-if="!running"
         type="button"
-        class="w-full py-3.5 rounded-[11px] bg-honey text-jungle font-sans font-semibold"
-        style="font-size: 13px;"
+        class="w-full py-3.5 rounded-[11px] bg-honey text-jungle font-sans font-semibold text-[13px]"
         @click="start"
       >
         Iniciar
@@ -207,8 +208,7 @@ onBeforeUnmount(() => {
       <button
         v-else
         type="button"
-        class="w-full py-3.5 rounded-[11px] border border-paper/30 text-paper font-mono uppercase tracking-[0.25em] hover:border-paper transition-colors"
-        style="font-size: 11px;"
+        class="w-full py-3.5 rounded-[11px] border border-paper/30 text-paper font-mono uppercase tracking-[0.25em] text-[11px] hover:border-paper transition-colors"
         @click="finish"
       >
         Terminar

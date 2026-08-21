@@ -15,46 +15,8 @@ import type { RitualOutcomeInput, RitualSatisfaction } from '~/types'
 
 const { state, setOutcome, reset } = useVertidoSession()
 const outcomes = useRitualOutcomesStore()
+const toast = useToast()
 const router = useRouter()
-
-// Traducción del action del usuario a la satisfaction del outcome. En Fase 3
-// solo distinguimos "hizo cata" (great, señal fuerte), "solo nota" (good) y
-// "descarté" (discard). Cuando exista la cata, cataRating llegará via el
-// tastingId cuando el usuario complete el flow — no persistimos aquí porque
-// el ritual outcome se cierra al salir del Vertido, no cuando la cata se
-// termina. Fase 4 sube la conexión.
-const SATISFACTION_MAP: Record<VertidoOutcomeAction, RitualSatisfaction> = {
-  tasting: 'great',
-  note:    'good',
-  discard: 'discard',
-}
-
-async function persistOutcome(action: VertidoOutcomeAction): Promise<void> {
-  // Cero-bloqueo: si falta info mínima o falla el write, seguimos con la
-  // navegación. Este outcome es telemetría, no confirmación transaccional.
-  const dose = state.doseGrams
-  const water = state.waterGrams
-  if (!state.method || !dose || !water) return
-  const payload: RitualOutcomeInput = {
-    brewMethod: state.method,
-    dose,
-    water,
-    ratio: water / dose,
-    totalMs: state.elapsedMs || 0,
-    coffeeId: state.coffee?.id,
-    // Recetas estándar (`std:*`) no las persistimos como recipeId — no
-    // existen en la colección /recipes. Solo IDs reales del usuario.
-    recipeId: state.recipe?.id && !state.recipe.id.startsWith('std:')
-      ? state.recipe.id
-      : undefined,
-    // Cast: state.coffee llega readonly desde useVertidoSession; el helper
-    // solo lee, no muta.
-    coffeeProfileSnapshot: coffeeToProfile(state.coffee as any),
-    satisfaction: SATISFACTION_MAP[action],
-    contributesToCommunity: false,
-  }
-  await outcomes.create(payload)
-}
 
 const meta = computed(() => {
   const c = state.coffee
@@ -66,13 +28,45 @@ const meta = computed(() => {
   return [m, dose, time, c?.originCountry].filter(Boolean).join(' · ')
 })
 
+const SATISFACTION_MAP: Record<VertidoOutcomeAction, RitualSatisfaction> = {
+  tasting: 'great',
+  note:    'good',
+  discard: 'discard',
+}
+
+async function persistOutcome(action: VertidoOutcomeAction): Promise<boolean> {
+  const dose = state.doseGrams
+  const water = state.waterGrams
+  if (!state.method || !dose || !water) return false
+  const payload: RitualOutcomeInput = {
+    brewMethod: state.method,
+    dose,
+    water,
+    ratio: water / dose,
+    totalMs: state.elapsedMs || 0,
+    coffeeId: state.coffee?.id,
+    recipeId: state.recipe?.id && !state.recipe.id.startsWith('std:')
+      ? state.recipe.id
+      : undefined,
+    coffeeProfileSnapshot: coffeeToProfile(state.coffee as any),
+    satisfaction: SATISFACTION_MAP[action],
+    contributesToCommunity: false,
+  }
+  const id = await outcomes.create(payload)
+  return !!id
+}
+
 async function choose(action: VertidoOutcomeAction) {
   setOutcome(action)
-  // Snapshot antes de reset — el reset borra state.method/dose/etc.
-  // Fire-and-forget: no esperamos al write para navegar (~200ms typical).
-  persistOutcome(action).catch(() => { /* logged en store */ })
+  // Ahora awaited — necesitamos saber si guardó para dar feedback al
+  // usuario si falla. Fase 4 depende de esta telemetría; perder writes
+  // silently envenena el algoritmo de Affinity Score.
   const coffeeId = state.coffee?.id
+  const saved = await persistOutcome(action)
   reset()
+  if (!saved && action !== 'discard') {
+    toast.warning('No pudimos guardar el resumen del vertido', 'Puedes seguir; se reintentará más tarde.')
+  }
   if (action === 'tasting' && coffeeId) {
     await router.push(`/app/tastings/new?coffeeId=${coffeeId}`)
   }
@@ -107,13 +101,10 @@ async function choose(action: VertidoOutcomeAction) {
 
       <!-- Identidad de la sesión -->
       <div class="text-center mb-4">
-        <p class="font-display text-moss leading-none tracking-[-0.02em]" style="font-size: 26px;">
+        <p class="font-display text-moss leading-none tracking-[-0.02em] text-[26px]">
           {{ state.coffee?.name || 'Tu vertido' }}
         </p>
-        <p
-          class="font-mono uppercase tracking-[0.1em] text-olive/55 mt-1.5"
-          style="font-size: 9px;"
-        >
+        <p class="font-mono text-[9px] uppercase tracking-[0.1em] text-olive/55 mt-1.5">
           {{ meta || 'Cata cerrada' }}
         </p>
       </div>
@@ -128,10 +119,10 @@ async function choose(action: VertidoOutcomeAction) {
           @click="choose('tasting')"
         >
           <div class="text-left">
-            <p class="font-sans font-semibold" style="font-size: 13px;">Cata completa</p>
-            <p class="font-sans text-paper/45 mt-0.5" style="font-size: 10px;">Registro detallado</p>
+            <p class="font-sans font-semibold text-[13px]">Cata completa</p>
+            <p class="font-sans text-[10px] text-paper/45 mt-0.5">Registro detallado</p>
           </div>
-          <span class="text-paper/35" style="font-size: 14px;">→</span>
+          <span class="text-[14px] text-paper/35">→</span>
         </button>
 
         <button
@@ -140,10 +131,10 @@ async function choose(action: VertidoOutcomeAction) {
           @click="choose('note')"
         >
           <div class="text-left">
-            <p class="font-sans font-medium" style="font-size: 13px;">Nota rápida</p>
-            <p class="font-sans text-moss/40 mt-0.5" style="font-size: 10px;">Una línea, qué sentiste</p>
+            <p class="font-sans font-medium text-[13px]">Nota rápida</p>
+            <p class="font-sans text-[10px] text-moss/40 mt-0.5">Una línea, qué sentiste</p>
           </div>
-          <span class="text-moss/25" style="font-size: 14px;">→</span>
+          <span class="text-[14px] text-moss/25">→</span>
         </button>
 
         <button
@@ -151,7 +142,7 @@ async function choose(action: VertidoOutcomeAction) {
           class="px-3.5 py-3 text-center hover:text-moss/55 transition-colors"
           @click="choose('discard')"
         >
-          <p class="font-sans text-moss/30" style="font-size: 12px;">Descartar sesión</p>
+          <p class="font-sans text-[12px] text-moss/30">Descartar sesión</p>
         </button>
       </div>
     </div>

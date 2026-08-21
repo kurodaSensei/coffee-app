@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import VertidoBackground from '~/components/vertido/Background.vue'
 import VertidoParticles from '~/components/vertido/Particles.vue'
 import VertidoTransition from '~/components/vertido/Transition.vue'
@@ -13,10 +13,28 @@ import { useVertidoSession } from '~/composables/useVertidoSession'
 
 definePageMeta({ layout: false })
 
-const { state, next, back, reset, stageIndex } = useVertidoSession()
+const { state, next, back, reset, stageIndex, restoreDraft } = useVertidoSession()
 const router = useRouter()
+const { fetchById: fetchCoffeeById } = useCoffees()
+const { fetchById: fetchRecipeById } = useRecipes()
 
-reset()
+// ─── Restauración de draft — Casey scenario ──────────────────────────
+// Si vuelves después de una interrupción (tab switch, notif, refresh)
+// y hay draft <15min, retomamos donde ibas. Mostramos un hint sutil
+// arriba con la opción "empezar de cero".
+const restored = ref(false)
+
+onMounted(async () => {
+  restored.value = await restoreDraft({
+    fetchCoffee: fetchCoffeeById,
+    fetchRecipe: fetchRecipeById,
+  })
+})
+
+function discardDraft() {
+  reset()
+  restored.value = false
+}
 
 // ─── Transition controller ────────────────────────────────────────────
 const transitioning = ref(false)
@@ -41,25 +59,40 @@ function goBack() {
   back()
 }
 
-onBeforeUnmount(() => reset())
+// ─── Keyboard nav — Alex ──────────────────────────────────────────────
+// Esc = atrás (o salir si estamos en el primer stage). Rango simple —
+// avanzar con teclado requiere validación por stage, prefiero cero
+// magia que un shortcut inconsistente.
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    e.preventDefault()
+    goBack()
+  }
+}
 
-// ─── Particles solo en stage Pour, durante la fase pour real ──────────
-// (StagePour expone su fase via defineExpose; aquí no podemos verlo
-//  directamente, así que prendemos las partículas para todo el stage
-//  pour. StagePour CSS las restringe visualmente al área del timer.)
+// Particles solo en pour
 const particlesActive = computed(() => state.stage === 'pour')
 
-// ─── El stage CIERRE es paper claro: invertimos el header ─────────────
+// CIERRE es paper claro: invertimos el header
 const isPaperStage = computed(() => state.stage === 'close')
 const exitColorClass = computed(() =>
   isPaperStage.value
     ? 'text-moss/60 hover:text-moss'
     : 'text-paper/70 hover:text-paper',
 )
+const restoreHintClass = computed(() =>
+  isPaperStage.value
+    ? 'bg-moss/10 text-moss'
+    : 'bg-paper/10 text-paper',
+)
 </script>
 
 <template>
-  <div class="relative min-h-screen overflow-x-hidden bg-jungle">
+  <div
+    class="relative min-h-screen overflow-x-hidden bg-jungle"
+    tabindex="-1"
+    @keydown="onKeydown"
+  >
     <VertidoBackground :stage="state.stage" />
     <VertidoParticles :active="particlesActive" />
     <VertidoTransition
@@ -69,23 +102,44 @@ const exitColorClass = computed(() =>
       @done="onTransitionDone"
     />
 
-    <!-- Top bar: solo back/exit. Sin progress dots — el color de fondo
-         cuenta el avance (principio "el fondo es el tiempo") -->
-    <header class="relative z-20 flex items-center px-6 py-5">
+    <!-- Top bar: back/exit sin dots. El fondo es el progreso. -->
+    <header class="relative z-20 flex items-center justify-between px-6 py-5">
       <button
         type="button"
-        class="font-mono uppercase tracking-[0.25em] transition-colors"
+        class="font-mono text-[10px] uppercase tracking-[0.25em] transition-colors"
         :class="exitColorClass"
-        style="font-size: 10px;"
         @click="goBack"
       >
         ← {{ stageIndex === 0 ? 'salir' : 'atrás' }}
       </button>
+      <span
+        class="font-mono text-[9px] uppercase tracking-[0.2em] opacity-50 hidden sm:inline"
+        :class="isPaperStage ? 'text-moss/40' : 'text-paper/40'"
+      >
+        Esc para volver
+      </span>
     </header>
 
-    <!-- Stage content: contenedor 480x900 estilo phone-frame del rediseño.
-         En desktop se ensancha (queda como TODO de Fase 3) — por ahora
-         columna centrada que mantiene la lectura mobile-first. -->
+    <!-- Restauración hint (solo cuando se restaura draft) -->
+    <div
+      v-if="restored"
+      class="relative z-20 mx-auto max-w-[480px] lg:max-w-[640px] w-full px-6"
+    >
+      <div
+        class="flex items-center justify-between gap-md rounded-full px-4 py-2 text-[11px]"
+        :class="restoreHintClass"
+      >
+        <span class="font-display italic">Continuas donde ibas.</span>
+        <button
+          type="button"
+          class="font-mono uppercase tracking-[0.2em] text-[10px] opacity-70 hover:opacity-100 transition-opacity"
+          @click="discardDraft"
+        >
+          empezar de cero
+        </button>
+      </div>
+    </div>
+
     <main class="relative z-10 pb-md">
       <div
         class="mx-auto max-w-[480px] lg:max-w-[640px] w-full"
