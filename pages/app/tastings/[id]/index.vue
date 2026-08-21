@@ -136,6 +136,32 @@ async function toggleFavorite() {
       </div>
 
       <TastingDetail v-else-if="tasting" :tasting="tasting" :coffee="coffee" />
+
+      <!-- Related actions — cierra el "acabo de ver esta cata, ¿ahora
+           qué?". Repetir la cata (prefill coffeeId) o saltar al detalle
+           del café. Solo cuando el usuario es dueño (visitantes usan la
+           navegación externa). -->
+      <section
+        v-if="tasting && !loading && !notFound && isOwner"
+        class="mt-2xl border-t border-moss/10 pt-lg"
+      >
+        <UiEyebrow>Siguiente</UiEyebrow>
+        <div class="mt-sm grid grid-cols-1 sm:grid-cols-2 gap-sm">
+          <UiQuickCard
+            eyebrow="Acelerador"
+            label="Repetir esta cata"
+            hint="Nueva cata del mismo café"
+            :to="`/app/tastings/new?coffeeId=${tasting.coffeeId}`"
+          />
+          <UiQuickCard
+            v-if="coffee"
+            eyebrow="Contexto"
+            label="Ver este café"
+            hint="Detalle + histórico"
+            :to="`/app/coffees/${coffee.id}`"
+          />
+        </div>
+      </section>
     </div>
 
     <UiShareSheet
