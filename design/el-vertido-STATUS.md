@@ -58,10 +58,9 @@ la persistencia del `RitualOutcome` quedan pendientes.
 
 ### Pendientes funcionales (bloqueantes para producción)
 
-1. **Persistencia del RitualOutcome** — hoy el `setOutcome` actualiza la
-   sesión en memoria y descarta al reset. Tiene que persistir a Firestore
-   en una colección nueva (`ritualOutcomes/{uid}/...`) para alimentar el
-   algoritmo. Ver `design/el-vertido.md` §5.
+1. ~~**Persistencia del RitualOutcome**~~ ✅ Fase 3 — `ritualOutcomes/{id}`
+   con reglas de solo-dueño. StageClose escribe fire-and-forget al elegir
+   cualquier action.
 2. **Author Intent en wizard de receta** — `recipes/{id}.designedFor` +
    sub-colección privada `recipes/{id}/private/inspirations`. Ver
    `design/el-vertido.md` §4.5.
@@ -75,9 +74,10 @@ la persistencia del `RitualOutcome` quedan pendientes.
 
 ### Pendientes de UX
 
-5. **Cronómetro lee los `steps` de la receta** — hoy StagePour usa
-   tiempos hardcodeados (BLOOM_MS, POUR_END_MS). Debe leer
-   `recipe.steps[].timeSeconds` para fases reales.
+5. ~~**Cronómetro lee los `steps` de la receta**~~ ✅ Fase 3 — StagePour
+   deriva phases (bloom/pour/drain) desde `recipe.steps[].timeSeconds`.
+   Los labels usan `step.description` cuando existe. Si no hay receta,
+   cae a defaults (45s bloom / 3min total).
 6. **Modo "nota rápida"** del stage CIERRE — hoy abre el wizard completo
    de cata con flag `?quick=1` pero no hay UI distinta. Toca implementar
    un sheet mínimo (score + comentario).

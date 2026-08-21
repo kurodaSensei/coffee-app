@@ -5,10 +5,46 @@ import { useVertidoSession } from '~/composables/useVertidoSession'
 const { state, tickTimer, startTimer } = useVertidoSession()
 const emit = defineEmits<{ advance: [origin: { x: number; y: number }] }>()
 
-// Stub: 3 min. Fase 4 leerá los steps reales.
-const TOTAL_MS = 3 * 60 * 1000
-const BLOOM_MS = 45 * 1000   // 0:45
-const POUR_END_MS = 2.5 * 60 * 1000
+// Timings derivados de la receta seleccionada (o defaults si el usuario
+// eligió "sin receta"). El último step marca el fin del vertido; los steps
+// entre bloom y drain se agrupan como "pour".
+// ponytail: heurística simple — primer step = bloom, último = drain, medio
+// = pour. Sirve para recetas 3-5 steps que es lo típico. Si el usuario tiene
+// una receta con 1 solo step, todo es "pour".
+const DEFAULT_BLOOM_MS = 45 * 1000
+const DEFAULT_POUR_END_MS = 2.5 * 60 * 1000
+const DEFAULT_TOTAL_MS = 3 * 60 * 1000
+
+interface Phases {
+  bloomMs: number
+  pourEndMs: number
+  totalMs: number
+}
+
+const phases = computed<Phases>(() => {
+  const steps = state.recipe?.steps
+  if (!steps || steps.length === 0) {
+    return {
+      bloomMs: DEFAULT_BLOOM_MS,
+      pourEndMs: DEFAULT_POUR_END_MS,
+      totalMs: DEFAULT_TOTAL_MS,
+    }
+  }
+  const sorted = [...steps].sort((a, b) => a.timeSeconds - b.timeSeconds)
+  const last = sorted[sorted.length - 1]
+  // Total = último step + un buffer estimado (30s si no hay más info).
+  // Fase 5 puede pedir un `totalSeconds` explícito en RecipeStep.
+  const totalMs = (last.timeSeconds + 30) * 1000
+  // Bloom = duración hasta el 2do step (o el 40% del total si hay 1 solo).
+  const bloomMs = sorted.length >= 2
+    ? sorted[1].timeSeconds * 1000
+    : Math.round(totalMs * 0.4)
+  // Drain empieza en el último step; pour termina justo antes.
+  const pourEndMs = sorted.length >= 3
+    ? sorted[sorted.length - 1].timeSeconds * 1000
+    : Math.round(totalMs * 0.85)
+  return { bloomMs, pourEndMs, totalMs }
+})
 
 const running = ref(false)
 const elapsed = ref(0)
@@ -16,12 +52,21 @@ let rafId: number | null = null
 let startedAt = 0
 
 const phase = computed<'bloom' | 'pour' | 'drain'>(() => {
-  if (elapsed.value < BLOOM_MS) return 'bloom'
-  if (elapsed.value < POUR_END_MS) return 'pour'
+  if (elapsed.value < phases.value.bloomMs) return 'bloom'
+  if (elapsed.value < phases.value.pourEndMs) return 'pour'
   return 'drain'
 })
 
+// Label de fase — si la receta trae description en el step activo, la usamos;
+// si no, cae a copy editorial genérica.
 const phaseLabel = computed(() => {
+  const steps = state.recipe?.steps
+  if (steps && steps.length > 0) {
+    const sorted = [...steps].sort((a, b) => a.timeSeconds - b.timeSeconds)
+    const active = sorted.filter(s => s.timeSeconds * 1000 <= elapsed.value).pop()
+    if (active?.description) return active.description
+    if (active?.title) return active.title
+  }
   if (phase.value === 'bloom') return 'humedece el grano'
   if (phase.value === 'pour') return 'vierte en espiral desde el centro'
   return 'deja drenar sin tocar'
@@ -32,26 +77,30 @@ const ss = computed(() => Math.floor((elapsed.value / 1000) % 60).toString().pad
 
 // Tiempo restante de la fase actual.
 const remaining = computed(() => {
-  const end = phase.value === 'bloom' ? BLOOM_MS : phase.value === 'pour' ? POUR_END_MS : TOTAL_MS
+  const p = phases.value
+  const end = phase.value === 'bloom' ? p.bloomMs : phase.value === 'pour' ? p.pourEndMs : p.totalMs
   const r = Math.max(0, Math.floor((end - elapsed.value) / 1000))
   const m = Math.floor(r / 60)
   const s = r % 60
   return `${m}:${s.toString().padStart(2, '0')}`
 })
 
-// Anchos relativos de la barra segmentada arriba (proporciones bloom : pour : drain)
-const segments = [
-  { key: 'bloom', flex: 1 },
-  { key: 'pour', flex: 2.5 },
-  { key: 'drain', flex: 1.3 },
-] as const
+// Anchos relativos derivados de las duraciones reales de cada fase.
+const segments = computed(() => {
+  const p = phases.value
+  return [
+    { key: 'bloom', flex: Math.max(0.5, p.bloomMs / 1000) },
+    { key: 'pour', flex: Math.max(0.5, (p.pourEndMs - p.bloomMs) / 1000) },
+    { key: 'drain', flex: Math.max(0.5, (p.totalMs - p.pourEndMs) / 1000) },
+  ] as const
+})
 
 function isActive(key: string) { return phase.value === key }
 
 function tick() {
   elapsed.value = performance.now() - startedAt
   tickTimer(elapsed.value)
-  if (elapsed.value < TOTAL_MS) {
+  if (elapsed.value < phases.value.totalMs) {
     rafId = requestAnimationFrame(tick)
   } else {
     running.value = false

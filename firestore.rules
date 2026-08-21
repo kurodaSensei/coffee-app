@@ -61,6 +61,16 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Ritual outcomes — telemetría implícita del Vertido. Escritura solo
+    // del dueño; lectura solo del dueño hasta que el toggle opt-in de
+    // comunidad exista (contributesToCommunity=true haría el doc legible
+    // a otros, pero eso vive con las reglas cuando se agregue la feature).
+    match /ritualOutcomes/{docId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticatedCreate();
+      allow update, delete: if false;
+    }
+
     // Users directory: anyone authenticated can look up, only owner writes
     match /users/{userId} {
       allow read: if request.auth != null;

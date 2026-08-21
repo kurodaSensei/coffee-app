@@ -186,6 +186,43 @@ export interface Recipe {
   updatedAt: Timestamp
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// El Vertido — RitualOutcome
+// Cada ritual completado (incluso descarte) genera un outcome. Es el feedback
+// que en el futuro alimentará el Affinity Score. Por ahora solo escribimos —
+// el scoring vive con más data acumulada. Ver design/el-vertido.md §4.7-§5.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type RitualSatisfaction = 'great' | 'good' | 'meh' | 'discard'
+
+export interface CoffeeProfile {
+  process: CoffeeProcess
+  roastBand: 'light' | 'mid' | 'dark'
+  flavorClass: 'fruit' | 'choco' | 'floral' | 'nut' | 'spice' | 'mixed'
+  scoreBand: 'casual' | 'specialty' | 'topShelf'
+}
+
+export interface RitualOutcome {
+  id: string
+  userId: string
+  timestamp: Timestamp
+  brewMethod: BrewMethod
+  dose: number
+  water: number
+  ratio: number
+  totalMs: number
+  coffeeId?: string
+  recipeId?: string
+  coffeeProfileSnapshot?: CoffeeProfile
+  satisfaction: RitualSatisfaction
+  tastingId?: string
+  cataRating?: number
+  /** Opt-in explícito del usuario en settings; default false (privado). */
+  contributesToCommunity?: boolean
+}
+
+export type RitualOutcomeInput = Omit<RitualOutcome, 'id' | 'userId' | 'timestamp'>
+
 export interface WishlistItem {
   id: string
   roasterId?: string

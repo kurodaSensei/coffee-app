@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import StageHeader from '../StageHeader.vue'
 import { useVertidoSession } from '~/composables/useVertidoSession'
 import type { VertidoOutcomeAction } from '~/composables/useVertidoSession'
+import { coffeeToProfile } from '~/utils/coffeeProfile'
+import type { RitualOutcomeInput, RitualSatisfaction } from '~/types'
 
 /**
  * CIERRE — la inversión cromática.
@@ -12,7 +14,47 @@ import type { VertidoOutcomeAction } from '~/composables/useVertidoSession'
  */
 
 const { state, setOutcome, reset } = useVertidoSession()
+const outcomes = useRitualOutcomesStore()
 const router = useRouter()
+
+// Traducción del action del usuario a la satisfaction del outcome. En Fase 3
+// solo distinguimos "hizo cata" (great, señal fuerte), "solo nota" (good) y
+// "descarté" (discard). Cuando exista la cata, cataRating llegará via el
+// tastingId cuando el usuario complete el flow — no persistimos aquí porque
+// el ritual outcome se cierra al salir del Vertido, no cuando la cata se
+// termina. Fase 4 sube la conexión.
+const SATISFACTION_MAP: Record<VertidoOutcomeAction, RitualSatisfaction> = {
+  tasting: 'great',
+  note:    'good',
+  discard: 'discard',
+}
+
+async function persistOutcome(action: VertidoOutcomeAction): Promise<void> {
+  // Cero-bloqueo: si falta info mínima o falla el write, seguimos con la
+  // navegación. Este outcome es telemetría, no confirmación transaccional.
+  const dose = state.doseGrams
+  const water = state.waterGrams
+  if (!state.method || !dose || !water) return
+  const payload: RitualOutcomeInput = {
+    brewMethod: state.method,
+    dose,
+    water,
+    ratio: water / dose,
+    totalMs: state.elapsedMs || 0,
+    coffeeId: state.coffee?.id,
+    // Recetas estándar (`std:*`) no las persistimos como recipeId — no
+    // existen en la colección /recipes. Solo IDs reales del usuario.
+    recipeId: state.recipe?.id && !state.recipe.id.startsWith('std:')
+      ? state.recipe.id
+      : undefined,
+    // Cast: state.coffee llega readonly desde useVertidoSession; el helper
+    // solo lee, no muta.
+    coffeeProfileSnapshot: coffeeToProfile(state.coffee as any),
+    satisfaction: SATISFACTION_MAP[action],
+    contributesToCommunity: false,
+  }
+  await outcomes.create(payload)
+}
 
 const meta = computed(() => {
   const c = state.coffee
@@ -26,6 +68,9 @@ const meta = computed(() => {
 
 async function choose(action: VertidoOutcomeAction) {
   setOutcome(action)
+  // Snapshot antes de reset — el reset borra state.method/dose/etc.
+  // Fire-and-forget: no esperamos al write para navegar (~200ms typical).
+  persistOutcome(action).catch(() => { /* logged en store */ })
   const coffeeId = state.coffee?.id
   reset()
   if (action === 'tasting' && coffeeId) {
