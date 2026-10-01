@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { Tasting } from '~/types'
+import { dayLabel, hourLabel, toDate } from '~/utils/dates'
 
 // Diario v2: la home es la línea de tiempo de tus notas, agrupada por día.
 // Sin estadísticas ni checklist: la única acción es anotar.
@@ -15,33 +16,12 @@ onMounted(async () => {
   finally { ready.value = true }
 })
 
-function toDate(ts: any): Date | null {
-  if (!ts) return null
-  if (typeof ts.toDate === 'function') return ts.toDate()
-  if (typeof ts.seconds === 'number') return new Date(ts.seconds * 1000)
-  return ts instanceof Date ? ts : null
-}
-
-function dayLabel(d: Date): string {
-  const today = new Date()
-  const start = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime()
-  const diff = Math.round((start(today) - start(d)) / 86400000)
-  if (diff === 0) return 'Hoy'
-  if (diff === 1) return 'Ayer'
-  if (diff < 7) {
-    const wd = new Intl.DateTimeFormat('es', { weekday: 'long' }).format(d)
-    return `${wd.charAt(0).toUpperCase()}${wd.slice(1)} ${d.getDate()}`
-  }
-  return new Intl.DateTimeFormat('es', { day: 'numeric', month: 'short', year: d.getFullYear() === today.getFullYear() ? undefined : 'numeric' })
-    .format(d).replace('.', '')
-}
-
 const groups = computed(() => {
   const out: { day: string, items: { t: Tasting, eyebrow: string }[] }[] = []
   for (const t of tastingsStore.list as Tasting[]) {
     const d = toDate(t.brewDate) || toDate(t.createdAt)
     const day = d ? dayLabel(d) : 'Sin fecha'
-    const hour = d ? `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}` : ''
+    const hour = d ? hourLabel(d) : ''
     const method = t.brewMethod && t.brewMethod !== 'other' ? getBrewMethodLabel(t.brewMethod) : ''
     let g = out.find(x => x.day === day)
     if (!g) out.push(g = { day, items: [] })

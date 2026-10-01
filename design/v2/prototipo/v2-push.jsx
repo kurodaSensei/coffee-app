@@ -10,8 +10,8 @@ function NoteDetail({ app, id }) {
       <div className="d-top">
         <span className="row-t"><span className="meta soft">{c.brand} · {n.day}, {n.hour}</span>
           <button type="button" className="d-name" onClick={() => app.push({ type: 'editCafe', id: c.id })}>{c.name}<Icon n="right" s={20} w={2} /></button></span>
-        <span className="score-badge"><span>{n.rating}</span><span className="caption">{SCORE[n.rating]}</span></span>
       </div>
+      <div className="d-score"><span className="d-num">{n.rating}</span><span className="d-word">{SCORE[n.rating].toLowerCase()}</span></div>
       {n.flavors.length > 0 && <div className="wrap">{n.flavors.map(f => <span key={f} className="mini-chip lg">{f}</span>)}</div>}
       {n.text && <p className="quote">“{n.text}”</p>}
       <div className="d-grid">

@@ -123,7 +123,7 @@ function onSwipeEnd(e: TouchEvent) {
 
     <div class="flex-1 flex flex-col min-w-0">
       <main
-        class="flex-1 pb-[calc(var(--tabbar-height)+env(safe-area-inset-bottom)+8px)] lg:pb-0 pt-[env(safe-area-inset-top)]"
+        :class="['flex-1 lg:pb-0 pt-[env(safe-area-inset-top)]', route.meta.hideTabBar ? '' : 'pb-[calc(var(--tabbar-height)+env(safe-area-inset-bottom)+8px)]']"
         @touchstart.passive="onSwipeStart"
         @touchend.passive="onSwipeEnd"
       >
@@ -131,7 +131,7 @@ function onSwipeEnd(e: TouchEvent) {
       </main>
     </div>
 
-    <AppTabBar class="lg:hidden" />
+    <AppTabBar v-if="!route.meta.hideTabBar" class="lg:hidden" />
     <NoteSheet />
   </div>
 </template>

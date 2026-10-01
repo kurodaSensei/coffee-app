@@ -66,10 +66,11 @@ function FeedCard({ p, app, list }) {
       <span className="avatar" style={{ background: p.color }}>{p.initial}</span>
       <span className="row-t"><span className="body-strong sm">{p.user}</span><span className="caption soft">{p.when} · {p.method}</span></span>
       {list === 'discover' ? <button type="button" className={'btn tiny' + (p.follows ? ' on' : '')} onClick={() => app.toggleFollow(p.id)}>{p.follows ? 'Siguiendo' : 'Seguir'}</button>
-        : <span className="score fc-score">{p.rating}</span>}
+        : null}
     </div>
     <div className="fc-body"><span className="row-t"><span className="coffee-name sm">{p.cafe}</span><span className="body sm">{p.text}</span></span></div>
     <div className="fc-actions">
+      <span className="fc-score-a"><span className="m-word">{SCORE[p.rating].toLowerCase()}</span><span className="m-num">{p.rating}</span></span>
       <button type="button" aria-pressed={p.cheered} className={'pill' + (p.cheered ? ' on' : '')} onClick={() => app.toggleCheer(list, p.id)}><Icon n="cup" s={16} w={p.cheered ? 2 : 1.75} />{p.cheered ? `Brindaste · ${p.cheers}` : 'Brindar'}</button>
       {!mine && <button type="button" aria-pressed={wished} className={'pill' + (wished ? ' kept' : '')} onClick={() => app.toggleWish(p)}><Icon n="bookmark" s={16} w={wished ? 2 : 1.75} style={{ fill: wished ? 'currentColor' : 'none' }} />{wished ? 'En tu lista' : 'Quiero probarlo'}</button>}
     </div>

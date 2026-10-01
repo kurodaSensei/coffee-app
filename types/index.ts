@@ -149,6 +149,8 @@ export interface Tasting {
   isFavorite?: boolean
   /** Sabores elegidos en la nota rápida v2 (chips «Sabores»). */
   flavorNotes?: string[]
+  /** Brindis de otras personas: uid → true (ver composables/useCheers). */
+  cheers?: Record<string, true>
   sharedWith?: string[]
   /** Nivel de visibilidad. Ausente = 'private' (documentos antiguos). */
   visibility?: Visibility

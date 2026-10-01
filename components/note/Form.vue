@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import type { BrewMethod, Coffee, CoffeeInput, Recipe, Tasting, TastingInput, WishlistItem } from '~/types'
 import { SCORE_WORDS, scoreToRating } from '~/utils/score'
+import { fmtSeconds } from '~/utils/dates'
 
 // Nota rápida v2 (design/v2/prototipo, «Nueva nota»): café, puntaje,
 // sabores y nota en una sola pantalla. El café no es un paso previo: si el
@@ -117,11 +118,6 @@ const water = ref('')
 const time = ref('')
 const fromLast = ref(false)
 
-function fmtSeconds(s?: number) {
-  if (!s) return ''
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-}
-
 function parseTime(v: string): number | undefined {
   const m = v.trim().match(/^(\d+)(?::(\d{1,2}))?$/)
   if (!m) return undefined
@@ -192,22 +188,26 @@ const saveHint = computed(() => !norm(name.value) ? 'Escribe el café y elige un
 async function save() {
   if (!canSave.value) return
   saving.value = true
+  // Se fijan antes de crear el café: al añadirlo, `match` lo encuentra y
+  // `wish` deja de apuntar al elemento de Quiero probar.
+  const isNewCoffee = !match.value
+  const wishItem = wish.value
   try {
     let coffee = match.value
     if (!coffee) {
       const payload: CoffeeInput = {
         name: name.value.trim(),
-        roasterName: brand.value.trim() || wish.value?.roasterName || undefined,
-        roasterId: wish.value?.roasterId || undefined,
-        variety: wish.value?.variety || '',
+        roasterName: brand.value.trim() || wishItem?.roasterName || undefined,
+        roasterId: wishItem?.roasterId || undefined,
+        variety: wishItem?.variety || '',
         process: 'other',
         originRegion: '',
         originCountry: '',
         flavorNotes: [],
       }
       const id = await createCoffee(payload)
-      await coffeesStore.loadAll()
-      coffee = (coffeesStore.list as Coffee[]).find(c => c.id === id) ?? ({ id, ...payload } as Coffee)
+      coffee = { id, ...payload, createdAt: Timestamp.now(), updatedAt: Timestamp.now() } as Coffee
+      coffeesStore.upsertLocal(coffee)
     }
 
     const friendUids = friendsStore.friendUids as string[]
@@ -234,14 +234,14 @@ async function save() {
     const id = await tastingsStore.create(tasting)
 
     // Sale de «Quiero probar» sin un segundo aviso: el toast de la nota basta.
-    if (wish.value) {
-      await updateWishlistItem(wish.value.id, { status: 'purchased' })
-        .then(() => wishlistStore.loadAll())
+    if (wishItem) {
+      await updateWishlistItem(wishItem.id, { status: 'purchased' })
+        .then(() => wishlistStore.upsertLocal({ ...wishItem, status: 'purchased' }))
         .catch(() => {})
     }
     trackEvent('note_saved', {
-      new_coffee: !match.value,
-      from_wishlist: !!wish.value,
+      new_coffee: isNewCoffee,
+      from_wishlist: !!wishItem,
       score: score.value,
       flavors: flavors.value.length,
       has_text: !!text.value.trim(),

@@ -28,6 +28,7 @@ Las pantallas de referencia están en el canvas «Sorbo · Rediseño app».
 - `primary` (oliva en claro, salvia en oscuro) marca lo elegido y la acción de guardar. Texto encima: `on-primary`.
 - `brand-jungle` + `brand-honey` es la firma de marca y se reserva para: el botón +, el puntaje elegido (selector y detalle de nota) y la tarjeta «¿Qué estás tomando hoy?». Si aparece en más sitios pierde fuerza.
 - Estados seleccionados en `primary` (chip elegido, «Brindaste», «Siguiendo»). Excepción: «En tu lista» queda en `bg` con el icono de marcador relleno, para no tener dos rellenos oliva en la misma tarjeta.
+- **El puntaje nunca se pinta sobre el círculo** (variante A): en tarjetas y feed va abajo a la derecha («muy rico 4»); en el detalle de nota, el número grande va bajo el nombre del café con la palabra en itálica.
 - Los círculos de la tarjeta de café (`blob-honey`, `blob-sage`, `blob-clay`, `blob-neutral`) son decorativos, al 70 % de opacidad y sin texto encima. Cada café recibe uno al crearse, en rotación. Si su proceso tiene color propio (procesos creados por la persona, paleta `process-1` … `process-6`; los procesos de catálogo usan `process-washed`, `process-natural`, `process-honey`, `process-anaerobic`), se usa ese.
 - Texto: `ink` y `ink-soft`. `ink-faint` no se usa para texto (3:1 sobre `bg`).
 - `danger` solo para errores, borrar y el punto de notificaciones.
