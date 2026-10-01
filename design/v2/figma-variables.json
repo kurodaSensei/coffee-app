@@ -331,6 +331,272 @@
           "description": "Texto de apoyo sobre action-bg (p. ej. 'Muy rico')."
         },
         {
+          "name": "color/blob-honey",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.898,
+              "g": 0.7216,
+              "b": 0.2941,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.898,
+              "g": 0.7216,
+              "b": 0.2941,
+              "a": 1
+            }
+          },
+          "description": "Círculo decorativo de la tarjeta de café (de v1). Se pinta al 70 % de opacidad sobre surface. Nunca lleva texto encima."
+        },
+        {
+          "name": "color/blob-sage",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.5882,
+              "g": 0.702,
+              "b": 0.4157,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.5882,
+              "g": 0.702,
+              "b": 0.4157,
+              "a": 1
+            }
+          },
+          "description": "Círculo decorativo de la tarjeta de café, al 70 %."
+        },
+        {
+          "name": "color/blob-clay",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.851,
+              "g": 0.5412,
+              "b": 0.4157,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.851,
+              "g": 0.5412,
+              "b": 0.4157,
+              "a": 1
+            }
+          },
+          "description": "Círculo decorativo de la tarjeta de café, al 70 %."
+        },
+        {
+          "name": "color/blob-neutral",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.8941,
+              "g": 0.8902,
+              "b": 0.8235,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.1529,
+              "g": 0.1725,
+              "b": 0.1373,
+              "a": 1
+            }
+          },
+          "description": "Círculo para cafés sin color asignado."
+        },
+        {
+          "name": "color/process-1",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.7253,
+              "g": 0.8323,
+              "b": 0.9461,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.7253,
+              "g": 0.8323,
+              "b": 0.9461,
+              "a": 1
+            }
+          },
+          "description": "Color 1 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-2",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.6841,
+              "g": 0.8736,
+              "b": 0.8829,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.6841,
+              "g": 0.8736,
+              "b": 0.8829,
+              "a": 1
+            }
+          },
+          "description": "Color 2 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-3",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.8088,
+              "g": 0.8746,
+              "b": 0.7064,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.8088,
+              "g": 0.8746,
+              "b": 0.7064,
+              "a": 1
+            }
+          },
+          "description": "Color 3 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-4",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.945,
+              "g": 0.7819,
+              "b": 0.675,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.945,
+              "g": 0.7819,
+              "b": 0.675,
+              "a": 1
+            }
+          },
+          "description": "Color 4 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-5",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.7921,
+              "g": 0.7933,
+              "b": 0.9208,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.7921,
+              "g": 0.7933,
+              "b": 0.9208,
+              "a": 1
+            }
+          },
+          "description": "Color 5 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-6",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.9206,
+              "g": 0.756,
+              "b": 0.801,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.9206,
+              "g": 0.756,
+              "b": 0.801,
+              "a": 1
+            }
+          },
+          "description": "Color 6 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-washed",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.7363,
+              "g": 0.8701,
+              "b": 0.7929,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.7363,
+              "g": 0.8701,
+              "b": 0.7929,
+              "a": 1
+            }
+          },
+          "description": "Color del proceso de catálogo «Lavado»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo."
+        },
+        {
+          "name": "color/process-natural",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.9287,
+              "g": 0.762,
+              "b": 0.7321,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.9287,
+              "g": 0.762,
+              "b": 0.7321,
+              "a": 1
+            }
+          },
+          "description": "Color del proceso de catálogo «Natural»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo."
+        },
+        {
+          "name": "color/process-honey",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.9168,
+              "g": 0.8359,
+              "b": 0.6702,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.9168,
+              "g": 0.8359,
+              "b": 0.6702,
+              "a": 1
+            }
+          },
+          "description": "Color del proceso de catálogo «Honey»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo."
+        },
+        {
+          "name": "color/process-anaerobic",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.8474,
+              "g": 0.7592,
+              "b": 0.8673,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.8474,
+              "g": 0.7592,
+              "b": 0.8673,
+              "a": 1
+            }
+          },
+          "description": "Color del proceso de catálogo «Anaeróbico»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo."
+        },
+        {
           "name": "color/danger",
           "type": "COLOR",
           "valuesByMode": {
@@ -502,12 +768,20 @@
           "description": "Barra de pestañas incluyendo zona segura inferior."
         },
         {
-          "name": "size/thumb-size",
+          "name": "size/blob-size",
           "type": "FLOAT",
           "valuesByMode": {
-            "Default": 72.0
+            "Default": 104.0
           },
-          "description": "Miniatura de foto en la tarjeta de nota."
+          "description": "Diámetro del círculo de la tarjeta de café; se desplaza -34 px arriba y a la derecha para quedar recortado."
+        },
+        {
+          "name": "size/dot-size",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 40.0
+          },
+          "description": "Círculo de color en filas de lista (buscador, vista previa de proceso). Sustituye la miniatura de foto: v2 no maneja fotos."
         }
       ]
     }

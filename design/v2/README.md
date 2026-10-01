@@ -26,7 +26,9 @@ Las pantallas de referencia están en el canvas «Sorbo · Rediseño app».
 
 - Fondo `bg`; todo lo agrupable vive en `surface` con radio, **sin bordes finos**. `line` solo separa filas dentro de una lista agrupada.
 - `primary` (oliva en claro, salvia en oscuro) marca lo elegido y la acción de guardar. Texto encima: `on-primary`.
-- `brand-jungle` + `brand-honey` es la firma de marca y se reserva para: el botón +, el puntaje elegido y la tarjeta «¿Qué estás tomando hoy?». Si aparece en más sitios pierde fuerza.
+- `brand-jungle` + `brand-honey` es la firma de marca y se reserva para: el botón +, el puntaje elegido (selector y detalle de nota) y la tarjeta «¿Qué estás tomando hoy?». Si aparece en más sitios pierde fuerza.
+- Estados seleccionados en `primary` (chip elegido, «Brindaste», «Siguiendo»). Excepción: «En tu lista» queda en `bg` con el icono de marcador relleno, para no tener dos rellenos oliva en la misma tarjeta.
+- Los círculos de la tarjeta de café (`blob-honey`, `blob-sage`, `blob-clay`, `blob-neutral`) son decorativos, al 70 % de opacidad y sin texto encima. Cada café recibe uno al crearse, en rotación. Si su proceso tiene color propio (procesos creados por la persona, paleta `process-1` … `process-6`; los procesos de catálogo usan `process-washed`, `process-natural`, `process-honey`, `process-anaerobic`), se usa ese.
 - Texto: `ink` y `ink-soft`. `ink-faint` no se usa para texto (3:1 sobre `bg`).
 - `danger` solo para errores, borrar y el punto de notificaciones.
 
@@ -34,11 +36,13 @@ Las pantallas de referencia están en el canvas «Sorbo · Rediseño app».
 
 | Familia | Rol | Estilos |
 | --- | --- | --- |
-| DM Serif Display | Títulos de pantalla, nombres de café, puntaje, la cita de la nota | `title-lg`, `title-md`, `coffee-name`, `score`, `quote` |
+| DM Serif Display | Títulos de pantalla, nombres de café, puntaje, la cita de la nota, la marca en la tarjeta | `title-lg`, `title-md`, `coffee-name`, `card-name`, `card-by`, `score`, `card-score`, `card-score-word`, `quote` |
 | Geist | Toda la interfaz | `body`, `body-strong`, `button`, `label`, `meta`, `caption`, `tab` |
-| JetBrains Mono | Solo cifras de preparación | `data` |
+| JetBrains Mono | Cifras de preparación y el encabezado de la tarjeta de café | `data`, `card-eyebrow` |
 
-Retirados de v1: eyebrows mono en mayúsculas (`— CAFÉ`), ayudas en serif itálica bajo cada campo, saludos de 40–96 px.
+Retirados de v1: eyebrows mono en mayúsculas como etiquetas de campo y sección, ayudas en serif itálica bajo cada campo, saludos de 40–96 px.
+
+Vuelven de v1, solo en la tarjeta de café: el encabezado mono en mayúsculas (`card-eyebrow`, «— V60 · 8:14», 11 px en mayúsculas) y la marca en serif itálica (`card-by`, «de [Marca]»). Fueron lo más valorado de v1 y dan el tono editorial; fuera de la tarjeta siguen retirados.
 
 ### Espacio, radios y tamaños
 
@@ -50,6 +54,10 @@ Retirados de v1: eyebrows mono en mayúsculas (`— CAFÉ`), ayudas en serif it�
 
 - Una sola sombra: `shadow-sheet`, para hojas inferiores. Las tarjetas no llevan sombra.
 - Crear y editar se hace en hojas que suben desde abajo; el detalle se abre empujando la pantalla. Transiciones de 200 ms con `cubic-bezier(0.4, 0, 0.2, 1)`; respetar `prefers-reduced-motion`.
+
+## Fotos
+
+v2 no maneja fotos. La identidad visual de cada café la da su círculo de color; en listas se usa un círculo de `dot-size`.
 
 ## Iconografía
 
@@ -66,7 +74,7 @@ Barra inferior de 84 px: **Diario · Amigos · + · Preparar · Yo**. El + abre 
 - **Switch**: interruptor para compartir y recordatorios.
 - **Field**: campo relleno con etiqueta encima.
 - **ScorePicker**: cinco opciones con número y palabra.
-- **NoteCard**: la entrada del diario.
+- **NoteCard** (tarjeta de café): la entrada del diario y de Mis cafés; estilo editorial heredado de v1, sin fotos.
 - **ListGroup**: filas agrupadas en Yo y Ajustes.
 - **TabBar**: barra inferior con el botón + central.
 
