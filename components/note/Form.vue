@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import type { BrewMethod, Coffee, CoffeeInput, Recipe, Tasting, TastingInput, WishlistItem } from '~/types'
+import type { NotePrefill } from '~/stores/ui'
 import { SCORE_WORDS, scoreToRating } from '~/utils/score'
 import { fmtSeconds } from '~/utils/dates'
 
@@ -12,6 +13,8 @@ import { fmtSeconds } from '~/utils/dates'
 const props = defineProps<{
   /** Precarga el café (Repetir, «Cata este café», cierre del Vertido). */
   initialCoffeeId?: string | null
+  /** Café de Quiero probar o datos del temporizador. */
+  prefill?: NotePrefill | null
 }>()
 
 const emit = defineEmits<{
@@ -117,6 +120,7 @@ const dose = ref('')
 const water = ref('')
 const time = ref('')
 const fromLast = ref(false)
+const recipeName = ref('')
 
 function parseTime(v: string): number | undefined {
   const m = v.trim().match(/^(\d+)(?::(\d{1,2}))?$/)
@@ -125,7 +129,11 @@ function parseTime(v: string): number | undefined {
 }
 
 // Al elegir un café con notas previas, «Más detalles» se llena como la última vez.
+// Si la nota llega desde el temporizador, sus datos mandan sobre «la última vez».
+const keepDetails = ref(false)
+
 watch(() => match.value?.id, () => {
+  if (keepDetails.value) return
   const t = lastNote.value
   if (!t) { fromLast.value = false; return }
   method.value = t.brewMethod
@@ -136,6 +144,7 @@ watch(() => match.value?.id, () => {
 })
 
 function useRecipe(r: Recipe) {
+  recipeName.value = r.name
   method.value = r.brewMethod
   dose.value = String(r.dose)
   water.value = String(r.water)
@@ -180,6 +189,23 @@ watch(
   { immediate: true },
 )
 
+// Precarga desde Quiero probar («Anotar») o desde el temporizador.
+onMounted(() => {
+  const p = props.prefill
+  if (!p) return
+  if (p.name) pick({ name: p.name, brand: p.brand || '' })
+  if (p.method || p.dose || p.water || p.time) {
+    method.value = (p.method || '') as BrewMethod | ''
+    dose.value = p.dose ? String(p.dose) : ''
+    water.value = p.water ? String(p.water) : ''
+    time.value = fmtSeconds(p.time)
+    recipeName.value = p.recipeName || ''
+    fromLast.value = false
+    moreOpen.value = true
+    keepDetails.value = true
+  }
+})
+
 // ─── Guardar ────────────────────────────────────────────────────────────────
 const saving = ref(false)
 const canSave = computed(() => !!norm(name.value) && score.value > 0 && !saving.value)
@@ -223,6 +249,7 @@ async function save() {
       water: Number(water.value) || undefined,
       ratio: ratio.value !== '—' ? ratio.value : undefined,
       brewTime,
+      recipeName: recipeName.value || undefined,
       ratingOverall: scoreToRating(score.value),
       flavorNotes: flavors.value,
       personalNotes: text.value.trim() || undefined,
@@ -385,7 +412,7 @@ async function save() {
               type="button"
               class="nf-chip"
               :aria-pressed="method === m.value"
-              @click="method = method === m.value ? '' : (m.value as BrewMethod); fromLast = false"
+              @click="method = method === m.value ? '' : (m.value as BrewMethod); fromLast = false; recipeName = ''"
             >
               {{ m.label }}
             </button>

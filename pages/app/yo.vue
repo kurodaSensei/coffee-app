@@ -58,7 +58,7 @@ const streak = computed(() => {
       <h2 class="yo-label">Mi colección</h2>
       <div class="yo-list">
         <NuxtLink to="/app/coffees" class="yo-row"><span>Mis cafés</span><span class="yo-end">{{ coffeesStore.list.length }} ›</span></NuxtLink>
-        <NuxtLink to="/app/wishlist" class="yo-row"><span>Quiero probar</span><span class="yo-end">{{ pending }} ›</span></NuxtLink>
+        <NuxtLink to="/app/coffees?f=wish" class="yo-row"><span>Quiero probar</span><span class="yo-end">{{ pending }} ›</span></NuxtLink>
         <NuxtLink to="/app/friends" class="yo-row"><span>Mis amigos</span><span class="yo-end">›</span></NuxtLink>
       </div>
     </section>

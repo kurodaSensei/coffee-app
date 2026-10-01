@@ -44,6 +44,7 @@ onUnmounted(() => {
         <NoteForm
           :key="`${ui.noteSheet.coffeeId ?? 'nueva'}`"
           :initial-coffee-id="ui.noteSheet.coffeeId"
+          :prefill="ui.noteSheet.prefill"
           @cancel="close"
           @saved="onSaved"
         />

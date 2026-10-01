@@ -38,7 +38,7 @@ const sidebarSections = [
     title: 'Tu colección',
     items: [
       { key: 'coffees', label: 'Mis cafés', to: '/app/coffees' },
-      { key: 'wishlist', label: 'Quiero probar', to: '/app/wishlist' },
+      { key: 'wishlist', label: 'Quiero probar', to: '/app/coffees?f=wish' },
       { key: 'friends', label: 'Mis amigos', to: '/app/friends' },
     ],
   },

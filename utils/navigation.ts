@@ -12,7 +12,7 @@ export interface AppTab {
 export const APP_TABS: AppTab[] = [
   { key: 'diario', label: 'Diario', to: '/app', icon: 'book', match: ['/app/tastings'] },
   { key: 'amigos', label: 'Amigos', to: '/app/explore', icon: 'users', match: ['/app/friends'] },
-  { key: 'preparar', label: 'Preparar', to: '/app/recipes', icon: 'timer', match: ['/app/vertido'] },
+  { key: 'preparar', label: 'Preparar', to: '/app/recipes', icon: 'timer', match: ['/app/vertido', '/app/timer'] },
   {
     key: 'yo',
     label: 'Yo',
