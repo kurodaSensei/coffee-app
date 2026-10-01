@@ -16,6 +16,18 @@ interface ModalState {
 export const useUiStore = defineStore('ui', () => {
   const sidebarOpen = ref(false)
   const toasts = ref<Toast[]>([])
+  // Hoja «Nueva nota» (v2): se abre desde el botón + de la barra, la tarjeta
+  // del Diario o «Repetir». `coffeeId` precarga el café.
+  const noteSheet = ref<{ open: boolean, coffeeId: string | null }>({ open: false, coffeeId: null })
+
+  function openNoteSheet(coffeeId: string | null = null) {
+    noteSheet.value = { open: true, coffeeId }
+  }
+
+  function closeNoteSheet() {
+    noteSheet.value = { ...noteSheet.value, open: false }
+  }
+
   const modal = ref<ModalState>({
     open: false,
     component: null,
@@ -62,6 +74,9 @@ export const useUiStore = defineStore('ui', () => {
     sidebarOpen,
     toasts,
     modal,
+    noteSheet,
+    openNoteSheet,
+    closeNoteSheet,
     toggleSidebar,
     openSidebar,
     closeSidebar,
